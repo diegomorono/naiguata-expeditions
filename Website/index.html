@@ -31,13 +31,6 @@
                 <a href="#checklist-section" class="nav-link client-only-link">Equipaje</a>
                 <a href="#booking-form-section" class="nav-link btn-book client-only-link">Reservar</a>
                 <a href="https://wa.me/34673375681" target="_blank" class="nav-link client-only-link">Contacto</a>
-                <button id="btn-toggle-admin" class="btn-secondary">
-                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                    <span>Panel de Guía</span>
-                </button>
             </nav>
         </div>
     </header>
@@ -273,6 +266,18 @@
                             </div>
                         </div>
 
+                        <!-- Date Picker Section -->
+                        <div class="form-group-title">Fecha de Expedición</div>
+                        <div class="form-row">
+                            <div class="form-input-wrapper full-width">
+                                <label for="booking-date">Sábados Disponibles *</label>
+                                <select id="booking-date" required>
+                                    <!-- Populated dynamically by app.js -->
+                                </select>
+                                <span class="input-tip">Elige el sábado que prefieras para tu ascenso.</span>
+                            </div>
+                        </div>
+
                         <!-- Logistics & Health Group -->
                         <div class="form-group-title">Salud y Alimentación</div>
                         
@@ -303,32 +308,71 @@
                             <textarea id="hiker-medical" rows="3" placeholder="Ej. Sufro de asma (llevo mi inhalador), o alergia severa al maní."></textarea>
                         </div>
 
-                        <!-- Custom Gear Rentals -->
-                        <div class="form-group-title">Alquiler de Equipamiento Adicional (Opcional)</div>
-                        <p class="section-desc-small">Si no dispones del equipo obligatorio, puedes alquilarlo con nosotros para la expedición:</p>
+                        <!-- Custom Gear Rentals & Snacks -->
+                        <div class="form-group-title">Alquileres y Provisiones</div>
+                        <p class="section-desc-small">Elige los equipos adicionales, snacks opcionales y servicio de portador:</p>
                         
                         <div class="rental-options">
-                            <label class="rental-item glass-panel-hover">
-                                <input type="checkbox" class="rental-checkbox" data-item="sleeping-bag" data-price="10">
-                                <div class="rental-details">
-                                    <span class="rental-name">Saco de Dormir (Sleeping Bag) - Clima Frío</span>
-                                    <span class="rental-price">+$10 USD</span>
-                                </div>
-                            </label>
-                            <label class="rental-item glass-panel-hover">
-                                <input type="checkbox" class="rental-checkbox" data-item="sleeping-pad" data-price="5">
-                                <div class="rental-details">
-                                    <span class="rental-name">Aislante Térmico (Sleeping Pad)</span>
-                                    <span class="rental-price">+$5 USD</span>
-                                </div>
-                            </label>
-                            <label class="rental-item glass-panel-hover">
-                                <input type="checkbox" class="rental-checkbox" data-item="trekking-poles" data-price="5">
-                                <div class="rental-details">
-                                    <span class="rental-name">Bastones de Trekking (Par)</span>
-                                    <span class="rental-price">+$5 USD</span>
-                                </div>
-                            </label>
+                            <!-- Populated dynamically by app.js -->
+                        </div>
+
+                        <!-- Simplified Payments Module -->
+                        <div class="form-group-title">Módulo de Pago</div>
+                        <div class="form-row">
+                            <div class="form-input-wrapper full-width">
+                                <label for="payment-method-select">Método de Pago *</label>
+                                <select id="payment-method-select" required>
+                                    <option value="" disabled selected>Selecciona tu forma de pago</option>
+                                    <option value="Pago Móvil">Pago Móvil (VES al cambio BCV)</option>
+                                    <option value="Binance">Binance Pay (USDT)</option>
+                                    <option value="Zelle">Zelle (USD)</option>
+                                    <option value="Efectivo">Efectivo el día del tour (USD)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Payment instructions based on selection -->
+                        <div id="pay-info-pagomovil" class="payment-info-block glass-panel hidden" style="margin-top:10px; padding: 15px;">
+                            <h5 style="margin-top:0; color:var(--primary);">Datos para Pago Móvil (Banesco)</h5>
+                            <p style="font-size:0.85rem; color:var(--text-muted); margin: 5px 0 10px 0; line-height: 1.5;">
+                                📱 <strong>Celular:</strong> 04262062588 <br>
+                                💳 <strong>Cédula:</strong> V-24.218.655 <br>
+                                🏦 <strong>Banco:</strong> Banesco
+                            </p>
+                        </div>
+
+                        <div id="pay-info-binance" class="payment-info-block glass-panel hidden" style="margin-top:10px; padding: 15px; text-align: center;">
+                            <h5 style="margin-top:0; color:var(--primary);">Binance Pay (USDT)</h5>
+                            <p style="font-size:0.85rem; color:var(--text-muted); margin: 5px 0 10px 0;">
+                                📩 <strong>Email:</strong> thecardanomerch@gmail.com
+                            </p>
+                            <!-- Placeholder QR code styling -->
+                            <div style="width: 120px; height: 120px; background: rgba(255,255,255,0.05); border: 2px dashed rgba(255,255,255,0.2); border-radius: 8px; margin: 10px auto; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--text-muted);">
+                                QR Binance Pay
+                            </div>
+                        </div>
+
+                        <div id="pay-info-zelle" class="payment-info-block glass-panel hidden" style="margin-top:10px; padding: 15px;">
+                            <h5 style="margin-top:0; color:var(--primary);">Zelle (USD)</h5>
+                            <p style="font-size:0.85rem; color:var(--text-muted); margin: 5px 0 10px 0; line-height: 1.5;">
+                                👤 <strong>Titular:</strong> Diego Moroño <br>
+                                📩 <strong>Email:</strong> diego.morono03@gmail.com
+                            </p>
+                        </div>
+
+                        <div id="pay-info-efectivo" class="payment-info-block glass-panel hidden" style="margin-top:10px; padding: 15px;">
+                            <h5 style="margin-top:0; color:var(--secondary);">Pago en Efectivo</h5>
+                            <p style="font-size:0.85rem; color:var(--text-muted); margin: 5px 0 0 0;">
+                                El pago se entregará al guía en persona el día del inicio del tour en La Julia.
+                            </p>
+                        </div>
+
+                        <div class="form-row" id="payment-ref-row" style="margin-top:15px;">
+                            <div class="form-input-wrapper full-width">
+                                <label for="payment-reference">Número de Referencia / Comprobante / C.I. *</label>
+                                <input type="text" id="payment-reference" required placeholder="Ej. 12345678 o C.I. del pagador">
+                                <span class="input-tip">Ingresa el número de referencia bancario, ID de Binance, email de Zelle o tu Cédula de Identidad.</span>
+                            </div>
                         </div>
 
                         <!-- Price Summary -->
@@ -338,7 +382,7 @@
                                 <span>$50.00 USD</span>
                             </div>
                             <div id="rental-summary-row" class="summary-line hidden">
-                                <span>Alquiler de Equipamiento:</span>
+                                <span>Adicionales (Alquileres/Snacks/Portador):</span>
                                 <span id="rental-cost-display">+$0.00 USD</span>
                             </div>
                             <hr class="summary-divider">
@@ -349,6 +393,11 @@
                                     <span class="total-ves" id="form-total-ves">Bs. 0.00</span>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Floating Totalizer Label -->
+                        <div id="floating-bar-total" style="background: rgba(16, 185, 129, 0.95); color: white; padding: 12px 20px; font-weight: 700; border-radius: 8px; text-align: center; margin-top: 10px; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                            Pase de Expedición: Total a Transferir $50.00 USD
                         </div>
 
                         <!-- Safety declaration -->
@@ -480,219 +529,23 @@
 
                 <!-- Success Controls -->
                 <div class="success-actions">
-                    <button id="btn-whatsapp-guide" class="btn-primary" style="background: linear-gradient(135deg, #25D366, #128C7E); box-shadow: 0 4px 14px 0 rgba(37, 211, 102, 0.2);">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" class="btn-icon">
-                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.73-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.625 1.449 5.376 0 9.738-4.364 9.74-9.735.002-2.602-1.01-5.05-2.854-6.898-1.847-1.848-4.301-2.862-6.902-2.863-5.377 0-9.74 4.367-9.743 9.742-.001 1.795.485 3.5 1.402 4.988l-.92 3.36 3.452-.905zm12.336-7.39c-.274-.137-1.62-.8-1.87-.891-.252-.09-.435-.137-.617.137-.182.274-.708.891-.867 1.073-.16.182-.32.206-.593.069-.273-.137-1.155-.425-2.2-1.359-.812-.724-1.36-1.619-1.52-1.892-.16-.273-.018-.42.119-.556.124-.121.273-.32.41-.48.136-.16.182-.273.273-.456.09-.182.046-.341-.023-.48-.069-.137-.617-1.483-.845-2.03-.22-.53-.462-.459-.617-.467-.16-.008-.342-.008-.525-.008-.182 0-.479.069-.73.342-.252.273-.959.937-.959 2.285 0 1.348.981 2.648 1.119 2.83.137.182 1.93 2.946 4.674 4.128.653.282 1.163.451 1.558.577.656.208 1.252.179 1.724.108.527-.079 1.62-.662 1.848-1.299.228-.638.228-1.186.16-1.299-.069-.115-.252-.182-.525-.32z"/>
-                        </svg>
-                        <span>Enviar por WhatsApp al Guía</span>
-                    </button>
-                    <button id="btn-email-guide" class="btn-secondary">
-                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" class="btn-icon">
-                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                            <polyline points="22,6 12,13 2,6"></polyline>
-                        </svg>
-                        <span>Enviar por Email</span>
-                    </button>
-                    <button id="btn-print-pass" class="btn-secondary">
+                    <button id="btn-print-pass" class="btn-primary">
                         <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" class="btn-icon">
                             <polyline points="6 9 6 2 18 2 18 9"></polyline>
                             <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
                             <rect x="6" y="14" width="12" height="8"></rect>
                         </svg>
-                        Imprimir / PDF
+                        Guardar Pase y Manual
                     </button>
-                    <button id="btn-return-home" class="btn-secondary">Volver</button>
+                    <button id="btn-share-adventure" class="btn-outline">
+                        🔗 Compartir Aventura / Respaldo
+                    </button>
+                    <button id="btn-return-home" class="btn-secondary">Volver al Inicio</button>
                 </div>
             </div>
         </section>
 
         <!-- ORGANIZER / ADMIN DASHBOARD VIEW -->
-        <section id="admin-view" class="view-section">
-            <div class="admin-dashboard-container">
-                
-                <!-- Dashboard Header -->
-                <div class="admin-header glass-panel">
-                    <div class="admin-title-area">
-                        <span class="badge badge-orange">Consola de Operaciones</span>
-                        <h2>Panel del Guía - Naiguatá</h2>
-                        <p>Control de logística, carpas, snacks e inscritos para la expedición activa.</p>
-                    </div>
-                    
-                    <div class="admin-quick-stats">
-                        <div class="stat-card">
-                            <span class="stat-label">Senderistas</span>
-                            <span class="stat-num" id="stat-hikers-count">0</span>
-                        </div>
-                        <div class="stat-card">
-                            <span class="stat-label">Grupos</span>
-                            <span class="stat-num" id="stat-groups-count">0</span>
-                        </div>
-                        <div class="stat-card">
-                            <span class="stat-label">Carpas en Uso</span>
-                            <span class="stat-num" id="stat-tents-in-use">0</span>
-                        </div>
-                        <div class="stat-card">
-                            <span class="stat-label">Total Recaudado</span>
-                            <span class="stat-num font-green" id="stat-revenue">$0 USD</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Admin Tabs Grid Layout -->
-                <div class="admin-grid">
-                    
-                    <!-- LEFT COLUMN: Config & Control Panel -->
-                    <div class="admin-control-column">
-                        <!-- Configuration Card -->
-                        <div class="admin-panel-card glass-panel">
-                            <h3>Ajustes Generales</h3>
-                            <div class="form-group-compact">
-                                <label for="admin-bcv-rate">Tasa de Cambio BCV (VES/USD)</label>
-                                <div class="input-with-action">
-                                    <input type="number" step="0.01" id="admin-bcv-rate" value="40.00">
-                                    <button id="btn-update-bcv" class="btn-small-primary">Actualizar</button>
-                                </div>
-                                <span class="input-tip-success" id="admin-bcv-status">Tasa sincronizada con API externa.</span>
-                            </div>
-
-                            <hr class="panel-divider">
-
-                            <h3>Inventario de Carpas</h3>
-                            <p class="section-desc-tiny">Ingresa cuántas carpas de cada tipo llevarás para el grupo:</p>
-                            <div class="tent-inventory-fields">
-                                <div class="form-input-wrapper-compact">
-                                    <label for="tent-stock-2p">Carpas de 2 Personas (2P)</label>
-                                    <input type="number" min="0" id="tent-stock-2p" value="4">
-                                </div>
-                                <div class="form-input-wrapper-compact">
-                                    <label for="tent-stock-3p">Carpas de 3 Personas (3P)</label>
-                                    <input type="number" min="0" id="tent-stock-3p" value="3">
-                                </div>
-                            </div>
-                            <button id="btn-allocate-tents" class="btn-primary btn-full-width mt-10">
-                                ⚙ Reasignar Carpas Automáticamente
-                            </button>
-                        </div>
-
-                        <!-- Data Backup Card -->
-                        <div class="admin-panel-card glass-panel">
-                            <h3>Copia de Seguridad y Datos</h3>
-                            <p class="section-desc-tiny">Exporta las reservas del navegador o importa datos de expediciones anteriores.</p>
-                            <div class="backup-actions">
-                                <button id="btn-export-csv" class="btn-outline btn-full-width">Descargar Reporte CSV</button>
-                                <button id="btn-export-json" class="btn-outline btn-full-width">Exportar Base de Datos (JSON)</button>
-                                
-                                <hr class="panel-divider">
-                                
-                                <label class="btn-outline btn-full-width text-center cursor-pointer">
-                                    <span>Importar Copia JSON</span>
-                                    <input type="file" id="import-json-file" accept=".json" class="hidden">
-                                </label>
-                                <button id="btn-clear-db" class="btn-danger btn-full-width">Limpiar Base de Datos</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- RIGHT COLUMN: Interactive Views (Tabs) -->
-                    <div class="admin-display-column">
-                        <div class="admin-tabs-nav glass-panel">
-                            <button class="tab-btn active" data-tab="tab-roster">📋 Lista de Participantes</button>
-                            <button class="tab-btn" data-tab="tab-snacks">🍌 Plan de Snacks</button>
-                            <button class="tab-btn" data-tab="tab-tents">⛺ Distribución de Carpas</button>
-                        </div>
-
-                        <!-- Tab Content: Roster -->
-                        <div id="tab-roster" class="tab-content active">
-                            <div class="tab-card glass-panel">
-                                <div class="tab-card-header">
-                                    <h3>Roster Oficial de Excursionistas</h3>
-                                    <button id="btn-add-mock" class="btn-secondary btn-small">Añadir Participante Demo</button>
-                                </div>
-                                <div class="table-container">
-                                    <table class="roster-table" id="roster-table-body">
-                                        <thead>
-                                            <tr>
-                                                <th>Senderista</th>
-                                                <th>Contacto</th>
-                                                <th>Grupo</th>
-                                                <th>Género</th>
-                                                <th>Alojamiento</th>
-                                                <th>Salud/Restricciones</th>
-                                                <th>Alquileres</th>
-                                                <th>Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <!-- Dynamically populated by JS -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Tab Content: Snacks -->
-                        <div id="tab-snacks" class="tab-content">
-                            <div class="tab-card glass-panel">
-                                <div class="tab-card-header">
-                                    <h3>Lista de Compras & catering de Montaña</h3>
-                                    <p class="tab-subtitle">Calculado según el total de personas (Guías incluidos de forma automatizada).</p>
-                                </div>
-
-                                <div class="snacks-summary-grid">
-                                    <div class="snack-stat-card">
-                                        <span class="snack-stat-icon">🍌</span>
-                                        <div class="snack-stat-details">
-                                            <span class="snack-stat-num" id="snack-total-bananas">0</span>
-                                            <span class="snack-stat-label">Bananas / Cambures</span>
-                                        </div>
-                                    </div>
-                                    <div class="snack-stat-card">
-                                        <span class="snack-stat-icon">🫓</span>
-                                        <div class="snack-stat-details">
-                                            <span class="snack-stat-num" id="snack-total-bars">0</span>
-                                            <span class="snack-stat-label">Barras Caseras (50g)</span>
-                                        </div>
-                                    </div>
-                                    <div class="snack-stat-card">
-                                        <span class="snack-stat-icon">🥜</span>
-                                        <div class="snack-stat-details">
-                                            <span class="snack-stat-num" id="snack-total-nuts">0 g</span>
-                                            <span class="snack-stat-label">Mix de Frutos Secos</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="snack-operational-alerts" id="snack-alerts-container">
-                                    <!-- Dynamic dietary warnings go here (e.g. Nut allergies warning) -->
-                                </div>
-
-                                <div class="shopping-details-list">
-                                    <h4>Desglose del Pedido / Lista de Compras:</h4>
-                                    <ul class="bullet-list-styled" id="snack-shopping-list">
-                                        <!-- Dynamically generated list -->
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Tab Content: Tents -->
-                        <div id="tab-tents" class="tab-content">
-                            <div class="tab-card glass-panel">
-                                <div class="tab-card-header">
-                                    <h3>Distribución de Pernocta en el Anfiteatro</h3>
-                                    <p class="tab-subtitle">Las carpas se distribuyen priorizando códigos de grupo y agrupando personas por género.</p>
-                                </div>
-
-                                <div class="tents-layout-grid" id="tents-allocation-grid">
-                                    <!-- Dynamic cards representing tents and who's sleeping in each one -->
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
-            </div>
         </section>
     </main>
 
@@ -704,6 +557,8 @@
         </div>
     </footer>
 
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Core App Logic -->
     <script src="app.js"></script>
 </body>

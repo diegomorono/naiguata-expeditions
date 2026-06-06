@@ -1,0 +1,12 @@
+{
+  "name": "naiguata-expeditions",
+  "version": "1.0.0",
+  "description": "Expediciones Naiguatá platform",
+  "main": "build.js",
+  "scripts": {
+    "build": "node build.js",
+    "dev": "npx -y serve Website"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
