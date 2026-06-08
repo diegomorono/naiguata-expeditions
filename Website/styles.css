@@ -2167,3 +2167,104 @@ select option {
 select option:disabled {
     color: rgba(255, 255, 255, 0.3) !important;
 }
+
+/* ==========================================================================
+   ESTILOS SECCIÓN DE ALQUILERES Y PROVISIONES
+   ========================================================================== */
+.form-section-description {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.provisions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.provision-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(0, 230, 118, 0.08);
+    border-radius: 8px;
+    padding: 14px 16px;
+    transition: all 0.2s ease;
+}
+
+.provision-item:hover {
+    background: rgba(0, 230, 118, 0.02);
+    border-color: rgba(0, 230, 118, 0.2);
+}
+
+.provision-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    width: 100%;
+}
+
+/* Esconder el checkbox nativo feo del navegador */
+.provision-checkbox-wrapper input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* Crear nuestro propio checkbox personalizado estilo premium */
+.custom-checkbox {
+    position: relative;
+    height: 20px;
+    width: 20px;
+    background-color: #1a221e;
+    border: 2px solid rgba(0, 230, 118, 0.3);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+/* Efecto cuando el checkbox está seleccionado */
+.provision-checkbox-wrapper input:checked~.custom-checkbox {
+    background-color: var(--primary, #00e676);
+    border-color: var(--primary, #00e676);
+    box-shadow: 0 0 8px rgba(0, 230, 118, 0.4);
+}
+
+/* El check (marquita de visto bueno) interno */
+.custom-checkbox::after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid #040806;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.provision-checkbox-wrapper input:checked~.custom-checkbox::after {
+    display: block;
+}
+
+/* Textos de la descripción del item */
+.provision-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.provision-name {
+    color: #e0e6e3;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.provision-detail {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.85rem;
+}
