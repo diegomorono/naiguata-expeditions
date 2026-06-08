@@ -394,7 +394,6 @@ function initBookingForm() {
 }
 
 function actualizarOpcionesPortador() {
-    const selectAlojamiento = document.getElementById("hiker-tent-preference");
     const selectPortador = document.getElementById("logistic-carrier-select");
     if (!selectPortador) return;
 
@@ -402,39 +401,12 @@ function actualizarOpcionesPortador() {
     const opt3p = document.getElementById("opt-carrier-3p");
     const opt4p = document.getElementById("opt-carrier-4p");
 
-    if (!selectAlojamiento) {
-        if (opt2p) opt2p.disabled = false;
-        if (opt3p) opt3p.disabled = false;
-        if (opt4p) opt4p.disabled = false;
-        return;
-    }
+    // FUERA BLOQUEOS: Forzamos que todas las opciones del portador estén SIEMPRE disponibles para seleccionar
+    if (opt2p) opt2p.disabled = false;
+    if (opt3p) opt3p.disabled = false;
+    if (opt4p) opt4p.disabled = false;
 
-    const opcionSeleccionada = selectAlojamiento.options[selectAlojamiento.selectedIndex];
-    if (!opcionSeleccionada) return;
-
-    const textoCompleto = opcionSeleccionada.text.toLowerCase();
-    const valorCompleto = selectAlojamiento.value.toLowerCase();
-
-    // 1. Deshabilitar todas las opciones por seguridad
-    if (opt2p) opt2p.disabled = true;
-    if (opt3p) opt3p.disabled = true;
-    if (opt4p) opt4p.disabled = true;
-
-    // 2. Activar únicamente la opción exacta que haga match con la carpa
-    if (valorCompleto.includes("4") || textoCompleto.includes("4 personas")) {
-        if (opt4p) opt4p.disabled = false;
-    } else if (valorCompleto.includes("3") || textoCompleto.includes("3 personas")) {
-        if (opt3p) opt3p.disabled = false;
-    } else if (valorCompleto.includes("2") || textoCompleto.includes("2 personas")) {
-        if (opt2p) opt2p.disabled = false;
-    }
-
-    // 3. Si el usuario cambia de carpa y el portador que tenía puesto se deshabilita, se resetea a "No, yo mismo cargaré"
-    if (selectPortador.selectedOptions[0] && selectPortador.selectedOptions[0].disabled) {
-        selectPortador.value = "0";
-    }
-
-    // 4. Reflejar el nuevo costo de manera inmediata en la cotización
+    // Ejecutar el recálculo de precios de la pasarela para reflejar los +$30, +$40 o +$50 al cambiar
     if (typeof updateFormPricing === "function") {
         updateFormPricing();
     }
