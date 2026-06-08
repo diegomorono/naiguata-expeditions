@@ -2138,3 +2138,32 @@ select {
         font-weight: 600 !important;
     }
 }
+
+/* ==========================================================================
+   FIX DE COLOR PARA MENÚS DESPLEGABLES (DROP_DOWNS)
+   ========================================================================== */
+
+/* Forzar el fondo oscuro en el select y en su lista desplegable nativa */
+select,
+#booking-date,
+.form-input-wrapper select {
+    background-color: #1e2622 !important;
+    /* Gris verdoso oscuro que combina con tu UI */
+    color: #e0e6e3 !important;
+    /* Texto claro suave */
+    border: 1px solid rgba(0, 230, 118, 0.2) !important;
+}
+
+/* Apuntar directamente a las opciones internas para destruir el fondo blanco del navegador */
+select option {
+    background-color: #151a17 !important;
+    /* Fondo ultra oscuro para la lista cuando se abre */
+    color: #e0e6e3 !important;
+    /* Texto claro */
+    padding: 10px !important;
+}
+
+/* Evitar que las opciones deshabilitadas (como 'Selecciona un sábado') se vean mal */
+select option:disabled {
+    color: rgba(255, 255, 255, 0.3) !important;
+}
