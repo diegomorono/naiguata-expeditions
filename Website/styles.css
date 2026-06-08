@@ -2527,3 +2527,67 @@ code {
     color: #000;
     border-color: #f4a261;
 }
+
+/* ==========================================================================
+   INTERFAZ PREMIUM PARA SELECTORES (MODO OSCURO)
+   ========================================================================== */
+
+/* Forzar al navegador a usar el motor de renderizado oscuro para elementos nativos */
+select {
+    color-scheme: dark;
+    -webkit-appearance: none;
+    /* Quita el diseño genérico aburrido de Windows/Android */
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2300FA9A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px !important;
+    /* Espacio para que no se pise el texto con la flecha */
+}
+
+/* Estilos específicos para el selector de Portador y Alojamiento */
+#logistic-carrier-select,
+#hiker-tent-preference,
+#payment-method-select,
+#booking-date {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    padding: 12px 16px !important;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+/* Estado cuando el usuario hace clic o se posiciona sobre el select */
+#logistic-carrier-select:focus,
+#hiker-tent-preference:focus,
+#payment-method-select:focus,
+#booking-date:focus {
+    outline: none !important;
+    border-color: var(--primary, #00FA9A) !important;
+    box-shadow: 0 0 0 3px rgba(0, 250, 154, 0.15) !important;
+    background-color: rgba(0, 250, 154, 0.02) !important;
+}
+
+/* Estilizar las opciones desplegables dentro del menú */
+#logistic-carrier-select option,
+#hiker-tent-preference option,
+#payment-method-select option,
+#booking-date option {
+    background-color: #121824 !important;
+    /* Un fondo oscuro sólido para que contraste */
+    color: #ffffff !important;
+    padding: 12px !important;
+}
+
+/* Deshabilitadas o el placeholder inicial */
+#logistic-carrier-select option:disabled,
+#hiker-tent-preference option:disabled,
+#payment-method-select option:disabled {
+    color: rgba(255, 255, 255, 0.3) !important;
+}
