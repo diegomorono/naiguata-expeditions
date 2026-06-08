@@ -1342,31 +1342,46 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("DOMContentLoaded", function () {
 
     // Escuchar el cambio de alojamiento del Paso 1 para la vinculación del portador
-    const selectAlojamiento = document.getElementById("housing-preference-select") || document.querySelector("select[name*='alojamiento']");
+    const selectAlojamiento = document.getElementById("housing-preference-select") ||
+        document.querySelector("select[name*='alojamiento']") ||
+        document.querySelector("select[id*='housing']");
     const selectPortador = document.getElementById("logistic-carrier-select");
 
     if (selectAlojamiento && selectPortador) {
-        selectAlojamiento.addEventListener("change", function () {
-            const val = selectAlojamiento.value;
 
-            // Deshabilitar todas las opciones de portador especializado primero
-            document.getElementById("opt-carrier-2p").disabled = true;
-            document.getElementById("opt-carrier-3p").disabled = true;
-            document.getElementById("opt-carrier-4p").disabled = true;
+        function actualizarOpcionesPortador() {
+            const opcionSeleccionada = selectAlojamiento.options[selectAlojamiento.selectedIndex];
+            if (!opcionSeleccionada) return;
 
-            // Habilitar exclusivamente la vinculada a la capacidad seleccionada
-            if (val.includes("2")) {
-                document.getElementById("opt-carrier-2p").disabled = false;
-            } else if (val.includes("3")) {
-                document.getElementById("opt-carrier-3p").disabled = false;
-            } else if (val.includes("4")) {
-                document.getElementById("opt-carrier-4p").disabled = false;
+            const textoCompleto = opcionSeleccionada.text.toLowerCase();
+            const valorCompleto = selectAlojamiento.value.toLowerCase();
+
+            const opt2p = document.getElementById("opt-carrier-2p");
+            const opt3p = document.getElementById("opt-carrier-3p");
+            const opt4p = document.getElementById("opt-carrier-4p");
+
+            if (opt2p) opt2p.disabled = true;
+            if (opt3p) opt3p.disabled = true;
+            if (opt4p) opt4p.disabled = true;
+
+            // Evalúa de forma robusta tanto el texto como el valor por el número de capacidad
+            if (textoCompleto.includes("2") || valorCompleto.includes("2")) {
+                if (opt2p) opt2p.disabled = false;
+            } else if (textoCompleto.includes("3") || valorCompleto.includes("3")) {
+                if (opt3p) opt3p.disabled = false;
+            } else if (textoCompleto.includes("4") || valorCompleto.includes("4")) {
+                if (opt4p) opt4p.disabled = false;
             }
 
-            // Resetear a la opción por defecto segura ($0)
-            selectPortador.value = "0";
+            if (selectPortador.selectedOptions[0] && selectPortador.selectedOptions[0].disabled) {
+                selectPortador.value = "0";
+            }
+
             calcularTotalExpedicion();
-        });
+        }
+
+        selectAlojamiento.addEventListener("change", actualizarOpcionesPortador);
+        setTimeout(actualizarOpcionesPortador, 500);
     }
 
     // Función unificada de cálculo en tiempo real
