@@ -1373,9 +1373,11 @@ document.addEventListener("DOMContentLoaded", function () {
     function calcularTotalExpedicion() {
         let total = 50.00; // Tarifa Base del Tour Fija por Participante
 
-        // 1. Sumar Subtotal Alquileres de Equipos
-        document.querySelectorAll(".equipment-item:checked").forEach(item => {
-            total += parseFloat(item.getAttribute("data-price"));
+        // 1. Sumar Subtotal Alquileres de Equipos (Multiplicación Dinámica por Cantidad)
+        document.querySelectorAll(".equipment-input").forEach(input => {
+            let qty = parseInt(input.value) || 0;
+            if (qty < 0) qty = 0; // Evitar que metan números negativos tramposos
+            total += qty * parseFloat(input.getAttribute("data-price"));
         });
 
         // 2. Sumar Subtotal Snacks / Catering

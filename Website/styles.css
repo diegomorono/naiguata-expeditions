@@ -2288,40 +2288,6 @@ select option:disabled {
     font-weight: 600;
 }
 
-/* Grid de Equipos */
-.provision-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 10px;
-}
-
-.item-card {
-    position: relative;
-    cursor: pointer;
-}
-
-.item-card input[type="checkbox"] {
-    position: absolute;
-    opacity: 0;
-}
-
-.item-card-content {
-    background: #151a17;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    transition: all 0.2s ease;
-}
-
-.item-card input:checked+.item-card-content {
-    border-color: #00e676;
-    background: rgba(0, 230, 118, 0.05);
-    box-shadow: 0 0 8px rgba(0, 230, 118, 0.2);
-}
-
 .item-name {
     color: #e0e6e3;
     font-size: 0.85rem;
@@ -2402,4 +2368,44 @@ select option:disabled {
     font-size: 1.5rem;
     font-weight: bold;
     text-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
+}
+
+/* Estructura simétrica de filas para Equipos */
+.equipment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.equipment-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #151a17;
+    padding: 10px 14px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.02);
+    transition: border-color 0.2s ease;
+}
+
+.equipment-row:transparent-hover,
+.equipment-row:focus-within {
+    border-color: rgba(0, 230, 118, 0.2);
+}
+
+.equipment-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.equipment-name {
+    color: #e0e6e3;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.equipment-price {
+    color: rgba(0, 230, 118, 0.8);
+    font-size: 0.8rem;
+    font-weight: 600;
 }
