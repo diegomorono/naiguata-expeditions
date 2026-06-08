@@ -2591,3 +2591,58 @@ select {
 #payment-method-select option:disabled {
     color: rgba(255, 255, 255, 0.3) !important;
 }
+
+
+/* ==========================================================================
+   UI PREMIUM PARA BOTONES DE PORTADOR (MODO OSCURO COMPATIBLE CON MÓVILES)
+   ========================================================================== */
+.carrier-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 10px !important;
+    padding: 14px 16px !important;
+    color: #ffffff !important;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    width: 100%;
+}
+
+.carrier-btn:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Cuando el cliente selecciona una opción, brilla en verde esmeralda */
+.carrier-btn.active {
+    background: rgba(16, 185, 129, 0.12) !important;
+    border-color: #10b981 !important;
+    /* Mismo --primary de Naiguatá Expeditions */
+    box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);
+}
+
+.carrier-title {
+    font-weight: 500;
+    color: #ffffff !important;
+}
+
+.carrier-price {
+    font-weight: 700;
+    color: #10b981 !important;
+    background: rgba(16, 185, 129, 0.15);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+/* El badge del precio se vuelve sólido al estar seleccionado */
+.carrier-btn.active .carrier-price {
+    background: #10b981 !important;
+    color: #080b0f !important;
+    /* Fondo oscuro interno */
+}

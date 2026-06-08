@@ -511,22 +511,48 @@
                                 </div>
 
                                 <div class="provision-section">
-                                    <h4 class="provision-subsection-title">🧳 Gestión de Carga y Personal de Apoyo</h4>
+                                    <h4 class="provision-subsection-title">🧳 Gestión de Carga </h4>
                                     <div class="form-input-wrapper full-width">
-                                        <label for="logistic-carrier-select">Servicio de Portador Especializado</label>
-                                        <select id="logistic-carrier-select" class="calc-trigger" required>
-                                            <option value="0" data-name="Ninguno - Carga el cliente" selected>No, yo
-                                                mismo cargaré mi carpa asignada ($0 USD)</option>
-                                            <option value="30" data-name="Portador Carpa 2P" id="opt-carrier-2p">
-                                                Servicio de Portador - Carpa de 2 personas (+$30 USD)</option>
-                                            <option value="40" data-name="Portador Carpa 3P" id="opt-carrier-3p">
-                                                Servicio de Portador - Carpa de 3 personas (+$40 USD)</option>
-                                            <option value="50" data-name="Portador Carpa 4P" id="opt-carrier-4p">
-                                                Servicio de Portador - Carpa de 4 personas (+$50 USD)</option>
-                                        </select>
+                                        <label>Servicio de Portador Especializado</label>
+
+                                        <div class="carrier-buttons-grid"
+                                            style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px; margin-bottom: 8px;">
+
+                                            <button type="button" class="carrier-btn active" data-value="0"
+                                                data-name="Ninguno - Carga el cliente">
+                                                <span class="carrier-title">No, yo mismo cargaré mi carpa
+                                                    asignada</span>
+                                                <span class="carrier-price">$0 USD</span>
+                                            </button>
+
+                                            <button type="button" class="carrier-btn" data-value="30"
+                                                data-name="Portador Carpa 2P">
+                                                <span class="carrier-title">Servicio de Portador - Carpa de 2
+                                                    personas</span>
+                                                <span class="carrier-price">+$30 USD</span>
+                                            </button>
+
+                                            <button type="button" class="carrier-btn" data-value="40"
+                                                data-name="Portador Carpa 3P">
+                                                <span class="carrier-title">Servicio de Portador - Carpa de 3
+                                                    personas</span>
+                                                <span class="carrier-price">+$40 USD</span>
+                                            </button>
+
+                                            <button type="button" class="carrier-btn" data-value="50"
+                                                data-name="Portador Carpa 4P">
+                                                <span class="carrier-title">Servicio de Portador - Carpa de 4
+                                                    personas</span>
+                                                <span class="carrier-price">+$50 USD</span>
+                                            </button>
+
+                                        </div>
+
+                                        <input type="hidden" id="logistic-carrier-select" class="calc-trigger"
+                                            name="logisticCarrier" value="0">
+
                                         <span class="input-tip">Obligatorio interactuar si deseas delegar el esfuerzo
-                                            físico
-                                            del traslado de pernocta.</span>
+                                            físico del traslado de pernocta.</span>
                                     </div>
                                 </div>
 

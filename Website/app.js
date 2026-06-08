@@ -394,22 +394,38 @@ function initBookingForm() {
 }
 
 function actualizarOpcionesPortador() {
-    const selectPortador = document.getElementById("logistic-carrier-select");
-    if (!selectPortador) return;
+    const carrierButtons = document.querySelectorAll('.carrier-btn');
+    const hiddenInput = document.getElementById('logistic-carrier-select');
 
-    const opt2p = document.getElementById("opt-carrier-2p");
-    const opt3p = document.getElementById("opt-carrier-3p");
-    const opt4p = document.getElementById("opt-carrier-4p");
+    if (carrierButtons.length === 0 || !hiddenInput) return;
 
-    // FUERA BLOQUEOS: Forzamos que todas las opciones del portador estén SIEMPRE disponibles para seleccionar
-    if (opt2p) opt2p.disabled = false;
-    if (opt3p) opt3p.disabled = false;
-    if (opt4p) opt4p.disabled = false;
+    carrierButtons.forEach(button => {
+        // Clonamos para remover listeners viejos acumulados en memoria
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
 
-    // Ejecutar el recálculo de precios de la pasarela para reflejar los +$30, +$40 o +$50 al cambiar
-    if (typeof updateFormPricing === "function") {
-        updateFormPricing();
-    }
+        newButton.addEventListener('click', () => {
+            // 1. Apagar visualmente todos los botones de esta sección
+            document.querySelectorAll('.carrier-btn').forEach(btn => btn.classList.remove('active'));
+
+            // 2. Encender el botón presionado
+            newButton.classList.add('active');
+
+            // 3. Asignar el valor numérico al input oculto
+            const valor = newButton.getAttribute('data-value');
+            hiddenInput.value = valor;
+
+            // 4. Disparar tu calculadora nativa para actualizar los totales en pantalla
+            if (typeof updateFormPricing === "function") {
+                updateFormPricing();
+            }
+
+            // 5. Guardar el borrador en el borrador automático si existe
+            if (typeof saveFormDraft === "function") {
+                saveFormDraft();
+            }
+        });
+    });
 }
 
 function updateFormPricing() {
