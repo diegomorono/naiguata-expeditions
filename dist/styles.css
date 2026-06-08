@@ -2409,3 +2409,70 @@ select option:disabled {
     font-size: 0.8rem;
     font-weight: 600;
 }
+
+/* ==========================================================================
+   DISEÑO STEPPER DE CANTIDAD COMPACTO (MÁS Y MENOS)
+   ========================================================================== */
+.stepper-container {
+    display: flex;
+    align-items: center;
+    background: #1e2622;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+    height: 36px;
+}
+
+.stepper-container:focus-within {
+    border-color: #00e676;
+    box-shadow: 0 0 6px rgba(0, 230, 118, 0.2);
+}
+
+.stepper-btn {
+    background: transparent;
+    border: none;
+    color: #e0e6e3;
+    font-size: 1.1rem;
+    font-weight: bold;
+    width: 32px;
+    height: 100%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+    user-select: none;
+}
+
+.stepper-btn:hover {
+    background: rgba(0, 230, 118, 0.1);
+    color: #00e676;
+}
+
+.stepper-btn:active {
+    background: rgba(0, 230, 118, 0.2);
+}
+
+/* Caja de número central */
+.stepper-input {
+    width: 38px;
+    height: 100%;
+    background: transparent !important;
+    border: none !important;
+    color: #fff !important;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0 !important;
+    margin: 0 !important;
+    outline: none !important;
+    -moz-appearance: textfield;
+    /* Ocultar flechas nativas en Firefox */
+}
+
+/* Ocultar flechas nativas en Chrome, Safari y Edge */
+.stepper-input::-webkit-outer-spin-button,
+.stepper-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}

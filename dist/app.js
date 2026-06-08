@@ -1408,3 +1408,30 @@ document.addEventListener("DOMContentLoaded", function () {
     // Ejecutar cálculo inicial base
     calcularTotalExpedicion();
 });
+
+// ==========================================================================
+// INTERACTIVIDAD DE BOTONES MÁS (+) Y MENOS (-) STEPPERS
+// ==========================================================================
+document.addEventListener("DOMContentLoaded", function () {
+
+    document.querySelectorAll(".stepper-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+            const targetId = this.getAttribute("data-target");
+            const input = document.getElementById(targetId);
+            if (!input) return;
+
+            let currentVal = parseInt(input.value) || 0;
+
+            if (this.classList.contains("plus")) {
+                input.value = currentVal + 1;
+            } else if (this.classList.contains("minus")) {
+                if (currentVal > 0) {
+                    input.value = currentVal - 1;
+                }
+            }
+
+            // Disparar manualmente el evento para que la función del Total se entere del cambio
+            input.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+    });
+});
