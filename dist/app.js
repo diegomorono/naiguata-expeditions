@@ -1410,7 +1410,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // ==========================================================================
-// INTERACTIVIDAD DE BOTONES MÁS (+) Y MENOS (-) STEPPERS
+// INTERACTIVIDAD DE STEPPERS CON VALIDACIÓN DE INVENTARIO MÁXIMO
 // ==========================================================================
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -1421,16 +1421,27 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!input) return;
 
             let currentVal = parseInt(input.value) || 0;
+            // Leer el stock máximo permitido desde el atributo HTML (por defecto infinito si no se define)
+            let maxStock = parseInt(input.getAttribute("data-max")) || 999;
 
             if (this.classList.contains("plus")) {
-                input.value = currentVal + 1;
+                if (currentVal < maxStock) {
+                    input.value = currentVal + 1;
+                } else {
+                    // Feedback visual sutil: el contenedor parpadea en rojo si intentan superar el stock
+                    const container = input.closest(".stepper-container");
+                    if (container) {
+                        container.style.borderColor = "#ff5252";
+                        setTimeout(() => { container.style.borderColor = ""; }, 300);
+                    }
+                }
             } else if (this.classList.contains("minus")) {
                 if (currentVal > 0) {
                     input.value = currentVal - 1;
                 }
             }
 
-            // Disparar manualmente el evento para que la función del Total se entere del cambio
+            // Notificar al totalizador dinámico para refrescar los cálculos en tiempo real
             input.dispatchEvent(new Event("change", { bubbles: true }));
         });
     });
