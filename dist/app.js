@@ -90,6 +90,71 @@ const gearItems = [
     { id: "hygiene-kit", name: "Aseo Personal (Cepillo, Jabón biodegradable, Papel)", weight: "0.3 kg", critical: false }
 ];
 
+// ==========================================================================
+// CONTROLADOR DEL PASO A PASO DE ELEVACIÓN DE LA RUTA
+// ==========================================================================
+function initElevationStepper() {
+    const routeNodes = [
+        { name: "1. PGP La Julia", alt: "1,140m" },
+        { name: "2. El Tanque", alt: "1,560m" },
+        { name: "3. Mirador Edén", alt: "2,050m" },
+        { name: "4. Dos Banderas", alt: "2,220m" },
+        { name: "5. El Anfiteatro", alt: "2,740m" },
+        { name: "6. La Cumbre", alt: "2,765m" }
+    ];
+
+    // Busca los botones de navegación de la ruta en tu interfaz
+    const tabButtons = document.querySelectorAll('.route-tab-btn, [class*="La Julia"]');
+    if (tabButtons.length === 0) return;
+
+    tabButtons.forEach((btn, idx) => {
+        btn.addEventListener('click', () => {
+            // Remover estado activo previo
+            tabButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            console.log(`Visualizando tramo de ruta: ${routeNodes[idx].name} (${routeNodes[idx].alt})`);
+            // Aquí puedes añadir la lógica para mover el punto brillante en el gráfico SVG si lo manejas dinámicamente
+        });
+    });
+}
+
+// ==========================================================================
+// INTERACTIVIDAD DE STEPPERS UNIFICADA (EQUIPOS Y CATERING)
+// ==========================================================================
+function initBookingForm() {
+    document.querySelectorAll(".stepper-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+            const targetId = this.getAttribute("data-target");
+            const input = document.getElementById(targetId);
+            if (!input) return;
+
+            let currentVal = parseInt(input.value) || 0;
+            let maxStock = parseInt(input.getAttribute("data-max")) || 999; // Ilimitado para catering
+
+            if (this.classList.contains("plus")) {
+                if (currentVal < maxStock) {
+                    input.value = currentVal + 1;
+                } else {
+                    const container = input.closest(".stepper-container");
+                    if (container) {
+                        container.style.borderColor = "#ff5252";
+                        setTimeout(() => { container.style.borderColor = ""; }, 300);
+                    }
+                }
+            } else if (this.classList.contains("minus")) {
+                if (currentVal > 0) {
+                    input.value = currentVal - 1;
+                }
+            }
+
+            // Disparar el recálculo de precios inmediatamente
+            input.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+    });
+}
+
+
 /* ==========================================================================
    INITIALIZATION
    ========================================================================== */
@@ -308,7 +373,7 @@ async function queryLiveStock() {
 }
 
 /* ==========================================================================
-   EXCHANGE RATE RESOLVER (3 CAPAS DE SEGURIDAD)
+   EXCHANGE RATE RESOLVER (3 CAPAS DE SEGURIDAD - CORREGIDO)
    ========================================================================== */
 
 async function resolveBcvRate() {
@@ -322,13 +387,15 @@ async function resolveBcvRate() {
         if (!response.ok) throw new Error('API Rate Error');
 
         const data = await response.json();
-        const rate = parseFloat(data.promedio);
+
+        // CORRECCIÓN: DolarApi oficial maneja la propiedad 'price'
+        const rate = parseFloat(data.price);
 
         if (rate && !isNaN(rate)) {
             appState.bcvRate = rate;
             appState.bcvSource = 'api';
             updateCurrencyUI();
-            return;
+            return; // Éxito total, salimos de la función
         }
     } catch (err) {
         console.warn('Capa 1 BCV falló, recurriendo a Capa 2:', err);
@@ -473,30 +540,67 @@ function renderActiveStepDetails() {
    ========================================================================== */
 
 function initGearChecklist() {
-    const listContainer = document.getElementById('interactive-gear-list');
-    if (!listContainer) return;
+    const articulosRequeridos = [
+        "Saco de Dormir",
+        "Aislante Térmico / Esterilla",
+        "Ropa de Abrigo Térmica (Suéter + Mono)",
+        "4 Litros de Agua (Mínimo)",
+        "Linterna Frontal / Mano con Pilas",
+        "Calzado de Montaña (Botas/Zapatos de Trail)",
+        "Aseo Personal (Cepillo, Jabón biodegradable, Papel)"
+    ];
 
-    listContainer.innerHTML = '';
-    gearItems.forEach(item => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <label class="gear-item-checkbox">
-                <input type="checkbox" class="gear-chk" data-id="${item.id}" ${item.critical ? 'data-critical="true"' : ''}>
-                <div class="gear-item-details">
-                    <span class="gear-item-name">${item.name}</span>
-                    <span class="gear-item-weight">${item.weight}</span>
-                </div>
-            </label>
-        `;
-        listContainer.appendChild(li);
-    });
+    const contenedorLista = document.getElementById("interactive-gear-list");
+    const txtPorcentaje = document.getElementById("prep-percentage");
+    const barraProgreso = document.getElementById("prep-bar");
+    const bannerAdvertencia = document.getElementById("checklist-warning");
 
-    const checkboxes = document.querySelectorAll('.gear-chk');
-    checkboxes.forEach(chk => {
-        chk.addEventListener('change', updateChecklistProgress);
-    });
+    if (contenedorLista) {
+        contenedorLista.innerHTML = "";
 
-    updateChecklistProgress();
+        articulosRequeridos.forEach((articulo, index) => {
+            const li = document.createElement("li");
+            li.style.display = "flex";
+            li.style.alignItems = "center";
+            li.style.gap = "10px";
+            li.style.marginBottom = "8px";
+
+            li.innerHTML = `
+                <input type="checkbox" id="chk-item-${index}" class="checklist-item-checkbox" style="cursor:pointer; width:18px; height:18px;">
+                <label type="checkbox" for="chk-item-${index}" style="cursor:pointer; color:#e0e6e3; font-size:0.9rem;">${articulo}</label>
+            `;
+            contenedorLista.appendChild(li);
+        });
+
+        function actualizarProgresoEquipaje() {
+            const checkboxes = document.querySelectorAll(".checklist-item-checkbox");
+            const marcados = Array.from(checkboxes).filter(chk => chk.checked).length;
+            const totalItems = checkboxes.length;
+
+            const porcentaje = totalItems > 0 ? Math.round((marcados / totalItems) * 100) : 0;
+
+            if (txtPorcentaje) txtPorcentaje.textContent = `${porcentaje}%`;
+            if (barraProgreso) barraProgreso.style.width = `${porcentaje}%`;
+
+            if (bannerAdvertencia) {
+                if (porcentaje < 100) {
+                    bannerAdvertencia.classList.remove("hidden");
+                    bannerAdvertencia.style.display = "flex";
+                } else {
+                    bannerAdvertencia.classList.add("hidden");
+                    bannerAdvertencia.style.display = "none";
+                }
+            }
+        }
+
+        contenedorLista.addEventListener("change", function (e) {
+            if (e.target.classList.contains("checklist-item-checkbox")) {
+                actualizarProgresoEquipaje();
+            }
+        });
+
+        actualizarProgresoEquipaje();
+    }
 }
 
 function updateChecklistProgress() {
@@ -1486,3 +1590,4 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+
