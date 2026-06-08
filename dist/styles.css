@@ -8,29 +8,31 @@
     --panel-bg: rgba(15, 22, 30, 0.75);
     --panel-border: rgba(255, 255, 255, 0.08);
     --panel-border-hover: rgba(16, 185, 129, 0.25);
-    
+
     /* Harmonious colors */
-    --primary: #10b981; /* Emerald forest green */
+    --primary: #10b981;
+    /* Emerald forest green */
     --primary-hover: #059669;
     --primary-glow: rgba(16, 185, 129, 0.15);
-    
-    --secondary: #f4a261; /* Warm campfire orange/gold */
+
+    --secondary: #f4a261;
+    /* Warm campfire orange/gold */
     --secondary-hover: #e07a5f;
     --secondary-glow: rgba(244, 162, 97, 0.15);
-    
+
     --text: #f3f4f6;
     --text-muted: #9ca3af;
     --text-dark: #1f2937;
-    
+
     --error: #ef4444;
     --error-bg: rgba(239, 68, 68, 0.15);
-    
+
     --warning: #f59e0b;
     --warning-bg: rgba(245, 158, 11, 0.12);
-    
+
     --success: #10b981;
     --success-bg: rgba(16, 185, 129, 0.12);
-    
+
     --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -56,7 +58,12 @@ body {
     min-height: 100vh;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-family: 'Outfit', sans-serif;
     font-weight: 700;
     letter-spacing: -0.02em;
@@ -76,7 +83,7 @@ h1, h2, h3, h4, h5, h6 {
 .orb-1 {
     width: 450px;
     height: 450px;
-    background: radial-gradient(circle, var(--primary) 0%, rgba(0,0,0,0) 70%);
+    background: radial-gradient(circle, var(--primary) 0%, rgba(0, 0, 0, 0) 70%);
     top: 5%;
     left: -10%;
 }
@@ -84,7 +91,7 @@ h1, h2, h3, h4, h5, h6 {
 .orb-2 {
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, var(--secondary-glow) 0%, rgba(0,0,0,0) 70%);
+    background: radial-gradient(circle, var(--secondary-glow) 0%, rgba(0, 0, 0, 0) 70%);
     top: 40%;
     right: -15%;
     animation-delay: -4s;
@@ -93,15 +100,20 @@ h1, h2, h3, h4, h5, h6 {
 .orb-3 {
     width: 350px;
     height: 350px;
-    background: radial-gradient(circle, var(--primary-glow) 0%, rgba(0,0,0,0) 70%);
+    background: radial-gradient(circle, var(--primary-glow) 0%, rgba(0, 0, 0, 0) 70%);
     bottom: 10%;
     left: 20%;
     animation-delay: -8s;
 }
 
 @keyframes pulse {
-    0% { transform: scale(1) translate(0, 0); }
-    100% { transform: scale(1.15) translate(30px, 30px); }
+    0% {
+        transform: scale(1) translate(0, 0);
+    }
+
+    100% {
+        transform: scale(1.15) translate(30px, 30px);
+    }
 }
 
 /* Common UI Helpers */
@@ -272,9 +284,17 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--primary) !important;
 }
 
-.mt-10 { margin-top: 10px; }
-.cursor-pointer { cursor: pointer; }
-.text-center { text-align: center; }
+.mt-10 {
+    margin-top: 10px;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.text-center {
+    text-align: center;
+}
 
 /* ==========================================================================
    HEADER NAVIGATION
@@ -377,8 +397,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .section-container {
@@ -543,8 +570,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* ==========================================================================
@@ -581,7 +613,8 @@ h1, h2, h3, h4, h5, h6 {
     transition: var(--transition);
 }
 
-.map-dot:hover, .map-dot.active {
+.map-dot:hover,
+.map-dot.active {
     fill: var(--primary);
     stroke: #ffffff;
     r: 9;
@@ -596,8 +629,13 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--text-muted);
 }
 
-.start-lbl { left: 20px; }
-.end-lbl { right: 20px; }
+.start-lbl {
+    left: 20px;
+}
+
+.end-lbl {
+    right: 20px;
+}
 
 /* Stepper horizontal tabs */
 .stepper-nav {
@@ -895,7 +933,7 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
 }
 
-.gear-item-checkbox input[type="checkbox"]:checked + .gear-item-details .gear-item-name {
+.gear-item-checkbox input[type="checkbox"]:checked+.gear-item-details .gear-item-name {
     text-decoration: line-through;
     color: var(--text-muted);
 }
@@ -1211,7 +1249,8 @@ textarea:focus {
 .pass-card {
     padding: 24px;
     color: #000;
-    background: #ffffff; /* White background for crisp printing */
+    background: #ffffff;
+    /* White background for crisp printing */
     font-family: 'Inter', sans-serif;
 }
 
@@ -1832,23 +1871,23 @@ textarea:focus {
         grid-template-columns: 1fr;
         gap: 30px;
     }
-    
+
     .pricing-card-wrapper {
         justify-content: center;
     }
-    
+
     .pricing-card {
         max-width: 450px;
     }
-    
+
     .checklist-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .admin-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .step-details-card {
         grid-template-columns: 1fr;
         gap: 20px;
@@ -1859,60 +1898,60 @@ textarea:focus {
     .hero-title {
         font-size: 2.3rem;
     }
-    
+
     .hero-ctas {
         flex-direction: column;
         width: 100%;
     }
-    
+
     .hero-ctas a {
         text-align: center;
     }
-    
+
     .form-row {
         grid-template-columns: 1fr;
         gap: 12px;
     }
-    
+
     .header-container {
         flex-direction: column;
         gap: 12px;
         align-items: stretch;
         text-align: center;
     }
-    
+
     .logo {
         justify-content: center;
     }
-    
+
     .app-nav {
         justify-content: center;
         flex-wrap: wrap;
         gap: 10px;
     }
-    
+
     .admin-quick-stats {
         flex-wrap: wrap;
         justify-content: center;
     }
-    
+
     .snacks-summary-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .success-actions {
         flex-direction: column;
     }
-    
+
     .pass-main-info {
         grid-template-columns: 1fr;
     }
-    
+
     .pass-grid {
         grid-template-columns: 1fr;
         gap: 12px;
     }
-    
+
     .pass-footer {
         flex-direction: column;
         align-items: center;
@@ -1953,7 +1992,7 @@ textarea:focus {
         margin: 0 !important;
         width: 100% !important;
     }
-    
+
     .success-container {
         padding: 0 !important;
         margin: 0 !important;
@@ -1992,7 +2031,7 @@ textarea:focus {
     .pass-rules {
         color: #000000 !important;
     }
-    
+
     .page-break {
         page-break-before: always !important;
         break-before: page !important;
@@ -2011,3 +2050,91 @@ select {
     padding-right: 40px !important;
 }
 
+/* ==========================================================================
+   DISEÑO EXCLUSIVO Y RESPONSIVO PARA LA TRAVESÍA - NAIGUATÁ EXPEDITIONS
+   ========================================================================== */
+
+/* Contenedor del gráfico en Computadoras */
+.elevation-profile-container {
+    background: linear-gradient(145deg, #07120e, #030605) !important;
+    border: 1px solid rgba(0, 230, 118, 0.12) !important;
+    border-radius: 12px !important;
+    padding: 20px 10px !important;
+}
+
+/* Ajuste milimétrico de los puntos interactivos para la escala 0 a 100 */
+.map-dot {
+    fill: #040806 !important;
+    stroke: var(--primary) !important;
+    stroke-width: 0.4px !important;
+    /* Grosor fino para que no tape la línea */
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.map-dot:hover,
+.map-dot.active {
+    fill: var(--primary) !important;
+    stroke-width: 0.6px !important;
+    r: 2px !important;
+    /* Radio adaptado a la nueva escala interna */
+    filter: drop-shadow(0 0 3px var(--primary)) !important;
+}
+
+/* ==========================================================================
+   ADAPTACIÓN PROFESIONAL PARA CELULARES
+   ========================================================================== */
+@media (max-width: 768px) {
+
+    /* Ocultar la caja horizontal en teléfonos */
+    .elevation-profile-container {
+        display: none !important;
+    }
+
+    /* Convertir el explorador en una estructura vertical limpia */
+    .route-explorer {
+        display: flex !important;
+        flex-direction: column !important;
+        position: relative !important;
+        padding: 15px !important;
+    }
+
+    /* Sendero guía vertical */
+    .route-explorer::before {
+        content: '' !important;
+        position: absolute !important;
+        left: 30px !important;
+        top: 20px !important;
+        bottom: 220px !important;
+        width: 2px !important;
+        background: linear-gradient(to bottom, var(--primary), rgba(0, 230, 118, 0.02)) !important;
+        z-index: 1 !important;
+    }
+
+    /* Pila de estaciones de la ruta */
+    .stepper-nav {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        position: relative !important;
+        z-index: 2 !important;
+        margin-left: 15px !important;
+    }
+
+    .step-nav-btn {
+        width: 100% !important;
+        text-align: left !important;
+        padding: 14px 16px 14px 40px !important;
+        background: rgba(255, 255, 255, 0.02) !important;
+        border-radius: 8px !important;
+        border: 1px solid rgba(255, 255, 255, 0.04) !important;
+        border-left: 4px solid transparent !important;
+    }
+
+    .step-nav-btn.active {
+        background: rgba(0, 230, 118, 0.06) !important;
+        border-left-color: var(--primary) !important;
+        color: var(--primary) !important;
+        font-weight: 600 !important;
+    }
+}

@@ -45,7 +45,6 @@ Para ejecutar y probar este proyecto de forma local o en desarrollo, sigue estas
 ## Directrices de la Interfaz Pública (Secciones 1 a 4)
 1. **Hero Principal y Conversión BCV:** Consumo automatizado en `app.js` de una API pública de código abierto o scraping confiable para obtener el tipo de cambio oficial del Banco Central de Venezuela (BCV) en tiempo real. Multiplicar dinámicamente este factor por los $50 USD del costo del tour para reflejar el monto exacto en Bolívares (Bs.) dentro de la interfaz del Hero.
   ### 1 Lógica de Contingencia para Tasa BCV (Protección Cambiaria)
-
   Para mitigar el riesgo de fallos por bloqueo de CORS, latencia o cambios de estructura en la web del BCV, el sistema implementará un algoritmo de tres capas de seguridad para garantizar que la tasa en Bolívares (VES) nunca quede obsoleta:
   1. **Capa 1 (Consumo Dinámico Localizado):** El script `app.js` intentará consultar una API intermedia de código abierto o un repositorio espejo automatizado que sirva la tasa oficial del día.
   2. **Capa 2 (Última Tasa Válida Conocida - Base de Datos):** Si la consulta en tiempo real falla o se agota el tiempo de espera (Timeout > 3 segundos), el frontend realizará una consulta rápida a una tabla persistente en Supabase llamada `system_settings`, de donde extraerá el campo `last_valid_bcv`. Esta tasa representa el último valor exitoso registrado en el sistema.
@@ -66,7 +65,7 @@ Para ejecutar y probar este proyecto de forma local o en desarrollo, sigue estas
 El sistema gestiona la tabla `inventory_stock` en Supabase con los campos: `item_id`, `item_name`, `total_quantity` y `price_usd`.
 - **Inventario Actual:**
   - Saco de Dormir (0-10°C): Stock inicial 4 | Precio $10
-  - Esterilla/Aislante: Stock inicial  | Precio $5
+  - Esterilla/Aislante: Stock inicial 5 | Precio $5
   - Poncho Impermeable: Stock inicial 10 | Precio $5
   - Linterna Frontal: Stock inicial 2 | Precio $5
   - Linterna de Tienda: Stock inicial 4 | Precio $5
@@ -542,30 +541,3 @@ Para garantizar un rendimiento libre de fallos cuando múltiples usuarios intent
 
 ## Tareas del Agente
 Valida y modifica de forma autónoma los archivos `Website/index.html`, `Website/styles.css` y `Website/app.js` para cumplir estrictamente con toda la infraestructura gratis y las mejoras de UI/UX solicitadas en este documento. No consumas tokens en explicaciones extensas; prioriza la escritura de código limpio y funcional.
-
-
-
-
-
-
-
-
-## ⛰️ Módulo de Experiencia Inmersiva en Ruta (Gamificación y Enfoque Activo)
-
-### 1. Dinámica de "Búsqueda del Tesoro Botanista" y Retos de Ruta
-Para mitigar la fatiga psicológica y el esfuerzo físico de los participantes durante el ascenso continuo, el sistema integrará dinámicas de gamificación activa estructuradas directamente en el Pase de Expedición que el usuario descarga en el Modal de Éxito.
-- **El Pasaporte de Montaña (Checkpoints Dinámicos):** El reverso del manual del tour impreso o digital funcionará como un "Pasaporte de Aventura". Cada estación emblemática del trayecto tendrá un objetivo de enfoque diseñado para distraer la mente del cansancio.
-- **Lógica de Recompensa en Consola:** No se requiere conectividad a internet en la fila. El guía validará visualmente en el campamento los retos completados por los excursionistas. Al retornar a la ciudad, el administrador podrá marcar el logro en la ficha del usuario en la consola `/admin`, habilitando de forma automática un cupón de descuento del 10% para su próxima expedición.
-
-### 2. 🎮 Catálogo de Retos y Acertijos de Ruta (Módulo de Experiencia Inmersiva)
-Para asegurar que las actividades mitiguen la fatiga sin añadir desgaste físico ni retrasar el cronograma de ascenso, se establecen cuatro dinámicas de baja dificultad basadas en la observación, la atención selectiva y el registro fotográfico desde el teléfono móvil del excursionista.
-
-- **Reto 1: El Radar Acústico (Tramo: Puesto de Guardaparques a La Julia):** Este juego se activa en la zona boscosa baja donde la densidad de aves es mayor. Los participantes deben afinar el oído durante la marcha e identificar y registrar en una lista mental o nota de texto tres sonidos de la naturaleza completamente distintos (ej. el canto del sinsonte, el crujido de las bambas de bambú con el viento, o el sonido del agua subterránea). Al llegar al control de La Julia, el primero en describir correctamente sus tres sonidos al guía valida el hito.
-- **Reto 2: Cacería de Sombras y Formas (Tramo: La Julia a El Edén):** Aprovechando la inclinación y las raíces expuestas de los árboles en las zonas conocidas como "Las Culebras", el juego consiste en encontrar pareidolias en la ruta. Los excursionistas deben tomar una fotografía a una formación de raíces, rocas o troncos que se asemeje a un animal, una cara o una criatura mítica de la montaña. Gana el participante que capture la forma más creativa y nítida sin salirse jamás de la línea del sendero.
-- **Reto 3: El Guardián del Tiempo Botánico (Tramo: El Edén a Fila Maestra):** Diseñado para distraer la mente en el tramo donde el bosque de galería cambia drásticamente a sub-páramo. Consiste en una trivia de observación botánica activa: los usuarios deben fotografiar tres estados de vida de la icónica *Inia* o de las Bromelias locales (ej. una flor abriéndose, una planta madura y una hoja seca en el suelo). Este juego fragmenta el tramo más empinado obligando al cerebro a escanear los costados del camino en busca de los objetivos. #GuardianBotanico #NaiguataExpeditions
-- **Reto 4: El Desafío del Topógrafo (Tramo: Fila Maestra a Anfiteatro/Cumbre):** Aprovechando los cambios de presión y altitud, los excursionistas deben adivinar la altura exacta en metros sobre el nivel del mar (msnm) de un punto de control intermedio que el guía asignará antes de una curva pronunciada. Cada participante anota su predicción a ciegas y, al llegar al sitio, el guía revela la altitud real usando su altímetro de montaña. El excursionista que más se acerque al número exacto se lleva los puntos del hito geográfico. #RetoTopografo #GeografiaActiva
-
-
-### 3. Integración en el Manual del Tour y Pase Digital
-El motor de generación de PDF en el frontend (`app.js`) modificará la estructura de la segunda página (Manual del Tour) para maquetar visualmente estos bloques de entretenimiento interactivo.
-- **Contenido del Pasaporte Impreso:** Diseñar un formato estético y minimalista con casillas de verificación para tres elementos clave: "Especie botánica divisada", "Dato histórico/ecológico memorizado" y "Hito de altitud alcanzado". Esto transforma el sufrimiento físico del ascenso en un recorrido enfocado en objetivos coleccionables a corto plazo.

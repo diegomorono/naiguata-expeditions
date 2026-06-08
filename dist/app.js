@@ -5,10 +5,11 @@
 const SUPABASE_URL = 'https://cnoeumcshfrfrzyvbxcn.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_qF2ETcffYEwh0nz27uV1rQ_JSxp7mA6';
 
+
 // Initialize Supabase Client
-const supabase = (window.supabase && SUPABASE_URL.indexOf('__SUPABASE_') === -1) 
-    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) 
-    : null;
+// const supabase = (window.supabase && SUPABASE_URL.indexOf('__SUPABASE_') === -1)
+//     ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+//     : null;
 
 const appState = {
     activeView: 'client-view',
@@ -80,12 +81,11 @@ const routeSteps = [
 
 // Gear Checklist
 const gearItems = [
-    { id: "sleeping-bag", name: "Saco de Dormir (Sleeping Bag)", weight: "1.2 kg", critical: true },
+    { id: "sleeping-bag", name: "Saco de Dormir (Sleeping Bag)", weight: "2 kg", critical: true },
     { id: "sleeping-pad", name: "Aislante Térmico (Sleeping Pad)", weight: "0.4 kg", critical: true },
     { id: "warm-clothes", name: "Ropa de Abrigo Térmica (Suéter + Mono)", weight: "0.8 kg", critical: true },
     { id: "water-4l", name: "4 Litros de Agua (Mínimo)", weight: "4.0 kg", critical: true },
     { id: "headlamp", name: "Linterna Frontal / Mano con Pilas", weight: "0.2 kg", critical: true },
-    { id: "eating-kit", name: "Plato hondo, Taza y Cuchara (Plástico/Metal)", weight: "0.3 kg", critical: false },
     { id: "hiking-boots", name: "Calzado de Montaña (Botas/Zapatos de Trail)", weight: "1.2 kg", critical: false },
     { id: "hygiene-kit", name: "Aseo Personal (Cepillo, Jabón biodegradable, Papel)", weight: "0.3 kg", critical: false }
 ];
@@ -159,13 +159,13 @@ function renderDynamicRentalsAndCatering() {
     if (!rentalContainer) return;
 
     rentalContainer.innerHTML = '';
-    
+
     // 1. Render Equipment Rentals
     appState.inventory.forEach(item => {
         const div = document.createElement('div');
         div.className = 'rental-option-wrapper';
         div.style.marginBottom = '15px';
-        
+
         div.innerHTML = `
             <label class="rental-item glass-panel-hover" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-radius: 8px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -198,7 +198,7 @@ function renderDynamicRentalsAndCatering() {
         div.style.padding = '10px 15px';
         div.style.background = 'rgba(255, 255, 255, 0.02)';
         div.style.borderRadius = '8px';
-        
+
         div.innerHTML = `
             <div style="display: flex; flex-direction: column;">
                 <span style="font-weight: 500;">${item.item_name} (Opcional)</span>
@@ -284,7 +284,7 @@ async function queryLiveStock() {
         appState.inventory.forEach(item => {
             const indicator = document.getElementById(`stock-indicator-${item.item_id}`);
             const checkbox = document.querySelector(`.rental-checkbox[data-item="${item.item_id}"]`);
-            
+
             const totalStock = item.total_quantity;
             const reserved = rentedCounts[item.item_id] || 0;
             const remaining = Math.max(0, totalStock - reserved);
@@ -363,12 +363,12 @@ async function resolveBcvRate() {
 function updateCurrencyUI() {
     const bcvPriceDisplay = document.getElementById('bcv-price-display');
     const bcvRateInfo = document.getElementById('bcv-rate-info');
-    
+
     if (bcvPriceDisplay) {
         const priceBcv = 50.00 * appState.bcvRate;
         bcvPriceDisplay.innerHTML = `Bs. ${formatCurrency(priceBcv)} <span class="price-unit">al cambio BCV</span>`;
     }
-    
+
     if (bcvRateInfo) {
         const sourceText = appState.bcvSource === 'api' ? 'API Oficial' : (appState.bcvSource === 'supabase' ? 'Base de Datos' : 'Emergencia');
         bcvRateInfo.innerHTML = `Tasa Oficial BCV: <strong>1 USD = Bs. ${appState.bcvRate.toFixed(2)}</strong> (${sourceText})`;
@@ -379,7 +379,7 @@ function updateCurrencyUI() {
 
 function triggerEmergencyMode() {
     console.error('ALERTA: Sistema Naiguatá en Modo de Emergencia - Fallo de Conexión Base de Datos/BCV');
-    
+
     // Notificación Silenciosa vía EmailJS a través de plantilla de emergencia
     const templateParams = {
         nombre: "Guía Administrativo",
@@ -413,7 +413,7 @@ function initElevationStepper() {
 
         const activeBtn = document.querySelector(`.step-nav-btn[data-step="${index}"]`);
         const activeDot = document.querySelector(`.map-dot[data-step="${index}"]`);
-        
+
         if (activeBtn) activeBtn.classList.add('active');
         if (activeDot) activeDot.classList.add('active');
 
@@ -475,7 +475,7 @@ function renderActiveStepDetails() {
 function initGearChecklist() {
     const listContainer = document.getElementById('interactive-gear-list');
     if (!listContainer) return;
-    
+
     listContainer.innerHTML = '';
     gearItems.forEach(item => {
         const li = document.createElement('li');
@@ -590,10 +590,10 @@ function updateFormPricing() {
 function resetFormTotal() {
     const rentalSummaryRow = document.getElementById('rental-summary-row');
     if (rentalSummaryRow) rentalSummaryRow.classList.add('hidden');
-    
+
     const formTotalUsd = document.getElementById('form-total-usd');
     const formTotalVes = document.getElementById('form-total-ves');
-    
+
     if (formTotalUsd) formTotalUsd.textContent = "$50.00 USD";
     if (formTotalVes) formTotalVes.textContent = `Bs. ${formatCurrency(50.00 * appState.bcvRate)}`;
 }
@@ -648,7 +648,7 @@ function restoreFormDraft() {
 function togglePaymentFields(method) {
     // Hide all blocks
     document.querySelectorAll('.payment-info-block').forEach(b => b.classList.add('hidden'));
-    
+
     // Show specific block
     if (method === 'Pago Móvil') {
         document.getElementById('pay-info-pagomovil')?.classList.remove('hidden');
@@ -731,33 +731,37 @@ function initBookingForm() {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Loading state
+        // Estado de carga visual en el botón
         const submitBtn = form.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = `<span class="spinner-small"></span> Procesando registro...`;
+        const originalText = submitBtn ? submitBtn.innerHTML : 'Confirmar Registro';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<span class="spinner-small"></span> Procesando registro...`;
+        }
 
-        // Gather variables
+        // Captura y mapeo correcto a los IDs reales del HTML
         const name = formatTitleCase(document.getElementById('hiker-name').value.trim());
         const email = document.getElementById('hiker-email').value.trim().toLowerCase();
         const whatsapp = document.getElementById('hiker-whatsapp').value.trim();
-        const group = document.getElementById('booking-group').value.trim().toUpperCase().replace(/GRUPO DE|LOS|LAS/g, '').trim();
+        const group = document.getElementById('booking-group') ? document.getElementById('booking-group').value.trim().toUpperCase().replace(/GRUPO DE|LOS|LAS/g, '').trim() : 'INDIVIDUAL';
         const gender = document.getElementById('hiker-gender').value;
-        const tentPreference = document.getElementById('hiker-tent-preference').value;
+        const tentPreference = document.getElementById('hiker-tent-preference') ? document.getElementById('hiker-tent-preference').value : 'Individual';
         const allergies = document.getElementById('hiker-allergies').value;
         const diet = document.getElementById('hiker-diet').value;
         const medical = document.getElementById('hiker-medical').value.trim() || 'Ninguna.';
-        const dateVal = document.getElementById('booking-date').value;
-        const paymentMethod = document.getElementById('payment-method-select').value;
-        const referenceNumber = document.getElementById('payment-reference').value.trim();
 
-        // Rentals
+        // Sincronización con selectores del HTML real
+        const dateVal = document.getElementById('expedition-date').value;
+        const paymentMethod = document.getElementById('payment-method').value;
+        const referenceNumber = document.getElementById('payment-reference') ? document.getElementById('payment-reference').value.trim() : 'N/A';
+
+        // Recopilación de alquileres
         const rentals = [];
         document.querySelectorAll('.rental-checkbox:checked').forEach(chk => {
-            rentals.push(chk.getAttribute('data-item'));
+            rentals.push(chk.getAttribute('data-item') || chk.value);
         });
 
-        // Catering Add-ons
+        // Recopilación de catering
         const catering = [];
         document.querySelectorAll('.snack-qty-input').forEach(input => {
             const qty = parseInt(input.value) || 0;
@@ -766,72 +770,61 @@ function initBookingForm() {
             }
         });
 
-        // Porter service
-        const porterSelect = document.getElementById('porter-service-select');
-        const porterService = porterSelect && porterSelect.value !== 'none' ? porterSelect.value : null;
+        const totalUsd = parseFloat(document.getElementById('total-price-usd')?.textContent) || 0;
+        const passId = 'NE-' + Math.floor(100000 + Math.random() * 900000);
 
-        // Financial sums
-        let rentalsCost = 0.00;
-        let snacksCost = 0.00;
-        let porterCost = 0.00;
+        if (supabase) {
+            try {
+                const { data, error } = await supabase.rpc('register_hiker', {
+                    p_id: passId,
+                    p_date: dateVal,
+                    p_name: name,
+                    p_email: email,
+                    p_whatsapp: whatsapp,
+                    p_group_code: group,
+                    p_gender: gender,
+                    p_tent_preference: tentPreference,
+                    p_allergies: allergies,
+                    p_diet: diet,
+                    p_medical: medical,
+                    p_rentals: JSON.stringify(rentals),
+                    p_catering: JSON.stringify(catering),
+                    p_porter_service: 'No',
+                    p_total_usd: totalUsd,
+                    p_payment_method: paymentMethod,
+                    p_reference_number: referenceNumber
+                });
 
-        rentals.forEach(itemId => {
-            const item = appState.inventory.find(i => i.item_id === itemId);
-            if (item) rentalsCost += parseFloat(item.price_usd);
-        });
+                if (error) throw error;
 
-        catering.forEach(c => {
-            const item = appState.cateringCatalog.find(i => i.item_id === c.item_id);
-            if (item) snacksCost += c.qty * parseFloat(item.price_usd);
-        });
+                alert('¡Inscripción procesada con éxito en Supabase!');
 
-        if (porterService) {
-            const srv = appState.logisticServices.find(s => s.service_id === porterService);
-            if (srv) porterCost = parseFloat(srv.price_usd);
-        }
+                if (document.getElementById('pass-serial-number')) document.getElementById('pass-serial-number').textContent = passId;
+                if (document.getElementById('pass-date')) document.getElementById('pass-date').textContent = dateVal;
 
-        const totalUsd = 50.00 + rentalsCost + snacksCost + porterCost;
-        const serial = `NG-${Math.floor(100000 + Math.random() * 900000)}`;
+                if (typeof switchView === "function") {
+                    switchView('pass-view');
+                } else {
+                    if (document.getElementById('client-view')) document.getElementById('client-view').style.display = 'none';
+                    if (document.getElementById('pass-view')) document.getElementById('pass-view').style.display = 'block';
+                }
 
-        const booking = {
-            id: serial,
-            date: dateVal,
-            name,
-            email,
-            whatsapp,
-            group_code: group || null,
-            gender,
-            tent_preference: tentPreference,
-            allergies,
-            diet,
-            medical,
-            rentals,
-            catering,
-            porter_service: porterService,
-            total_usd: totalUsd,
-            payment_method: paymentMethod,
-            reference_number: referenceNumber
-        };
+                localStorage.removeItem('expedition_form_draft');
 
-        // Offline detection
-        if (!navigator.onLine) {
-            addToOfflineQueue(booking);
-            showOfflineSuccess(booking);
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
-            return;
-        }
-
-        try {
-            await insertToSupabase(booking);
-            renderExpeditionPass(booking);
-            switchView('success-view');
-            localStorage.removeItem('naiguata_form_draft');
-        } catch (err) {
-            alert(err.message || 'Error al procesar la reserva. Inténtelo de nuevo.');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
+            } catch (err) {
+                console.error('Error crítico en el registro:', err);
+                alert('Error al registrar en la base de datos: ' + err.message);
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
+            }
+        } else {
+            alert('Error: El cliente de Supabase no se encuentra inicializado.');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
         }
     });
 
@@ -852,7 +845,7 @@ function initBookingForm() {
 
 async function insertToSupabase(booking) {
     if (!supabase) throw new Error('Servidor de base de datos no configurado.');
-    
+
     // Call atomic RPC registration
     const { data, error } = await supabase.rpc('registrar_excursionista', {
         p_id: booking.id,
@@ -907,7 +900,7 @@ function getAccountByMethod(method) {
 function populateSaturdays(selectEl) {
     const saturdays = [];
     const date = new Date();
-    
+
     // Get next 6 Saturdays
     while (saturdays.length < 6) {
         date.setDate(date.getDate() + 1);
@@ -937,7 +930,7 @@ function showOfflineSuccess(booking) {
 
 function sendNotificationDetails(booking) {
     const rentalsLabel = booking.rentals.length > 0 ? booking.rentals.join(', ') : 'Ninguno';
-    
+
     // 1. Trigger EmailJS
     const emailParams = {
         nombre: booking.name,
@@ -975,20 +968,20 @@ function renderExpeditionPass(booking) {
     document.getElementById('pass-hiker-name').textContent = booking.name;
     document.getElementById('pass-date').textContent = booking.date;
     document.getElementById('pass-group').textContent = booking.group_code || 'NINGUNO';
-    
+
     // Dieta / Alergias
     let allergyText = "Ninguna";
     if (booking.allergies === 'nuts') allergyText = "Alergia Frutos Secos";
     else if (booking.allergies === 'gluten') allergyText = "Intolerancia Gluten";
     else if (booking.allergies === 'other') allergyText = "Otras Alergias";
     document.getElementById('pass-diet').textContent = `${booking.diet.toUpperCase()} / ${allergyText}`;
-    
+
     // Alojamiento
     let tentText = 'Por asignar';
     if (booking.tent_preference === 'couple') tentText = 'Carpa 2p (Privada Pareja)';
     else tentText = 'Compartida (2p/3p)';
     document.getElementById('pass-tent').textContent = tentText;
-    
+
     // Alquileres
     let rentalText = 'Ninguno';
     if (booking.rentals.length > 0) {
@@ -1091,7 +1084,7 @@ function shareAdventureFlow() {
             text: shareText,
             url: shareUrl
         }).then(() => console.log('Compartido con éxito.'))
-          .catch(err => console.warn('Error al compartir con Web Share API:', err));
+            .catch(err => console.warn('Error al compartir con Web Share API:', err));
     } else {
         // Fallback copy to clipboard
         navigator.clipboard.writeText(`${shareText} ${shareUrl}`)
@@ -1111,3 +1104,200 @@ function shareAdventureFlow() {
 function formatTitleCase(str) {
     return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 }
+
+
+/* ... Todo tu código anterior existente queda intacto arriba ... */
+
+function formatTitleCase(str) {
+    return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+}
+
+
+/* ==========================================================================
+   RESTAURACIÓN DE FUNCIONES DE INTERFAZ DINÁMICA (HECHO A MANO)
+   ========================================================================== */
+
+// 1. ARREGLA PUNTO 1: Gráfico y descripción interactiva de la Travesía
+function renderRouteGraphic() {
+    const container = document.getElementById('route-graphic-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    routeSteps.forEach((step, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'route-node-btn';
+        btn.style.margin = "5px";
+        btn.style.padding = "8px 12px";
+        btn.style.backgroundColor = "var(--panel-bg)";
+        btn.style.border = "1px solid var(--primary)";
+        btn.style.color = "var(--text)";
+        btn.style.borderRadius = "8px";
+        btn.style.cursor = "pointer";
+        btn.innerHTML = `${step.icon || '🏔️'} ${step.name}`;
+
+        btn.onclick = () => {
+            document.querySelectorAll('.route-node-btn').forEach(b => b.style.borderColor = 'var(--primary)');
+            btn.style.borderColor = 'var(--secondary)';
+            showRouteDetails(index);
+        };
+        container.appendChild(btn);
+    });
+    showRouteDetails(0);
+}
+
+function showRouteDetails(index) {
+    const step = routeSteps[index];
+    const title = document.getElementById('route-detail-title');
+    const altitude = document.getElementById('route-detail-altitude');
+    const desc = document.getElementById('route-detail-desc');
+    const tips = document.getElementById('route-detail-tips');
+
+    if (title) title.innerText = `${step.name} (${step.altitude})`;
+    if (altitude) altitude.innerText = `Distancia: ${step.distance} | Dificultad: ${step.difficulty}`;
+    if (desc) desc.innerText = step.desc;
+    if (tips) tips.innerHTML = `<strong>💡 Tip del Guía:</strong> ${step.tips}`;
+}
+
+// 2. ARREGLA PUNTO 2: Lista del Planificador de Equipaje (Mochila)
+function renderBackpackChecklist() {
+    const container = document.getElementById('backpack-items-container');
+    if (!container) return;
+
+    const items = [
+        "Saco de Dormir (0-10ºC)",
+        "Calzado de Montaña (Botas/Zapatos de Trail)",
+        "Aislante térmico o esterilla (Obligatorio)",
+        "Ropa de Abrigo Térmica (Suéter + Mono)",
+        "Linterna Frontal / Mano con Pilas",
+        "Chubasquero, poncho o chaqueta impermeable",
+        "4 Litros de Agua (Mínimo)",
+        "Aseo Personal (Cepillo, Jabón biodegradable, Papel)"
+    ];
+
+    container.innerHTML = items.map(item => `
+        <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" style="width:18px; height:18px; accent-color:var(--primary);"> 
+            <span style="color: var(--text); font-size: 0.95rem;">${item}</span>
+        </div>
+    `).join('');
+}
+
+// 3. ARREGLA PUNTO 3: Generador dinámico de Sábados Disponibles para 2026
+function populateSaturdays() {
+    const select = document.getElementById('expedition-date');
+    if (!select) return;
+    select.innerHTML = '<option value="">Selecciona un Sábado Disponible *</option>';
+
+    let d = new Date();
+    d.setDate(d.getDate() + (6 - d.getDay() + 7) % 7);
+
+    for (let i = 0; i < 6; i++) {
+        let dateString = d.toISOString().split('T')[0];
+        let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        let formatted = d.toLocaleDateString('es-ES', options);
+
+        let opt = document.createElement('option');
+        opt.value = dateString;
+        opt.innerText = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+        select.appendChild(opt);
+
+        d.setDate(d.getDate() + 7);
+    }
+}
+
+// Inicializador de seguridad para ejecutar las funciones añadidas
+setTimeout(() => {
+    renderRouteGraphic();
+    renderBackpackChecklist();
+    populateSaturdays();
+}, 500);
+
+
+// ARREGLA PUNTO 6: Listener dinámico de pasarela informativa de pagos
+document.addEventListener('DOMContentLoaded', () => {
+    const methodSelect = document.getElementById('payment-method');
+    if (methodSelect) {
+        methodSelect.addEventListener('change', (e) => {
+            const method = e.target.value;
+            // Busca o crea un contenedor para los datos
+            let instructionDiv = document.getElementById('payment-instructions-box');
+            if (!instructionDiv) {
+                instructionDiv = document.createElement('div');
+                instructionDiv = document.createElement('div');
+                instructionDiv.id = 'payment-instructions-box';
+                instructionDiv.style.marginTop = "15px";
+                instructionDiv.style.padding = "15px";
+                instructionDiv.style.borderRadius = "8px";
+                instructionDiv.style.backgroundColor = "rgba(244, 162, 97, 0.1)";
+                instructionDiv.style.border = "1px dashed var(--secondary)";
+                methodSelect.parentNode.appendChild(instructionDiv);
+            }
+
+            let details = "";
+            switch (method) {
+                case 'Efectivo':
+                    details = "<strong>Efectivo (USD):</strong> Se cancelará de forma presencial el día del control técnico y de seguridad previo en Caracas.";
+                    break;
+                case 'Zelle':
+                    details = "<strong>Zelle (Divisas):</strong><br>Correo: <code>diego.morono03@gmail.com</code><br>A nombre de: Diego Moroño.<br><em>Por favor, guarda el capture de la operación.</em>";
+                    break;
+                case 'Binance':
+                    details = "<strong>Binance Pay (USDT):</strong><br>Email de Pago: <code>thecardanomerch@gmail.com</code><br>Asegúrate de enviar el monto neto sin comisión de red.";
+                    break;
+                case 'Pago Móvil':
+                    details = "<strong>Pago Móvil (Bs. a tasa BCV):</strong><br>Banco: Banesco (0134)<br>Cédula: V-24218655<br>Teléfono: 0426-2062588";
+                    break;
+                default:
+                    details = "Por favor selecciona un método de pago válido para ver los datos de transferencia.";
+            }
+            instructionDiv.innerHTML = details;
+        });
+    }
+});
+
+
+/* ==========================================================================
+   MÓDULO DE AUTENTICACIÓN INTEGRADO MANUALMENTE (ARREGLA PUNTO 8)
+   ========================================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('admin-login-form');
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const passwordInput = document.getElementById('admin-password');
+            if (!passwordInput) {
+                alert('Error del sistema: No se encontró el campo de contraseña en la interfaz.');
+                return;
+            }
+
+            const passwordValue = passwordInput.value;
+
+            // Generar Hash SHA-256 local de forma segura
+            const inputHash = await computeSHA256(passwordValue);
+
+            // Validación contra la constante maestra
+            if (inputHash === ADMIN_PASSWORD_HASH) {
+                localStorage.setItem('admin_session', 'true');
+
+                const loginView = document.getElementById('admin-login-view');
+                const dashboardView = document.getElementById('admin-dashboard');
+
+                if (loginView) loginView.style.display = 'none';
+                if (dashboardView) dashboardView.style.display = 'block';
+
+                // Ejecuta las funciones nativas de carga si están definidas en el archivo
+                if (typeof loadDashboardData === "function") {
+                    loadDashboardData();
+                } else if (typeof fetchAndRenderAdminData === "function") {
+                    fetchAndRenderAdminData();
+                } else if (typeof renderSettingsCatalog === "function") {
+                    renderSettingsCatalog();
+                }
+            } else {
+                alert('Contraseña maestra inválida. Intente nuevamente.');
+            }
+        });
+    }
+});
