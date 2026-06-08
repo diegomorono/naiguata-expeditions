@@ -154,20 +154,61 @@ function initBookingForm() {
     });
 }
 
-
 /* ==========================================================================
-   INITIALIZATION
+   INITIALIZATION CORE (EJECUCIÓN FORZADA SIN BLOQUEOS)
    ========================================================================== */
-
 document.addEventListener('DOMContentLoaded', () => {
-    initAppNavigation();
-    initElevationStepper();
-    initGearChecklist();
-    initBookingForm();
-    loadSupabaseData();
-    resolveBcvRate();
-    restoreFormDraft();
-    processOfflineQueue();
+    console.log("[Naiguatá OS] Iniciando secuencia de montaje de la interfaz...");
+
+    // 1. Navegación e interfaz de vistas
+    try {
+        initAppNavigation();
+    } catch (e) { console.error("Error en Navegación:", e); }
+
+    // 2. Forzar renderizado inmediato del checklist de equipaje
+    try {
+        if (typeof initGearChecklist === 'function') {
+            initGearChecklist();
+        } else {
+            const contenedorLista = document.getElementById("interactive-gear-list");
+            if (contenedorLista) {
+                const articulos = ["Calzado de montaña", "Ropa de abrigo", "Chaqueta impermeable", "Linterna frontal", "Envase para agua (2L)", "Documento de identidad", "Bolsas para desechos"];
+                contenedorLista.innerHTML = articulos.map((art, i) => `
+                    <li style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                        <input type="checkbox" id="chk-em-${i}" class="checklist-item-checkbox" style="width:18px; height:18px; cursor:pointer;">
+                        <label for="chk-em-${i}" style="color:#e0e6e3; font-size:0.9rem; cursor:pointer;">${art}</label>
+                    </li>
+                `).join('');
+                console.log("[Checklist] Inyectado con éxito en modo de contingencia.");
+            }
+        }
+    } catch (e) { console.error("Error en Checklist:", e); }
+
+    // 3. Forzar activación del mapa interactivo de la ruta
+    try {
+        if (typeof initElevationStepper === 'function') {
+            initElevationStepper();
+        }
+    } catch (e) { console.error("Error en Nodos de Elevación:", e); }
+
+    // 4. Forzar inicialización de steppers (+ y -)
+    try {
+        if (typeof initBookingForm === 'function') {
+            initBookingForm();
+        }
+    } catch (e) { console.error("Error en Controles Dinámicos:", e); }
+
+    // 5. Forzar resolución de la tasa oficial del BCV
+    try {
+        if (typeof resolveBcvRate === 'function') {
+            resolveBcvRate();
+        }
+    } catch (e) { console.error("Error en Consultador BCV:", e); }
+
+    // 6. Procesos secundarios de persistencia
+    try { if (typeof loadSupabaseData === 'function') loadSupabaseData(); } catch (e) { }
+    try { if (typeof restoreFormDraft === 'function') restoreFormDraft(); } catch (e) { }
+    try { if (typeof processOfflineQueue === 'function') processOfflineQueue(); } catch (e) { }
 });
 
 function initAppNavigation() {
