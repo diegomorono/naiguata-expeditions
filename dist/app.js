@@ -1380,7 +1380,7 @@ document.addEventListener("DOMContentLoaded", function () {
             total += qty * parseFloat(input.getAttribute("data-price"));
         });
 
-        // 2. Sumar Subtotal Snacks / Catering
+        // 2. Sumar Subtotal Snacks / Catering (Multiplicación Dinámica)
         document.querySelectorAll(".catering-input").forEach(input => {
             let qty = parseInt(input.value) || 0;
             if (qty < 0) qty = 0;

@@ -2331,15 +2331,6 @@ select option:disabled {
     font-size: 0.8rem;
 }
 
-.form-input-qty {
-    width: 60px;
-    background: #1e2622;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #fff;
-    padding: 5px;
-    border-radius: 4px;
-    text-align: center;
-}
 
 /* Barra Flotante de Totalización */
 .floating-total-container {

@@ -455,30 +455,55 @@
                             <div class="provision-section">
                                 <h4 class="provision-subsection-title">🍎 Catering y Snacks Extra</h4>
                                 <div class="catering-list">
+
                                     <div class="catering-row">
                                         <div class="catering-info">
                                             <span class="catering-name">Dulce de Guayaba</span>
                                             <span class="catering-price">$2.00 USD / ud</span>
                                         </div>
-                                        <input type="number" class="calc-trigger catering-input form-input-qty"
-                                            data-price="2" data-id="dulce_guayaba" min="0" value="0">
+                                        <div class="stepper-container">
+                                            <button type="button" class="stepper-btn minus"
+                                                data-target="dulce_guayaba">−</button>
+                                            <input type="number" id="dulce_guayaba"
+                                                class="calc-trigger catering-input stepper-input" data-price="2"
+                                                data-id="dulce_guayaba" min="0" value="0" readonly>
+                                            <button type="button" class="stepper-btn plus"
+                                                data-target="dulce_guayaba">+</button>
+                                        </div>
                                     </div>
+
                                     <div class="catering-row">
                                         <div class="catering-info">
                                             <span class="catering-name">Barras Energéticas</span>
                                             <span class="catering-price">$2.50 USD / ud</span>
                                         </div>
-                                        <input type="number" class="calc-trigger catering-input form-input-qty"
-                                            data-price="2.5" data-id="barras_energeticas" min="0" value="0">
+                                        <div class="stepper-container">
+                                            <button type="button" class="stepper-btn minus"
+                                                data-target="barras_energeticas">−</button>
+                                            <input type="number" id="barras_energeticas"
+                                                class="calc-trigger catering-input stepper-input" data-price="2.5"
+                                                data-id="barras_energeticas" min="0" value="0" readonly>
+                                            <button type="button" class="stepper-btn plus"
+                                                data-target="barras_energeticas">+</button>
+                                        </div>
                                     </div>
+
                                     <div class="catering-row">
                                         <div class="catering-info">
                                             <span class="catering-name">Mix de Frutos Secos (100g)</span>
                                             <span class="catering-price">$4.00 USD / ud</span>
                                         </div>
-                                        <input type="number" class="calc-trigger catering-input form-input-qty"
-                                            data-price="4" data-id="frutos_secos" min="0" value="0">
+                                        <div class="stepper-container">
+                                            <button type="button" class="stepper-btn minus"
+                                                data-target="frutos_secos">−</button>
+                                            <input type="number" id="frutos_secos"
+                                                class="calc-trigger catering-input stepper-input" data-price="4"
+                                                data-id="frutos_secos" min="0" value="0" readonly>
+                                            <button type="button" class="stepper-btn plus"
+                                                data-target="frutos_secos">+</button>
+                                        </div>
                                     </div>
+
                                 </div>
                             </div>
 
