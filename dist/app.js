@@ -608,7 +608,6 @@ function saveFormDraft() {
         gender: document.getElementById('hiker-gender')?.value,
         tentPreference: document.getElementById('hiker-tent-preference')?.value,
         allergies: document.getElementById('hiker-allergies')?.value,
-        diet: document.getElementById('hiker-diet')?.value,
         medical: document.getElementById('hiker-medical')?.value,
         date: document.getElementById('booking-date')?.value,
         referenceNumber: document.getElementById('payment-reference')?.value,
@@ -629,7 +628,6 @@ function restoreFormDraft() {
         if (draft.gender) document.getElementById('hiker-gender').value = draft.gender;
         if (draft.tentPreference) document.getElementById('hiker-tent-preference').value = draft.tentPreference;
         if (draft.allergies) document.getElementById('hiker-allergies').value = draft.allergies;
-        if (draft.diet) document.getElementById('hiker-diet').value = draft.diet;
         if (draft.medical) document.getElementById('hiker-medical').value = draft.medical;
         if (draft.date) {
             document.getElementById('booking-date').value = draft.date;
@@ -747,7 +745,6 @@ function initBookingForm() {
         const gender = document.getElementById('hiker-gender').value;
         const tentPreference = document.getElementById('hiker-tent-preference') ? document.getElementById('hiker-tent-preference').value : 'Individual';
         const allergies = document.getElementById('hiker-allergies').value;
-        const diet = document.getElementById('hiker-diet').value;
         const medical = document.getElementById('hiker-medical').value.trim() || 'Ninguna.';
 
         // Sincronización con selectores del HTML real
