@@ -415,27 +415,29 @@ function actualizarOpcionesPortador() {
     const textoCompleto = opcionSeleccionada.text.toLowerCase();
     const valorCompleto = selectAlojamiento.value.toLowerCase();
 
+    // 1. Deshabilitar todas las opciones por seguridad
     if (opt2p) opt2p.disabled = true;
     if (opt3p) opt3p.disabled = true;
     if (opt4p) opt4p.disabled = true;
 
-    if (textoCompleto.includes("2") || valorCompleto.includes("2")) {
-        if (opt2p) opt2p.disabled = false;
-    } else if (textoCompleto.includes("3") || valorCompleto.includes("3")) {
-        if (opt3p) opt3p.disabled = false;
-    } else if (textoCompleto.includes("4") || valorCompleto.includes("4")) {
+    // 2. Activar únicamente la opción exacta que haga match con la carpa
+    if (valorCompleto.includes("4") || textoCompleto.includes("4 personas")) {
         if (opt4p) opt4p.disabled = false;
-    } else {
-        if (opt2p) opt2p.disabled = false;
+    } else if (valorCompleto.includes("3") || textoCompleto.includes("3 personas")) {
         if (opt3p) opt3p.disabled = false;
-        if (opt4p) opt4p.disabled = false;
+    } else if (valorCompleto.includes("2") || textoCompleto.includes("2 personas")) {
+        if (opt2p) opt2p.disabled = false;
     }
 
+    // 3. Si el usuario cambia de carpa y el portador que tenía puesto se deshabilita, se resetea a "No, yo mismo cargaré"
     if (selectPortador.selectedOptions[0] && selectPortador.selectedOptions[0].disabled) {
         selectPortador.value = "0";
     }
 
-    updateFormPricing();
+    // 4. Reflejar el nuevo costo de manera inmediata en la cotización
+    if (typeof updateFormPricing === "function") {
+        updateFormPricing();
+    }
 }
 
 function updateFormPricing() {
@@ -518,104 +520,95 @@ function populateSaturdays() {
         }
     }
 }
-
 /* ==========================================================================
-   7. PASARELA DE PAGOS E INSTRUCCIONES DINÁMICAS Y PERSISTENCIA
+   7. PASARELA DE PAGOS E INSTRUCCIONES DINÁMICAS Y PERSISTENCIA (DATO POR DATO)
    ========================================================================== */
 function initPaymentInstructions() {
-    const methodSelect = document.getElementById('payment-method-select');
-    if (!methodSelect) return;
+    const paymentButtons = document.querySelectorAll('.payment-btn');
+    const container = document.getElementById('payment-instructions-box') || document.getElementById('payment-instructions');
+    const paymentDetails = document.getElementById('payment-details');
 
-    methodSelect.addEventListener('change', (e) => {
-        const method = e.target.value;
-        let container = document.getElementById('payment-instructions-box');
-        if (!container) return;
+    if (paymentButtons.length === 0 || !container) return;
 
-        const data = {
-            'Zelle': [{ label: 'Email', value: 'diego.morono03@gmail.com' }, { label: 'Nombre', value: 'Diego Moroño' }],
-            'Binance': [{ label: 'Email', value: 'thecardanomerch@gmail.com' }],
-            'Pago Móvil': [{ label: 'Teléfono', value: '04262062588' }, { label: 'Cédula', value: 'V24218655' }, { label: 'Banco', value: 'Banesco (0134)' }]
-        };
+    // Diccionario de datos separados para copiar uno por uno
+    const data = {
+        'zelle': [
+            { label: 'Email', value: 'diego.morono03@gmail.com' },
+            { label: 'Nombre', value: 'Diego Moroño' }
+        ],
+        'binance': [
+            { label: 'Email', value: 'thecardanomerch@gmail.com' }
+        ],
+        'pagomovil': [
+            { label: 'Teléfono', value: '04262062588' },
+            { label: 'Cédula', value: 'V24218655' },
+            { label: 'Banco', value: 'Banesco (0134)' }
+        ]
+    };
 
-        if (data[method]) {
-            container.innerHTML = `<div class="payment-grid">` +
-                data[method].map(item => `
-                    <div class="pay-item">
-                        <span class="pay-lbl">${item.label}</span>
-                        <div class="pay-row">
-                            <code>${item.value}</code>
-                            <button class="mini-copy-btn" onclick="copyToClipboard('${item.value}')">Copiar</button>
+    paymentButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // 1. Cambiar estado visual del botón
+            paymentButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            // 2. Leer el método en minúsculas para evitar errores de mayúsculas en el HTML
+            const method = (button.getAttribute('data-method') || button.getAttribute('data-data-method') || '').toLowerCase().trim();
+
+            // Sincronizar con el input oculto del formulario si existe
+            const hiddenInput = document.getElementById('payment-method-select') || document.getElementById('payment-method');
+            if (hiddenInput) hiddenInput.value = method;
+
+            // 3. Renderizar cada dato con su propio botón individual de copia
+            if (data[method]) {
+                container.innerHTML = `<div class="payment-grid" style="display: flex; flex-direction: column; gap: 12px; padding: 10px;">` +
+                    data[method].map(item => `
+                        <div class="pay-item" style="display: flex; flex-direction: column; gap: 4px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px;">
+                            <span class="pay-lbl" style="font-size: 0.8rem; color: var(--text-muted); font-weight: bold; text-transform: uppercase;">${item.label}</span>
+                            <div class="pay-row" style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                                <code style="font-family: monospace; font-size: 1rem; color: var(--primary); background: transparent; padding: 0;">${item.value}</code>
+                                <button type="button" class="mini-copy-btn" 
+                                        style="padding: 4px 10px; font-size: 0.8rem; background: var(--primary); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: all 0.2s;" 
+                                        onclick="copyToClipboard('${item.value}', this)">
+                                    Copiar
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                `).join('') + `</div>`;
-        } else {
-            container.innerHTML = method === 'Efectivo' ?
-                '<p class="payment-info">Se cancela presencialmente el día del control técnico.</p>' : '';
-        }
-    });
-}
-
-// Nueva función global para el botón de copiar
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        // Feedback visual: encontrar el botón que coincida
-        const btns = document.querySelectorAll('.mini-copy-btn');
-        btns.forEach(btn => {
-            if (btn.previousSibling && btn.previousSibling.textContent === text) {
-                const original = btn.textContent;
-                btn.textContent = "✅ Copiado";
-                setTimeout(() => btn.textContent = original, 2000);
+                    `).join('') + `</div>`;
+                if (paymentDetails) paymentDetails.style.display = 'block';
+            } else {
+                if (method === 'efectivo') {
+                    container.innerHTML = '<p class="payment-info" style="padding: 10px; margin: 0;">Se cancela presencialmente el día del control técnico.</p>';
+                    if (paymentDetails) paymentDetails.style.display = 'block';
+                } else {
+                    container.innerHTML = '';
+                    if (paymentDetails) paymentDetails.style.display = 'none';
+                }
             }
+
+            saveFormDraft();
         });
     });
 }
 
-function saveFormDraft() {
-    const draft = {
-        name: document.getElementById('hiker-name')?.value,
-        email: document.getElementById('hiker-email')?.value,
-        whatsapp: document.getElementById('hiker-whatsapp')?.value,
-        group: document.getElementById('booking-group')?.value,
-        gender: document.getElementById('hiker-gender')?.value,
-        tentPreference: document.getElementById('hiker-tent-preference')?.value,
-        allergies: document.getElementById('hiker-allergies')?.value,
-        medical: document.getElementById('hiker-medical')?.value,
-        date: document.getElementById('booking-date')?.value || document.getElementById('expedition-date')?.value,
-        referenceNumber: document.getElementById('payment-reference')?.value,
-        paymentMethod: document.getElementById('payment-method-select')?.value || document.getElementById('payment-method')?.value
-    };
-    localStorage.setItem('naiguata_form_draft', JSON.stringify(draft));
-}
+// Función global que copia el dato específico del botón que fue presionado
+function copyToClipboard(text, element) {
+    navigator.clipboard.writeText(text).then(() => {
+        if (element) {
+            const originalText = element.textContent;
+            element.textContent = "✅ Copiado";
+            element.style.background = "#fff"; // Cambia a blanco para resaltar el éxito
+            element.style.color = "#000";
 
-function restoreFormDraft() {
-    const saved = localStorage.getItem('naiguata_form_draft');
-    if (!saved) return;
-    try {
-        const draft = JSON.parse(saved);
-        if (draft.name) document.getElementById('hiker-name').value = draft.name;
-        if (draft.email) document.getElementById('hiker-email').value = draft.email;
-        if (draft.whatsapp) document.getElementById('hiker-whatsapp').value = draft.whatsapp;
-        if (draft.group) document.getElementById('booking-group').value = draft.group;
-        if (draft.gender) document.getElementById('hiker-gender').value = draft.gender;
-        if (draft.tentPreference) document.getElementById('hiker-tent-preference').value = draft.tentPreference;
-        if (draft.allergies) document.getElementById('hiker-allergies').value = draft.allergies;
-        if (draft.medical) document.getElementById('hiker-medical').value = draft.medical;
-
-        const dateEl = document.getElementById('booking-date') || document.getElementById('expedition-date');
-        if (dateEl && draft.date) {
-            dateEl.value = draft.date;
+            setTimeout(() => {
+                element.textContent = originalText;
+                element.style.background = "var(--primary)";
+                element.style.color = "#000";
+            }, 1500);
         }
-        if (draft.referenceNumber && document.getElementById('payment-reference')) document.getElementById('payment-reference').value = draft.referenceNumber;
-
-        const payEl = document.getElementById('payment-method-select') || document.getElementById('payment-method');
-        if (payEl && draft.paymentMethod) {
-            payEl.value = draft.paymentMethod;
-            payEl.dispatchEvent(new Event('change'));
-        }
-        updateFormPricing();
-    } catch (e) {
-        console.warn('Fallo restaurando el borrador del localStorage:', e);
-    }
+    }).catch(err => {
+        console.error('Error al copiar el dato: ', err);
+    });
 }
 
 /* ==========================================================================
