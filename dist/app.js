@@ -13,13 +13,60 @@ const SUPABASE_ANON_KEY = 'sb_publishable_qF2ETcffYEwh0nz27uV1rQ_JSxp7mA6';
 
 const appState = {
     activeView: 'client-view',
-    bcvRate: 40.00, // Default fallback
+    bcvRate: 575.00, // ¡Corregido aquí para evitar montos rotos en Bs!
     bcvSource: 'default', // 'api', 'supabase', 'default', 'manual'
     activeStepIndex: 0,
     inventory: [],
     logisticServices: [],
     cateringCatalog: []
 };
+
+/* ==========================================================================
+   MANEJADORES INTERACTIVOS (ALQUILERES, CATERING Y MÉTODOS DE PAGO)
+   ========================================================================== */
+function initBookingForm() {
+    // 1. Vinculación de botones más (+) y menos (-) para Alquileres y Catering
+    document.querySelectorAll(".stepper-btn").forEach(btn => {
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+
+        newBtn.addEventListener("click", function () {
+            const targetId = this.getAttribute("data-target");
+            const input = document.getElementById(targetId);
+            if (!input) return;
+
+            let currentVal = parseInt(input.value) || 0;
+            let maxStock = parseInt(input.getAttribute("data-max")) || 999;
+
+            if (this.classList.contains("plus")) {
+                if (currentVal < maxStock) input.value = currentVal + 1;
+            } else if (this.classList.contains("minus")) {
+                if (currentVal > 0) input.value = currentVal - 1;
+            }
+
+            input.dispatchEvent(new Event("change", { bubbles: true }));
+
+            if (typeof updateFormPricing === "function") updateFormPricing();
+            if (typeof calcularTotalExpedicion === "function") calcularTotalExpedicion();
+        });
+    });
+
+    // 2. Escucha activa para la pasarela de pagos (Binance, Pago Móvil, etc.)
+    const paymentSelect = document.getElementById("payment-method-select") ||
+        document.querySelector("select[name*='pago']") ||
+        document.getElementById("payment-option");
+
+    if (paymentSelect) {
+        paymentSelect.addEventListener("change", function () {
+            console.log(`[Pago] Cambiado a: ${this.value}`);
+            appState.metodoPago = this.value;
+
+            if (typeof actualizarInstruccionesPago === "function") actualizarInstruccionesPago(this.value);
+            if (typeof updateFormPricing === "function") updateFormPricing();
+            if (typeof calcularTotalExpedicion === "function") calcularTotalExpedicion();
+        });
+    }
+}
 
 // Route Checkpoints
 const routeSteps = [
