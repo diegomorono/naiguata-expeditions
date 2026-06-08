@@ -1335,3 +1335,74 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 });
+
+// ==========================================================================
+// CONTROLADOR LOGÍSTICO Y MATRIZ DE PRECIOS NAIGUATÁ EXPEDITIONS
+// ==========================================================================
+document.addEventListener("DOMContentLoaded", function () {
+
+    // Escuchar el cambio de alojamiento del Paso 1 para la vinculación del portador
+    const selectAlojamiento = document.getElementById("housing-preference-select") || document.querySelector("select[name*='alojamiento']");
+    const selectPortador = document.getElementById("logistic-carrier-select");
+
+    if (selectAlojamiento && selectPortador) {
+        selectAlojamiento.addEventListener("change", function () {
+            const val = selectAlojamiento.value;
+
+            // Deshabilitar todas las opciones de portador especializado primero
+            document.getElementById("opt-carrier-2p").disabled = true;
+            document.getElementById("opt-carrier-3p").disabled = true;
+            document.getElementById("opt-carrier-4p").disabled = true;
+
+            // Habilitar exclusivamente la vinculada a la capacidad seleccionada
+            if (val.includes("2")) {
+                document.getElementById("opt-carrier-2p").disabled = false;
+            } else if (val.includes("3")) {
+                document.getElementById("opt-carrier-3p").disabled = false;
+            } else if (val.includes("4")) {
+                document.getElementById("opt-carrier-4p").disabled = false;
+            }
+
+            // Resetear a la opción por defecto segura ($0)
+            selectPortador.value = "0";
+            calcularTotalExpedicion();
+        });
+    }
+
+    // Función unificada de cálculo en tiempo real
+    function calcularTotalExpedicion() {
+        let total = 50.00; // Tarifa Base del Tour Fija por Participante
+
+        // 1. Sumar Subtotal Alquileres de Equipos
+        document.querySelectorAll(".equipment-item:checked").forEach(item => {
+            total += parseFloat(item.getAttribute("data-price"));
+        });
+
+        // 2. Sumar Subtotal Snacks / Catering
+        document.querySelectorAll(".catering-input").forEach(input => {
+            let qty = parseInt(input.value) || 0;
+            if (qty < 0) qty = 0;
+            total += qty * parseFloat(input.getAttribute("data-price"));
+        });
+
+        // 3. Sumar Subtotal de Carga (Portador)
+        if (selectPortador) {
+            total += parseFloat(selectPortador.value);
+        }
+
+        // Reflejar en la UI con formato limpio
+        const display = document.getElementById("expedition-total-display");
+        if (display) {
+            display.textContent = `$${total.toFixed(2)} USD`;
+        }
+    }
+
+    // Vincular todos los triggers reactivos del Paso 3
+    document.querySelectorAll(".calc-trigger").forEach(element => {
+        const eventType = element.tagName === "INPUT" && element.type === "number" ? "input" : "change";
+        element.addEventListener(eventType, calcularTotalExpedicion);
+    });
+
+    // Ejecutar cálculo inicial base
+    calcularTotalExpedicion();
+});

@@ -2268,3 +2268,138 @@ select option:disabled {
     color: rgba(255, 255, 255, 0.4);
     font-size: 0.85rem;
 }
+
+/* ==========================================================================
+   NUEVA UI DINÁMICA: INVENTARIO, CATERING Y TOTALIZADOR
+   ========================================================================== */
+.provision-section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(0, 230, 118, 0.05);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.provision-subsection-title {
+    color: #00e676;
+    font-size: 1rem;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+/* Grid de Equipos */
+.provision-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+}
+
+.item-card {
+    position: relative;
+    cursor: pointer;
+}
+
+.item-card input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.item-card-content {
+    background: #151a17;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    transition: all 0.2s ease;
+}
+
+.item-card input:checked+.item-card-content {
+    border-color: #00e676;
+    background: rgba(0, 230, 118, 0.05);
+    box-shadow: 0 0 8px rgba(0, 230, 118, 0.2);
+}
+
+.item-name {
+    color: #e0e6e3;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.item-price {
+    color: rgba(0, 230, 118, 0.8);
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+/* Lista de Catering */
+.catering-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.catering-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #151a17;
+    padding: 10px 14px;
+    border-radius: 6px;
+}
+
+.catering-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.catering-name {
+    color: #e0e6e3;
+    font-size: 0.9rem;
+}
+
+.catering-price {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.8rem;
+}
+
+.form-input-qty {
+    width: 60px;
+    background: #1e2622;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 5px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+/* Barra Flotante de Totalización */
+.floating-total-container {
+    background: #151a17;
+    border: 2px solid #00e676;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.total-badge {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.total-label {
+    color: #fff;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+#expedition-total-display {
+    color: #00e676;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
+}

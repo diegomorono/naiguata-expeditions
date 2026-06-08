@@ -336,56 +336,122 @@
 
                         <!-- Custom Gear Rentals & Snacks -->
                         <div class="form-group-title">Alquileres y Provisiones</div>
-                        <p class="section-desc-small">Elige los equipos adicionales, snacks opcionales y servicio de
-                            portador:</p>
-
-                        <div class="rental-options">
-                            <!-- Populated dynamically by app.js -->
-                        </div>
-
-                        <div class="form-group-title">Alquileres y Provisiones</div>
-                        <p class="form-section-description">Elige los equipos adicionales, snacks opcionales y servicio
-                            de portador:</p>
+                        <p class="form-section-description">Personaliza tu experiencia de alta montaña. Los cargos se
+                            sumarán al total de tu pase.</p>
 
                         <div class="provisions-container">
-                            <div class="provision-item">
-                                <label class="provision-checkbox-wrapper">
-                                    <input type="checkbox" name="servicio_portador" id="prov-portador">
-                                    <span class="custom-checkbox"></span>
-                                    <div class="provision-info">
-                                        <span class="provision-name">Servicio de Portador</span>
-                                        <span class="provision-detail">Llevamos tu mochila principal hasta el
-                                            campamento.</span>
-                                    </div>
-                                </label>
+
+                            <div class="provision-section">
+                                <h4 class="provision-subsection-title">🎒 Alquiler de Equipos (Por Unidad)</h4>
+                                <div class="provision-grid">
+                                    <label class="item-card">
+                                        <input type="checkbox" class="calc-trigger equipment-item" data-price="10"
+                                            data-id="saco_dormir">
+                                        <div class="item-card-content">
+                                            <span class="item-name">Saco de Dormir (0-10°C)</span>
+                                            <span class="item-price">+$10 USD</span>
+                                        </div>
+                                    </label>
+                                    <label class="item-card">
+                                        <input type="checkbox" class="calc-trigger equipment-item" data-price="5"
+                                            data-id="esterilla">
+                                        <div class="item-card-content">
+                                            <span class="item-name">Esterilla / Aislante</span>
+                                            <span class="item-price">+$5 USD</span>
+                                        </div>
+                                    </label>
+                                    <label class="item-card">
+                                        <input type="checkbox" class="calc-trigger equipment-item" data-price="5"
+                                            data-id="poncho">
+                                        <div class="item-card-content">
+                                            <span class="item-name">Poncho Impermeable</span>
+                                            <span class="item-price">+$5 USD</span>
+                                        </div>
+                                    </label>
+                                    <label class="item-card">
+                                        <input type="checkbox" class="calc-trigger equipment-item" data-price="5"
+                                            data-id="linterna_frontal">
+                                        <div class="item-card-content">
+                                            <span class="item-name">Linterna Frontal</span>
+                                            <span class="item-price">+$5 USD</span>
+                                        </div>
+                                    </label>
+                                    <label class="item-card">
+                                        <input type="checkbox" class="calc-trigger equipment-item" data-price="5"
+                                            data-id="linterna_tienda">
+                                        <div class="item-card-content">
+                                            <span class="item-name">Linterna de Tienda</span>
+                                            <span class="item-price">+$5 USD</span>
+                                        </div>
+                                    </label>
+                                    <label class="item-card">
+                                        <input type="checkbox" class="calc-trigger equipment-item" data-price="10"
+                                            data-id="mochila_travesia">
+                                        <div class="item-card-content">
+                                            <span class="item-name">Mochila de Travesía (35L)</span>
+                                            <span class="item-price">+$10 USD</span>
+                                        </div>
+                                    </label>
+                                </div>
                             </div>
 
-                            <div class="provision-item">
-                                <label class="provision-checkbox-wrapper">
-                                    <input type="checkbox" name="alquiler_carpa" id="prov-carpa">
-                                    <span class="custom-checkbox"></span>
-                                    <div class="provision-info">
-                                        <span class="provision-name">Alquiler de Carpa Premium</span>
-                                        <span class="provision-detail">Carpa de alta montaña resistente a bajas
-                                            temperaturas.</span>
+                            <div class="provision-section">
+                                <h4 class="provision-subsection-title">🍎 Catering y Snacks Extra</h4>
+                                <div class="catering-list">
+                                    <div class="catering-row">
+                                        <div class="catering-info">
+                                            <span class="catering-name">Dulce de Guayaba</span>
+                                            <span class="catering-price">$2.00 USD / ud</span>
+                                        </div>
+                                        <input type="number" class="calc-trigger catering-input form-input-qty"
+                                            data-price="2" data-id="dulce_guayaba" min="0" value="0">
                                     </div>
-                                </label>
+                                    <div class="catering-row">
+                                        <div class="catering-info">
+                                            <span class="catering-name">Barras Energéticas</span>
+                                            <span class="catering-price">$2.50 USD / ud</span>
+                                        </div>
+                                        <input type="number" class="calc-trigger catering-input form-input-qty"
+                                            data-price="2.5" data-id="barras_energeticas" min="0" value="0">
+                                    </div>
+                                    <div class="catering-row">
+                                        <div class="catering-info">
+                                            <span class="catering-name">Mix de Frutos Secos (100g)</span>
+                                            <span class="catering-price">$4.00 USD / ud</span>
+                                        </div>
+                                        <input type="number" class="calc-trigger catering-input form-input-qty"
+                                            data-price="4" data-id="frutos_secos" min="0" value="0">
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="provision-item">
-                                <label class="provision-checkbox-wrapper">
-                                    <input type="checkbox" name="snacks_extra" id="prov-snacks">
-                                    <span class="custom-checkbox"></span>
-                                    <div class="provision-info">
-                                        <span class="provision-name">Ración Extra de Snacks</span>
-                                        <span class="provision-detail">Frutos secos, barras energéticas y chocolates
-                                            adicionales.</span>
-                                    </div>
-                                </label>
+                            <div class="provision-section">
+                                <h4 class="provision-subsection-title">🧳 Gestión de Carga y Personal de Apoyo</h4>
+                                <div class="form-input-wrapper full-width">
+                                    <label for="logistic-carrier-select">Servicio de Portador Especializado</label>
+                                    <select id="logistic-carrier-select" class="calc-trigger" required>
+                                        <option value="0" data-name="Ninguno - Carga el cliente" selected>No, yo mismo
+                                            cargaré mi carpa asignada ($0 USD)</option>
+                                        <option value="30" data-name="Portador Carpa 2P" id="opt-carrier-2p" disabled>
+                                            Servicio de Portador - Carpa de 2 personas (+$30 USD)</option>
+                                        <option value="40" data-name="Portador Carpa 3P" id="opt-carrier-3p" disabled>
+                                            Servicio de Portador - Carpa de 3 personas (+$40 USD)</option>
+                                        <option value="50" data-name="Portador Carpa 4P" id="opt-carrier-4p" disabled>
+                                            Servicio de Portador - Carpa de 4 personas (+$50 USD)</option>
+                                    </select>
+                                    <span class="input-tip">Obligatorio interactuar si deseas delegar el esfuerzo físico
+                                        del traslado de pernocta.</span>
+                                </div>
                             </div>
+
                         </div>
 
-                        <div class="form-group-title">Módulo de Pago</div>
+                        <div class="floating-total-container">
+                            <div class="total-badge">
+                                <span class="total-label">Pase de Expedición: Total a Transferir</span>
+                                <span id="expedition-total-display">$50.00 USD</span>
+                            </div>
+                        </div>
 
                         <!-- Simplified Payments Module -->
                         <div class="form-group-title">Módulo de Pago</div>
@@ -420,11 +486,6 @@
                             <p style="font-size:0.85rem; color:var(--text-muted); margin: 5px 0 10px 0;">
                                 📩 <strong>Email:</strong> thecardanomerch@gmail.com
                             </p>
-                            <!-- Placeholder QR code styling -->
-                            <div
-                                style="width: 120px; height: 120px; background: rgba(255,255,255,0.05); border: 2px dashed rgba(255,255,255,0.2); border-radius: 8px; margin: 10px auto; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--text-muted);">
-                                QR Binance Pay
-                            </div>
                         </div>
 
                         <div id="pay-info-zelle" class="payment-info-block glass-panel hidden"
