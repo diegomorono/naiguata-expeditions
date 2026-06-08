@@ -2,20 +2,31 @@
    1. CONFIGURACIÓN, CONSTANTES Y ESTADO GLOBAL
    ========================================================================== */
 
-const SUPABASE_URL = '__SUPABASE_URL__';
-const SUPABASE_ANON_KEY = '__SUPABASE_ANON_KEY__';
+const SUPABASE_URL = 'https://cnoeumcshfrfrzyvbxcn.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_qF2ETcffYEwh0nz27uV1rQ_JSxp7mA6';
+const ADMIN_PASSWORD_HASH = 'f6146b8353b55e153bf40786ebe755ac8aff89586fbd6111a89f35e8ebe00904';
 
-// Hash maestro para el inicio de sesión del administrador
-const ADMIN_PASSWORD_HASH = "AQUÍ_VA_TU_HASH_SHA256_REAL";
+// INICIALIZACIÓN ROBUSTA:
+let supabaseClient = null;
 
-// Instancia del cliente Supabase (Descomentar cuando esté configurado el SDK en el HTML)
-// const supabase = (window.supabase && SUPABASE_URL.indexOf('__SUPABASE_') === -1)
-//     ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-//     : null;
+function initSupabase() {
+    if (window.supabase && typeof window.supabase.createClient === 'function') {
+        // 2. Asignación a tu variable única
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log("Supabase inicializado correctamente.");
+        // 🔥 DISPARAR CARGA DE CONFIGURACIONES AQUÍ
+        loadSystemSettings();
+    } else {
+        setTimeout(initSupabase, 500);
+    }
+}
+
+// Ejecutar inicialización
+initSupabase();
 
 const appState = {
     activeView: 'client-view',
-    bcvRate: 575.00, // Tasa base de respaldo estable en Bs
+    bcvRate: 580.00,
     bcvSource: 'default',
     activeStepIndex: 0,
     inventory: [],
@@ -110,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 2. Procesos Asíncronos secundarios y de persistencia
+    try { if (typeof loadSystemSettings === 'function') loadSystemSettings(); } catch (e) { }
     try { if (typeof loadSupabaseData === 'function') loadSupabaseData(); } catch (e) { }
     try { if (typeof restoreFormDraft === 'function') restoreFormDraft(); } catch (e) { }
     try { if (typeof processOfflineQueue === 'function') processOfflineQueue(); } catch (e) { }
@@ -336,25 +348,20 @@ function initBookingForm() {
     const form = document.getElementById('expedition-form');
     if (!form) return;
 
-    form.addEventListener('input', saveFormDraft);
-    form.addEventListener('change', saveFormDraft);
+    // 1. Delegación de eventos: Escucha cualquier cambio en cualquier campo del formulario
+    form.addEventListener('input', (e) => {
+        saveFormDraft(); // Tu lógica de autoguardado
+        updateFormPricing(); // <--- Ahora cada vez que algo cambia, recalcula
+    });
 
-    // Formateo dinámico del input telefónico de Whatsapp
-    const phoneInput = document.getElementById('hiker-whatsapp');
-    if (phoneInput) {
-        phoneInput.addEventListener('input', (e) => {
-            let val = e.target.value.replace(/[^\d+]/g, '');
-            if (val.length > 0 && val[0] !== '+') val = '+' + val;
-            e.target.value = val;
-        });
-    }
+    form.addEventListener('change', (e) => {
+        saveFormDraft();
+        updateFormPricing(); // <--- Recalcula también en cambios de select/checkbox
+    });
 
-    // Inicializar Steppers (+ y -) de Equipamiento y Catering
+    // 2. Lógica específica para los botones Stepper (+ / -)
     document.querySelectorAll(".stepper-btn").forEach(btn => {
-        const newBtn = btn.cloneNode(true);
-        btn.parentNode.replaceChild(newBtn, btn);
-
-        newBtn.addEventListener("click", function () {
+        btn.addEventListener("click", function () {
             const targetId = this.getAttribute("data-target");
             const input = document.getElementById(targetId);
             if (!input) return;
@@ -363,43 +370,31 @@ function initBookingForm() {
             let maxStock = parseInt(input.getAttribute("data-max")) || 999;
 
             if (this.classList.contains("plus")) {
-                if (currentVal < maxStock) {
-                    input.value = currentVal + 1;
-                } else {
-                    const container = input.closest(".stepper-container");
-                    if (container) {
-                        container.style.borderColor = "#ff5252";
-                        setTimeout(() => { container.style.borderColor = ""; }, 300);
-                    }
-                }
+                if (currentVal < maxStock) input.value = currentVal + 1;
             } else if (this.classList.contains("minus")) {
-                if (currentVal > 0) {
-                    input.value = currentVal - 1;
-                }
+                if (currentVal > 0) input.value = currentVal - 1;
             }
-            input.dispatchEvent(new Event("change", { bubbles: true }));
+
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+            updateFormPricing(); // Forzar recalculo inmediato
         });
     });
 
-    // Escuchadores para calcular precios al cambiar cualquier valor
-    document.querySelectorAll(".calc-trigger, .rental-checkbox, .snack-qty-input, .equipment-input, .catering-input").forEach(element => {
-        const eventType = element.tagName === "INPUT" && element.type === "number" ? "input" : "change";
-        element.addEventListener(eventType, updateFormPricing);
-    });
-
-    const selectAlojamiento = document.getElementById("housing-preference-select");
+    // 3. Lógica específica de lógica condicional (Alojamiento -> Portador)
+    const selectAlojamiento = document.getElementById("hiker-tent-preference");
     if (selectAlojamiento) {
         selectAlojamiento.addEventListener("change", actualizarOpcionesPortador);
     }
 
     form.addEventListener('submit', handleFormSubmission);
 
+    // Inicialización
     populateSaturdays();
     updateFormPricing();
 }
 
 function actualizarOpcionesPortador() {
-    const selectAlojamiento = document.getElementById("housing-preference-select");
+    const selectAlojamiento = document.getElementById("hiker-tent-preference");
     const selectPortador = document.getElementById("logistic-carrier-select");
     if (!selectPortador) return;
 
@@ -528,41 +523,50 @@ function populateSaturdays() {
    7. PASARELA DE PAGOS E INSTRUCCIONES DINÁMICAS Y PERSISTENCIA
    ========================================================================== */
 function initPaymentInstructions() {
-    const methodSelect = document.getElementById('payment-method') || document.getElementById('payment-method-select');
+    const methodSelect = document.getElementById('payment-method-select');
     if (!methodSelect) return;
 
     methodSelect.addEventListener('change', (e) => {
         const method = e.target.value;
-        let instructionDiv = document.getElementById('payment-instructions-box');
-        if (!instructionDiv) {
-            instructionDiv = document.createElement('div');
-            instructionDiv.id = 'payment-instructions-box';
-            instructionDiv.style.marginTop = "15px";
-            instructionDiv.style.padding = "15px";
-            instructionDiv.style.borderRadius = "8px";
-            instructionDiv.style.backgroundColor = "rgba(244, 162, 97, 0.1)";
-            instructionDiv.style.border = "1px dashed var(--secondary)";
-            methodSelect.parentNode.appendChild(instructionDiv);
-        }
+        let container = document.getElementById('payment-instructions-box');
+        if (!container) return;
 
-        let details = "";
-        switch (method) {
-            case 'Efectivo':
-                details = "<strong>Efectivo (USD):</strong> Se cancelará de forma presencial el día del control técnico y de seguridad previo en Caracas.";
-                break;
-            case 'Zelle':
-                details = "<strong>Zelle (Divisas):</strong><br>Correo: <code>diego.morono03@gmail.com</code><br>A nombre de: Diego Moroño.<br><em>Por favor, guarda el capture de la operación.</em>";
-                break;
-            case 'Binance':
-                details = "<strong>Binance Pay (USDT):</strong><br>Email de Pago: <code>thecardanomerch@gmail.com</code><br>Asegúrate de enviar el monto neto sin comisión de red.";
-                break;
-            case 'Pago Móvil':
-                details = "<strong>Pago Móvil (Bs. a tasa BCV):</strong><br>Banco: Banesco (0134)<br>Cédula: V-24218655<br>Teléfono: 0426-2062588";
-                break;
-            default:
-                details = "Por favor selecciona un método de pago válido para ver los datos de transferencia.";
+        const data = {
+            'Zelle': [{ label: 'Email', value: 'diego.morono03@gmail.com' }, { label: 'Nombre', value: 'Diego Moroño' }],
+            'Binance': [{ label: 'Email', value: 'thecardanomerch@gmail.com' }],
+            'Pago Móvil': [{ label: 'Teléfono', value: '04262062588' }, { label: 'Cédula', value: 'V24218655' }, { label: 'Banco', value: 'Banesco (0134)' }]
+        };
+
+        if (data[method]) {
+            container.innerHTML = `<div class="payment-grid">` +
+                data[method].map(item => `
+                    <div class="pay-item">
+                        <span class="pay-lbl">${item.label}</span>
+                        <div class="pay-row">
+                            <code>${item.value}</code>
+                            <button class="mini-copy-btn" onclick="copyToClipboard('${item.value}')">Copiar</button>
+                        </div>
+                    </div>
+                `).join('') + `</div>`;
+        } else {
+            container.innerHTML = method === 'Efectivo' ?
+                '<p class="payment-info">Se cancela presencialmente el día del control técnico.</p>' : '';
         }
-        instructionDiv.innerHTML = details;
+    });
+}
+
+// Nueva función global para el botón de copiar
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        // Feedback visual: encontrar el botón que coincida
+        const btns = document.querySelectorAll('.mini-copy-btn');
+        btns.forEach(btn => {
+            if (btn.previousSibling && btn.previousSibling.textContent === text) {
+                const original = btn.textContent;
+                btn.textContent = "✅ Copiado";
+                setTimeout(() => btn.textContent = original, 2000);
+            }
+        });
     });
 }
 
@@ -617,6 +621,33 @@ function restoreFormDraft() {
 /* ==========================================================================
    8. RESOLUCIÓN DE TASA DE CAMBIO BCV Y CONECTIVIDAD SUPABASE
    ========================================================================== */
+async function loadSystemSettings() {
+    try {
+        if (!supabaseClient) return;
+
+        // 1. Traer la tasa oficial guardada en la tabla system_settings
+        const { data, error } = await supabaseClient
+            .from('system_settings')
+            .select('*')
+            .eq('key', 'last_valid_bcv')
+            .single();
+
+        if (error) throw error;
+
+        if (data && data.value) {
+            // Actualizamos el estado global con la tasa real de la BD
+            appState.bcvRate = parseFloat(data.value.rate);
+            console.log(`Tasa BCV cargada desde system_settings: ${appState.bcvRate}`);
+
+            // 2. Actualizar la UI de precios y moneda con la tasa nueva
+            updateCurrencyUI();
+            updateFormPricing();
+        }
+    } catch (err) {
+        console.error("Error cargando la configuración inicial (BCV/Pagos):", err);
+    }
+}
+
 async function resolveBcvRate() {
     // CAPA 1: DolarApi.com
     try {
@@ -640,9 +671,9 @@ async function resolveBcvRate() {
     }
 
     // CAPA 2: Base de Datos Supabase de respaldo
-    if (typeof supabase !== 'undefined' && supabase !== null) {
+    if (typeof supabaseClient !== 'undefined' && supabaseClient !== null) {
         try {
-            const { data } = await supabase
+            const { data } = await supabaseClient
                 .from('system_settings')
                 .select('value')
                 .eq('key', 'last_valid_bcv')
@@ -685,15 +716,15 @@ function triggerEmergencyMode() {
 }
 
 async function loadSupabaseData() {
-    if (typeof supabase === 'undefined' || !supabase) return;
+    if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
     try {
-        const { data: invData } = await supabase.from('inventory_stock').select('*');
+        const { data: invData } = await supabaseClient.from('inventory_stock').select('*');
         if (invData) appState.inventory = invData;
 
-        const { data: servData } = await supabase.from('logistic_services').select('*');
+        const { data: servData } = await supabaseClient.from('logistic_services').select('*');
         if (servData) appState.logisticServices = servData;
 
-        const { data: catData } = await supabase.from('catering_inventory').select('*');
+        const { data: catData } = await supabaseClient.from('catering_inventory').select('*');
         if (catData) appState.cateringCatalog = catData;
 
         updateFormPricing();
@@ -749,10 +780,10 @@ async function handleFormSubmission(e) {
         tent_preference: 'Compartida'
     };
 
-    if (typeof supabase !== 'undefined' && supabase) {
+    if (typeof supabaseClient !== 'undefined' && supabaseClient) {
         try {
             // Envío directo mediante llamada RPC atómica a Postgres
-            const { data, error } = await supabase.rpc('register_hiker', {
+            const { data, error } = await supabaseClient.rpc('registrar_excursionista', {
                 p_id: passId,
                 p_date: dateVal,
                 p_name: name,
@@ -776,7 +807,7 @@ async function handleFormSubmission(e) {
 
             alert('¡Inscripción procesada con éxito!');
             renderExpeditionPass(bookingData);
-            switchView('pass-view');
+            switchView('success-view');
             localStorage.removeItem('naiguata_form_draft');
         } catch (err) {
             console.error('Error registrando en servidor, guardando copia local:', err);
@@ -802,7 +833,7 @@ function addToOfflineQueue(bookingData) {
 }
 
 async function processOfflineQueue() {
-    if (!navigator.onLine || typeof supabase === 'undefined' || !supabase) return;
+    if (!navigator.onLine || typeof supabaseClient === 'undefined' || !supabaseClient) return;
     const queue = JSON.parse(localStorage.getItem('naiguata_offline_queue') || '[]');
     if (queue.length === 0) return;
 
@@ -819,7 +850,7 @@ function showOfflineSuccess(booking) {
     if (serialEl) {
         serialEl.innerHTML = `${booking.id} <span style="font-size: 0.7rem; color: #ff5252; display:block;">Pase Offline (Pendiente de Sincronizar)</span>`;
     }
-    switchView('pass-view');
+    switchView('success-view');
 }
 
 /* ==========================================================================
@@ -890,7 +921,9 @@ function formatTitleCase(str) {
 
 async function computeSHA256(string) {
     const utf8 = new TextEncoder().encode(string);
-    const hashBuffer = await crypto.subcrypto ? crypto.subtle.digest('SHA-256', utf8) : crypto.subtle.digest('SHA-256', utf8);
+    // Usamos la API Web Crypto estándar del navegador
+    const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
+    // Convertimos a string hexadecimal
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }

@@ -1,48 +1,32 @@
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto');
+const crypto = require('node:crypto');
 
-function copyDir(src, dest) {
-  fs.mkdirSync(dest, { recursive: true });
-  let entries = fs.readdirSync(src, { withFileTypes: true });
-
-  for (let entry of entries) {
-    let srcPath = path.join(src, entry.name);
-    let destPath = path.join(dest, entry.name);
-
-    if (entry.isDirectory()) {
-      copyDir(srcPath, destPath);
-    } else {
-      fs.copyFileSync(srcPath, destPath);
-    }
-  }
-}
-
-const srcDir = path.join(__dirname, 'Website');
-const destDir = path.join(__dirname, 'dist');
-
-if (fs.existsSync(destDir)) {
-  fs.rmSync(destDir, { recursive: true, force: true });
-}
-
-copyDir(srcDir, destDir);
-
+// 1. Aquí Node.js sí lee tus variables de entorno o usa los fallbacks reales
 const supabaseUrl = process.env.SUPABASE_URL || 'https://cnoeumcshfrfrzyvbxcn.supabase.co';
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || 'sb_publishable_qF2ETcffYEwh0nz27uV1rQ_JSxp7mA6';
 const adminPassword = process.env.ADMIN_PASSWORD || 'Dmc-45142238T';
-
 const adminPasswordHash = crypto.createHash('sha256').update(adminPassword).digest('hex');
 
-const replaceInFile = (filePath) => {
-  if (!fs.existsSync(filePath)) return;
+// 2. Función que pisa el archivo de la web con datos reales
+function replaceInFile(filePath) {
+  if (!fs.existsSync(filePath)) {
+    console.error(`Error: No se encontró el archivo en ${filePath}`);
+    return;
+  }
   let content = fs.readFileSync(filePath, 'utf8');
-  content = content.replace(/__SUPABASE_URL__/g, supabaseUrl);
-  content = content.replace(/__SUPABASE_ANON_KEY__/g, supabaseAnonKey);
-  content = content.replace(/__ADMIN_PASSWORD_HASH__/g, adminPasswordHash);
+
+  // Cambiamos los marcadores limpios por los strings reales
+  content = content.replace('__SUPABASE_URL__', supabaseUrl);
+  content = content.replace('__SUPABASE_ANON_KEY__', supabaseAnonKey);
+  content = content.replace('__ADMIN_PASSWORD_HASH__', adminPasswordHash);
+
   fs.writeFileSync(filePath, content, 'utf8');
-};
+  console.log(`Procesado con éxito: ${filePath}`);
+}
 
-replaceInFile(path.join(destDir, 'app.js'));
-replaceInFile(path.join(destDir, 'admin', 'admin.js'));
+// 3. Apuntar directamente a la carpeta del servidor local
+const distFile = path.join(__dirname, 'Website', 'app.js');
+replaceInFile(distFile);
 
-console.log('Build completed successfully.');
+console.log('Build completado de forma segura.');

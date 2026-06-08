@@ -2467,3 +2467,63 @@ select option:disabled {
     -webkit-appearance: none;
     margin: 0;
 }
+
+#payment-instructions-box {
+    margin-top: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    /* Fondo oscuro semitransparente */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+}
+
+.payment-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pay-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pay-lbl {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #f4a261;
+    letter-spacing: 1px;
+}
+
+.pay-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+code {
+    background: #000;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: #fff;
+    font-family: 'Courier New', monospace;
+    flex-grow: 1;
+}
+
+.mini-copy-btn {
+    background: #333;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: 0.2s;
+}
+
+.mini-copy-btn:hover {
+    background: #f4a261;
+    color: #000;
+    border-color: #f4a261;
+}
