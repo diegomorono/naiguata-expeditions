@@ -1339,89 +1339,114 @@ document.addEventListener("DOMContentLoaded", function () {
 // ==========================================================================
 // CONTROLADOR LOGÍSTICO Y MATRIZ DE PRECIOS NAIGUATÁ EXPEDITIONS
 // ==========================================================================
+// ==========================================================================
+// VINCULACIÓN TOLERANTE A FALLOS: ALOJAMIENTO -> PORTADOR
+// ==========================================================================
 document.addEventListener("DOMContentLoaded", function () {
 
-    // Escuchar el cambio de alojamiento del Paso 1 para la vinculación del portador
     const selectAlojamiento = document.getElementById("housing-preference-select") ||
         document.querySelector("select[name*='alojamiento']") ||
         document.querySelector("select[id*='housing']");
     const selectPortador = document.getElementById("logistic-carrier-select");
 
-    if (selectAlojamiento && selectPortador) {
+    if (selectPortador) {
+        // Capturar las opciones de portador del Paso 3
+        const opt2p = document.getElementById("opt-carrier-2p");
+        const opt3p = document.getElementById("opt-carrier-3p");
+        const opt4p = document.getElementById("opt-carrier-4p");
 
         function actualizarOpcionesPortador() {
+            // Si por alguna razón el selector del Paso 1 no existe en el HTML,
+            // abrimos todas las opciones por defecto para no romper la experiencia
+            if (!selectAlojamiento) {
+                if (opt2p) opt2p.disabled = false;
+                if (opt3p) opt3p.disabled = false;
+                if (opt4p) opt4p.disabled = false;
+                return;
+            }
+
             const opcionSeleccionada = selectAlojamiento.options[selectAlojamiento.selectedIndex];
             if (!opcionSeleccionada) return;
 
             const textoCompleto = opcionSeleccionada.text.toLowerCase();
             const valorCompleto = selectAlojamiento.value.toLowerCase();
 
-            const opt2p = document.getElementById("opt-carrier-2p");
-            const opt3p = document.getElementById("opt-carrier-3p");
-            const opt4p = document.getElementById("opt-carrier-4p");
-
+            // Resetear estados a disabled antes de evaluar
             if (opt2p) opt2p.disabled = true;
             if (opt3p) opt3p.disabled = true;
             if (opt4p) opt4p.disabled = true;
 
-            // Evalúa de forma robusta tanto el texto como el valor por el número de capacidad
+            // Validación flexible por texto o valor
             if (textoCompleto.includes("2") || valorCompleto.includes("2")) {
                 if (opt2p) opt2p.disabled = false;
             } else if (textoCompleto.includes("3") || valorCompleto.includes("3")) {
                 if (opt3p) opt3p.disabled = false;
             } else if (textoCompleto.includes("4") || valorCompleto.includes("4")) {
                 if (opt4p) opt4p.disabled = false;
+            } else {
+                // Si el usuario eligió otra cosa o el formato no coincide, las habilitamos todas 
+                // para garantizar que el cliente pueda contratar el servicio si quiere
+                if (opt2p) opt2p.disabled = false;
+                if (opt3p) opt3p.disabled = false;
+                if (opt4p) opt4p.disabled = false;
             }
 
+            // Evitar que se quede seleccionada una opción deshabilitada
             if (selectPortador.selectedOptions[0] && selectPortador.selectedOptions[0].disabled) {
                 selectPortador.value = "0";
             }
 
-            calcularTotalExpedicion();
+            if (typeof calcularTotalExpedicion === "function") calcularTotalExpedicion();
         }
 
-        selectAlojamiento.addEventListener("change", actualizarOpcionesPortador);
-        setTimeout(actualizarOpcionesPortador, 500);
+        // Registrar el evento de escucha si el elemento existe
+        if (selectAlojamiento) {
+            selectAlojamiento.addEventListener("change", actualizarOpcionesPortador);
+        }
+
+        // Forzar ejecución inicial para acomodar la UI de inmediato
+        actualizarOpcionesPortador();
     }
+});
 
-    // Función unificada de cálculo en tiempo real
-    function calcularTotalExpedicion() {
-        let total = 50.00; // Tarifa Base del Tour Fija por Participante
+// Función unificada de cálculo en tiempo real
+function calcularTotalExpedicion() {
+    let total = 50.00; // Tarifa Base del Tour Fija por Participante
 
-        // 1. Sumar Subtotal Alquileres de Equipos (Multiplicación Dinámica por Cantidad)
-        document.querySelectorAll(".equipment-input").forEach(input => {
-            let qty = parseInt(input.value) || 0;
-            if (qty < 0) qty = 0; // Evitar que metan números negativos tramposos
-            total += qty * parseFloat(input.getAttribute("data-price"));
-        });
-
-        // 2. Sumar Subtotal Snacks / Catering (Multiplicación Dinámica)
-        document.querySelectorAll(".catering-input").forEach(input => {
-            let qty = parseInt(input.value) || 0;
-            if (qty < 0) qty = 0;
-            total += qty * parseFloat(input.getAttribute("data-price"));
-        });
-
-        // 3. Sumar Subtotal de Carga (Portador)
-        if (selectPortador) {
-            total += parseFloat(selectPortador.value);
-        }
-
-        // Reflejar en la UI con formato limpio
-        const display = document.getElementById("expedition-total-display");
-        if (display) {
-            display.textContent = `$${total.toFixed(2)} USD`;
-        }
-    }
-
-    // Vincular todos los triggers reactivos del Paso 3
-    document.querySelectorAll(".calc-trigger").forEach(element => {
-        const eventType = element.tagName === "INPUT" && element.type === "number" ? "input" : "change";
-        element.addEventListener(eventType, calcularTotalExpedicion);
+    // 1. Sumar Subtotal Alquileres de Equipos (Multiplicación Dinámica por Cantidad)
+    document.querySelectorAll(".equipment-input").forEach(input => {
+        let qty = parseInt(input.value) || 0;
+        if (qty < 0) qty = 0; // Evitar que metan números negativos tramposos
+        total += qty * parseFloat(input.getAttribute("data-price"));
     });
 
-    // Ejecutar cálculo inicial base
-    calcularTotalExpedicion();
+    // 2. Sumar Subtotal Snacks / Catering (Multiplicación Dinámica)
+    document.querySelectorAll(".catering-input").forEach(input => {
+        let qty = parseInt(input.value) || 0;
+        if (qty < 0) qty = 0;
+        total += qty * parseFloat(input.getAttribute("data-price"));
+    });
+
+    // 3. Sumar Subtotal de Carga (Portador)
+    if (selectPortador) {
+        total += parseFloat(selectPortador.value);
+    }
+
+    // Reflejar en la UI con formato limpio
+    const display = document.getElementById("expedition-total-display");
+    if (display) {
+        display.textContent = `$${total.toFixed(2)} USD`;
+    }
+}
+
+// Vincular todos los triggers reactivos del Paso 3
+document.querySelectorAll(".calc-trigger").forEach(element => {
+    const eventType = element.tagName === "INPUT" && element.type === "number" ? "input" : "change";
+    element.addEventListener(eventType, calcularTotalExpedicion);
+});
+
+// Ejecutar cálculo inicial base
+calcularTotalExpedicion();
 });
 
 // ==========================================================================
