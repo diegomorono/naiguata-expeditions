@@ -1301,3 +1301,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// Automatización de fechas de Sábados Disponibles para Naiguatá Expeditions
+document.addEventListener("DOMContentLoaded", function () {
+    const selectSabados = document.getElementById("booking-date");
+    if (!selectSabados) return;
+
+    // Limpiamos el mensaje de carga temporal
+    selectSabados.innerHTML = '<option value="" disabled selected>Selecciona un sábado...</option>';
+
+    let hoy = new Date();
+    let sabadosEncontrados = 0;
+
+    // Buscamos los próximos 4 sábados en el calendario
+    for (let i = 0; i < 45 && sabadosEncontrados < 4; i++) {
+        let diaFuturo = new Date(hoy);
+        diaFuturo.setDate(hoy.getDate() + i);
+
+        // 6 representa el sábado en JavaScript
+        if (diaFuturo.getDay() === 6) {
+            let opcionesFormato = { weekday: 'long', day: 'numeric', month: 'long' };
+            let fechaTexto = diaFuturo.toLocaleDateString('es-ES', opcionesFormato);
+
+            // Capitalizamos la primera letra (ej: Sábado...)
+            fechaTexto = fechaTexto.charAt(0).toUpperCase() + fechaTexto.slice(1);
+
+            // Formato estándar AAAA-MM-DD para el envío del formulario
+            let valorFecha = diaFuturo.toISOString().split('T')[0];
+
+            let nuevaOption = document.createElement("option");
+            nuevaOption.value = valorFecha;
+            nuevaOption.textContent = fechaTexto;
+
+            selectSabados.appendChild(nuevaOption);
+            sabadosEncontrados++;
+        }
+    }
+});
