@@ -923,7 +923,12 @@ function enviarEmailNotificacion(booking) {
         medical_info: booking.medical,
         payment_method: booking.payment_method,
         reference_number: booking.reference_number,
-        total_usd: `${booking.total_usd.toFixed(2)} USD`
+        total_usd: `${booking.total_usd.toFixed(2)} USD`,
+
+        // NUEVOS CAMPOS AGREGADOS:
+        hiker_gender: booking.gender,
+        hiker_tent_preference: booking.tent_preference,
+        group_code: booking.group_code
     };
 
     emailjs.send('service_f8qzcms', 'template_r1l52td', templateParams)
@@ -933,6 +938,117 @@ function enviarEmailNotificacion(booking) {
         .catch((error) => {
             console.error('Fallo crítico al despachar correo de notificación:', error);
         });
+}
+
+// ==========================================================================
+// SECCIÓN DE ACCIONES DEL CHECKOUT (IMPRESIÓN Y WHATSAPP)
+// ==========================================================================
+
+function ejecutarImpresionCheckout() {
+    // Buscamos el contenedor del boleto. Remplaza 'pass-preview-card' por el ID real de tu tarjeta de pase si es distinto.
+    const checkoutElement = document.getElementById('pass-preview-card') ||
+        document.getElementById('checkout-ticket-container') ||
+        document.querySelector('.ticket-card-container');
+
+    if (!checkoutElement) {
+        alert('No se pudo encontrar el contenedor visual del pase para proceder con la impresión.');
+        return;
+    }
+
+    // Ventana temporal limpia para saltarse los estilos oscuros en el papel
+    const ventanaImpresion = window.open('', '_blank', 'height=600,width=800');
+
+    ventanaImpresion.document.write('<html><head><title>Pase de Abordaje - Naiguatá Expeditions</title>');
+    ventanaImpresion.document.write('<style>');
+    ventanaImpresion.document.write(`
+        body { font-family: 'Inter', sans-serif; color: #111; padding: 30px; background: #fff; }
+        .print-wrapper { border: 2px dashed #10b981; padding: 25px; border-radius: 12px; max-width: 550px; margin: 0 auto; }
+        h2 { color: #059669; text-align: center; margin-top: 0; font-size: 22px; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 6px; }
+        .label { font-weight: bold; color: #444; }
+        .value { color: #000; font-weight: 500; }
+        .qr-section { text-align: center; margin-top: 20px; }
+        svg, img { max-width: 150px; margin: 10px auto; display: block; }
+    `);
+    ventanaImpresion.document.write('</style></head><body>');
+
+    ventanaImpresion.document.write('<div class="print-wrapper">');
+    ventanaImpresion.document.write(checkoutElement.innerHTML);
+    ventanaImpresion.document.write('</div>');
+    ventanaImpresion.document.write('</body></html>');
+
+    ventanaImpresion.document.close();
+    ventanaImpresion.focus();
+
+    setTimeout(() => {
+        ventanaImpresion.print();
+        ventanaImpresion.close();
+    }, 500);
+}
+
+function ejecutarCompartirWhatsApp(bookingData) {
+    // Si la función se llama desde el flujo de éxito con los datos frescos de la reserva, los usamos.
+    // Si no, intentamos recuperarlos del estado o del borrador guardado.
+    let booking = bookingData || {};
+
+    if (!booking.name) {
+        try {
+            const draft = localStorage.getItem('naiguata_form_draft');
+            if (draft) booking = JSON.parse(draft);
+        } catch (e) {
+            console.error("No se pudo leer la información de la reserva para WhatsApp:", e);
+        }
+    }
+
+    // 1. Formatear sección de servicios opcionales de forma limpia
+    const alquileres = booking.equipment_rentals && booking.equipment_rentals.length > 0
+        ? booking.equipment_rentals.join(', ')
+        : 'Ninguno';
+
+    const catering = booking.catering_services && booking.catering_services.length > 0
+        ? booking.catering_services.join(', ')
+        : 'Ninguno';
+
+    const portador = booking.porter_service
+        ? `Sí (${booking.porter_service})`
+        : 'No requerido';
+
+    // 2. Construir el cuerpo del mensaje usando negritas de WhatsApp (*) y emojis de montaña
+    const mensajeTexto =
+        `🏔️ *¡EXPEDICIONES NAIGUATÁ!* 🥾\n\n` +
+        `👤 *DATOS DEL SENDERISTA:*\n` +
+        `• *Nombre:* ${booking.name || 'No especificado'}\n` +
+        `• *Género:* ${booking.gender || 'No especificado'}\n` +
+        `• *WhatsApp:* ${booking.whatsapp || 'No especificado'}\n` +
+        `• *Email:* ${booking.email || 'No especificado'}\n\n` +
+        `⛺ *LOGÍSTICA DE CAMPAMENTO:*\n` +
+        `• *Fecha:* ${booking.date || 'No especificada'}\n` +
+        `• *Código de Grupo:* ${booking.group_code || 'Individual'}\n` +
+        `• *Alojamiento:* ${booking.tent_preference || 'Carpa compartida'}\n\n` +
+        `🎒 *SERVICIOS ADICIONALES:*\n` +
+        `• *Alquiler de Equipos:* ${alquileres}\n` +
+        `• *Catering/Comidas:* ${catering}\n` +
+        `• *Servicio de Portador:* ${portador}\n\n` +
+        `🏥 *INFORMACIÓN MÉDICA:*\n` +
+        `• *Alergias:* ${booking.allergies || 'Ninguna'}\n` +
+        `• *Condición Médica:* ${booking.medical || 'Ninguna'}\n\n` +
+        `💳 *INFORMACIÓN DE PAGO:*\n` +
+        `• *Método:* ${booking.payment_method || 'No especificado'}\n` +
+        `• *Referencia:* ${booking.reference_number || 'No ingresada'}\n` +
+        `• *Monto Total:* *${typeof booking.total_usd === 'number' ? booking.total_usd.toFixed(2) : booking.total_usd || '0.00'} USD*\n\n` +
+        `¡Nos vemos en la cumbre! 🧗‍♂️✨`;
+
+    // 3. Codificar de manera segura para URLs de internet
+    const mensajeCodificado = encodeURIComponent(mensajeTexto);
+
+    // 4. Dirección de destino. Cambia el número por el de Diego (+34...) o déjalo vacío para que el usuario elija a quién enviárselo.
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${mensajeCodificado}`;
+
+    // Si deseas que se envíe directamente al WhatsApp de soporte de la organización:
+    // const whatsappUrl = `https://wa.me/34673375681?text=${mensajeCodificado}`;
+
+    // 5. Despachar apertura de la API de WhatsApp
+    window.open(whatsappUrl, '_blank');
 }
 
 /* ==========================================================================
@@ -996,24 +1112,106 @@ function renderCheckoutSuccess(booking) {
 }
 
 function initPassButtons(booking) {
-    // Botón WhatsApp
+    // 1. COMPARTIR TODO EL DETALLE POR WHATSAPP
     const btnShare = document.getElementById('btn-share-adventure');
     if (btnShare) {
         btnShare.onclick = () => {
-            const msg = `¡Hola! Soy ${booking.name}. He registrado mi expedición a Naiguatá. Mi ID de pase es ${booking.id} para la fecha ${booking.date}.`;
-            window.open(`https://wa.me/58414XXXXXXX?text=${encodeURIComponent(msg)}`, '_blank');
+            // Mapeamos los arreglos de forma segura por si vienen vacíos
+            const alquileres = booking.equipment_rentals && booking.equipment_rentals.length > 0
+                ? booking.equipment_rentals.join(', ')
+                : 'Ninguno';
+
+            const catering = booking.catering_services && booking.catering_services.length > 0
+                ? booking.catering_services.join(', ')
+                : 'Ninguno';
+
+            const portador = booking.porter_service
+                ? `Sí (${booking.porter_service})`
+                : 'No requerido';
+
+            // El precio formateado con decimales limpios
+            const totalUSD = typeof booking.total_usd === 'number'
+                ? booking.total_usd.toFixed(2)
+                : (booking.total_usd || '0.00');
+
+            // Construcción del mensaje estructurado para el equipo de guías
+            const msg =
+                `🏔️ *¡NUEVO REGISTRO - NAIGUATÁ EXPEDITIONS!* 🥾\n\n` +
+                `👤 *DATOS DEL SENDERISTA:*\n` +
+                `• *Nombre:* ${booking.name || 'No especificado'}\n` +
+                `• *Género:* ${booking.gender || 'No especificado'}\n` +
+                `• *WhatsApp:* ${booking.whatsapp || 'No especificado'}\n` +
+                `• *Email:* ${booking.email || 'No especificado'}\n\n` +
+                `⛺ *LOGÍSTICA DE CAMPAMENTO:*\n` +
+                `• *Fecha:* ${booking.date || 'No especificada'}\n` +
+                `• *Código de Grupo:* ${booking.group_code || 'Individual'}\n` +
+                `• *Alojamiento:* ${booking.tent_preference || 'Carpa compartida'}\n\n` +
+                `🎒 *SERVICIOS ADICIONALES:*\n` +
+                `• *Alquiler de Equipos:* ${alquileres}\n` +
+                `• *Catering/Comidas:* ${catering}\n` +
+                `• *Servicio de Portador:* ${portador}\n\n` +
+                `🏥 *INFORMACIÓN MÉDICA:*\n` +
+                `• *Alergias:* ${booking.allergies || 'Ninguna'}\n` +
+                `• *Condición Médica:* ${booking.medical || 'Ninguna'}\n\n` +
+                `💳 *INFORMACIÓN DE PAGO:*\n` +
+                `• *Método:* ${booking.payment_method || 'No especificado'}\n` +
+                `• *Referencia:* ${booking.reference_number || 'No ingresada'}\n` +
+                `• *Monto Total:* *${totalUSD} USD*\n\n` +
+                `¡Nos vemos en la cumbre! 🧗‍♂️✨`;
+
+            // Usamos la API de redirección global limpia para evitar fallos de rutas
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
         };
     }
 
-    // CORRECCIÓN DE ID: Cambiado de 'btn-save-pass' a 'btn-print-pass' para coincidir con tu HTML
+    // 2. GUARDAR / IMPRIMIR EVITANDO LA PÁGINA EN BLANCO
     const btnSave = document.getElementById('btn-print-pass');
     if (btnSave) {
         btnSave.onclick = () => {
-            window.print();
+            // Buscamos el contenedor visual del pase
+            const checkoutElement = document.getElementById('pass-preview-card') ||
+                document.getElementById('checkout-ticket-container') ||
+                document.querySelector('.ticket-card-container');
+
+            if (!checkoutElement) {
+                // Si por alguna razón falla el aislamiento, usamos el print nativo como respaldo
+                window.print();
+                return;
+            }
+
+            // Creamos una ventana temporal con fondo blanco para que se imprima perfecto en papel o PDF
+            const ventanaImpresion = window.open('', '_blank', 'height=600,width=800');
+
+            ventanaImpresion.document.write('<html><head><title>Pase de Abordaje - Naiguatá Expeditions</title>');
+            ventanaImpresion.document.write('<style>');
+            ventanaImpresion.document.write(`
+                body { font-family: 'Inter', sans-serif; color: #111; padding: 30px; background: #fff; }
+                .print-wrapper { border: 2px dashed #10b981; padding: 25px; border-radius: 12px; max-width: 550px; margin: 0 auto; }
+                h2 { color: #059669; text-align: center; margin-top: 0; font-size: 22px; }
+                .info-row { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 6px; }
+                .label { font-weight: bold; color: #444; }
+                .value { color: #000; font-weight: 500; }
+                .qr-section { text-align: center; margin-top: 20px; }
+                svg, img { max-width: 150px; margin: 10px auto; display: block; }
+            `);
+            ventanaImpresion.document.write('</style></head><body>');
+            ventanaImpresion.document.write('<div class="print-wrapper">');
+            ventanaImpresion.document.write(checkoutElement.innerHTML);
+            ventanaImpresion.document.write('</div>');
+            ventanaImpresion.document.write('</body></html>');
+
+            ventanaImpresion.document.close();
+            ventanaImpresion.focus();
+
+            // Retraso de medio segundo para que el navegador asimile el HTML y los elementos gráficos
+            setTimeout(() => {
+                ventanaImpresion.print();
+                ventanaImpresion.close();
+            }, 500);
         };
     }
 
-    // Botón Volver al Inicio
+    // 3. BOTÓN VOLVER AL INICIO
     const btnHome = document.getElementById('btn-return-home');
     if (btnHome) {
         btnHome.onclick = () => location.reload();
