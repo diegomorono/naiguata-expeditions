@@ -955,31 +955,100 @@ function renderCheckoutSuccess(booking) {
 }
 
 function compartirFichaInscripcion(booking) {
-    // Si por alguna razón pasas solo texto en lugar del objeto completo, usamos un fallback seguro
-    const id = booking.id || 'NE-XXXXXX';
-    const nombre = booking.name || 'Excursionista';
-    const fecha = booking.date || 'Próximo Sábado';
-    const metodo = booking.payment_method || 'Por verificar';
-    const ref = booking.reference_number || 'N/A';
-    const total = booking.total_usd ? `$${booking.total_usd.toFixed(2)} USD` : '$50.00 USD';
+    // Función interna para sanear problemas de caracteres eñes/acentos extraños
+    const limpiarTexto = (str) => {
+        if (!str) return '';
+        return str
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "") // Remueve acentos críticos si es necesario
+            .replace(//g, "ñ"); // Parche directo si el string ya viene roto
+    };
 
-    // Estructuramos el mensaje premium que el cliente se va a auto-enviar para guardar su respaldo
+    // Extracción y mapeo dinámico puro desde el objeto real de la base de datos
+    const id = booking.pass_id || booking.id || 'N/A';
+    let nombre = booking.hiker_name || booking.name || '';
+    nombre = limpiarTexto(nombre); // Asegura estabilidad en el nombre enviado
+
+    const whatsapp = booking.hiker_whatsapp || booking.whatsapp || 'N/A';
+    const grupo = booking.group_code || booking.booking_group || 'Ninguno';
+    const alojamiento = booking.accommodation || booking.tent_preference || 'Por asignar';
+    const fecha = booking.expedition_date || booking.date || '';
+
+    // Ficha Médica y Salud
+    const alergias = booking.allergies_info || booking.allergies || 'Ninguna';
+    const medica = booking.medical_info || booking.medical || 'Ninguna reportada';
+
+    // Facturación
+    const metodo = booking.payment_method || '';
+    const ref = booking.reference_number || booking.payment_reference || 'N/A';
+
+    // Cálculo de montos monetarios dinámicos
+    const total = booking.total_usd
+        ? (typeof booking.total_usd === 'number' ? `$${booking.total_usd.toFixed(2)} USD` : booking.total_usd)
+        : 'N/A';
+    const totalVes = booking.total_ves ? ` (${booking.total_ves})` : '';
+
+    // Estructura del mensaje corporativo optimizado para WhatsApp
     let mensaje = `🏔️ *MI COMPROBANTE - Naiguatá Expeditions* 🏔️\n\n`;
-    mensaje += `¡Listo! Ya estoy inscrito para la aventura. Aquí tengo mi pase de abordaje digital:\n\n`;
-    mensaje += `🆔 *ID Pase:* ${id}\n`;
-    mensaje += `👤 *Pasajero:* ${nombre}\n`;
-    mensaje += `🗓 *Fecha de Ascenso:* ${fecha}\n`;
-    mensaje += `💳 *Método de Pago:* ${metodo}\n`;
-    mensaje += `🔢 *Referencia:* ${ref}\n`;
-    mensaje += `💰 *Monto Registrado:* ${total}\n\n`;
-    mensaje += `📌 _Conserva este mensaje. Nos vemos en La Julia para conquistar la cumbre._`;
+    mensaje += `¡Listo! Ya estoy oficialmente inscrito para el ascenso. Aquí tengo los detalles completos de mi registro y pase digital:\n\n`;
 
-    // Creamos el enlace de WhatsApp universal (sin número de teléfono específico, 
-    // así WhatsApp abre la lista de contactos del usuario para que elija su propio chat o el de un amigo)
+    mensaje += `📌 *DATOS DEL PARTICIPANTE*\n`;
+    mensaje += `▪️ *ID Pase:* ${id}\n`;
+    mensaje += `▪️ *Pasajero:* ${nombre}\n`;
+    mensaje += `▪️ *WhatsApp:* ${whatsapp}\n`;
+    mensaje += `▪️ *Código de Grupo:* ${grupo}\n`;
+    mensaje += `▪️ *Alojamiento:* ${alojamiento}\n\n`;
+
+    mensaje += `🗓️ *FECHA DE ASCENSO*\n`;
+    mensaje += `▪️ ${fecha}\n\n`;
+
+    mensaje += `🍏 *SALUD Y ALIMENTACIÓN*\n`;
+    mensaje += `▪️ *¿Alergias?:* ${alergias}\n`;
+    mensaje += `▪️ *Condiciones Médicas:* ${medica}\n\n`;
+
+    mensaje += `💳 *DETALLES DE PAGO*\n`;
+    mensaje += `▪️ *Method:* ${metodo}\n`;
+    mensaje += `▪️ *Referencia:* ${ref}\n`;
+    mensaje += `▪️ *Monto Registrado:* ${total}${totalVes}\n\n`;
+
+    mensaje += `__________________________________\n`;
+    mensaje += `🌲 _Conserva este mensaje como respaldo. Nos vemos en el PGP La Julia para conquistar la cumbre del Gigante de la Costa._`;
+
+    // Envío seguro codificado por URL
     const urlWhatsApp = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
-
-    // Abrimos la pestaña
     window.open(urlWhatsApp, '_blank');
+}
+
+// Función para preparar la estructura completa del pase e imprimirlo
+function configurarBotonImpresion(booking) {
+    const btnPrint = document.getElementById('btn-print-pass');
+    if (!btnPrint) return;
+
+    btnPrint.onclick = function () {
+        // 1. Inyectamos dinámicamente TODOS los campos recolectados en el Pase de Abordaje Imprimible
+        document.getElementById('pass-hiker-name').innerText = booking.hiker_name || booking.name || 'Hiker';
+        document.getElementById('pass-date').innerText = booking.expedition_date || booking.date || 'Sábado';
+        document.getElementById('pass-group').innerText = (booking.group_code || booking.booking_group || 'NINGUNO').toUpperCase();
+
+        // Unimos los datos médicos y de alergias para la sección de dieta del pase impreso
+        const alergiasTexto = booking.allergies_info || booking.allergies || 'Ninguna';
+        const medicaTexto = booking.medical_info || booking.medical || 'Ninguna';
+        document.getElementById('pass-diet').innerText = `Alergias: ${alergiasTexto} | Médica: ${medicaTexto}`;
+
+        // Alojamiento asignado
+        document.getElementById('pass-tent').innerText = booking.accommodation || booking.tent_preference || 'Por asignar (Carpa Grupal)';
+
+        // Alquileres y montos totales detallados
+        const totalDinero = booking.total_usd ? `$${booking.total_usd} USD` : '$50.00 USD';
+        const totalBolivares = booking.total_ves ? ` / ${booking.total_ves}` : '';
+        document.getElementById('pass-rentals').innerText = `${totalDinero}${totalBolivares} (Ref: ${booking.reference_number || 'N/A'})`;
+
+        // Número de serie del ticket inferior
+        document.getElementById('pass-serial-number').innerText = booking.pass_id || booking.id || 'NE-XXXXXX';
+
+        // 2. Ejecutar la acción de impresión nativa enfocada en la tarjeta del pase
+        window.print();
+    };
 }
 
 function addToOfflineQueue(bookingData) {
