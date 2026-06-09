@@ -95,16 +95,15 @@ const routeSteps = [
 /* ==========================================================================
    2. ORQUEStADOR PRINCIPAL DE INICIALIZACIÓN (DOM LOAD)
    ========================================================================== */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     console.log("[Naiguatá OS] Iniciando secuencia de montaje de la interfaz...");
 
-    // 1. Módulos del Core de la Interfaz
+    // 1. Módulos del Core de la Interfaz (Saneado sin redundancias)
     const modulos = [
         { name: 'Navegación de Vistas', func: initAppNavigation },
         { name: 'Planificador de Equipaje', func: initGearChecklist },
         { name: 'Marcadores de la Ruta', func: initElevationStepper },
         { name: 'Formulario de Cotización y Registro', func: initBookingForm },
-        { name: 'Resolución de Tasa Oficial BCV', func: resolveBcvRate },
         { name: 'Pasarela Dinámica de Pagos', func: initPaymentInstructions },
         { name: 'Autenticación Admin', func: initAdminLogin }
     ];
@@ -120,13 +119,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 2. Procesos Asíncronos secundarios y de persistencia
-    try { if (typeof loadSystemSettings === 'function') loadSystemSettings(); } catch (e) { }
+    // 2. Resolución segura de la Tasa BCV y configuraciones críticas de red
+    try {
+        console.log("[Init] Resolviendo tasas cambiarias y eventos de éxito...");
+
+        if (typeof resolveBcvRate === 'function') {
+            await resolveBcvRate();
+        }
+
+        if (typeof loadSystemSettings === 'function') {
+            loadSystemSettings();
+        }
+
+        // Inicialización segura de los botones de éxito aislados
+        initSuccessViewEvents();
+
+    } catch (e) {
+        console.error("[Critical Error] Falló la configuración de red inicial (BCV):", e);
+    }
+
+    // 3. Procesos asíncronos secundarios y persistencia local
     try { if (typeof loadSupabaseData === 'function') loadSupabaseData(); } catch (e) { }
     try { if (typeof restoreFormDraft === 'function') restoreFormDraft(); } catch (e) { }
     try { if (typeof processOfflineQueue === 'function') processOfflineQueue(); } catch (e) { }
 
-    // 3. Renderizar funciones manuales de contingencia
+    // 4. Renderizar funciones manuales de contingencia e inyección visual
     setTimeout(() => {
         try { if (typeof renderRouteGraphic === 'function') renderRouteGraphic(); } catch (e) { }
         try { if (typeof renderBackpackChecklist === 'function') renderBackpackChecklist(); } catch (e) { }
@@ -134,6 +151,30 @@ document.addEventListener('DOMContentLoaded', () => {
         try { if (typeof actualizarOpcionesPortador === 'function') actualizarOpcionesPortador(); } catch (e) { }
     }, 500);
 });
+
+/* ==========================================================================
+   2.1 FUNCIONES DE VISTA DE ÉXITO AISLADAS
+   ========================================================================== */
+function initSuccessViewEvents() {
+    const btnPrint = document.getElementById('btn-print-pass');
+    const btnShare = document.getElementById('btn-share-adventure');
+
+    if (btnPrint) {
+        btnPrint.onclick = function () {
+            window.print();
+        };
+    }
+
+    if (btnShare) {
+        btnShare.onclick = function () {
+            if (typeof appState !== 'undefined' && appState.lastBooking) {
+                compartirFichaInscripcion(appState.lastBooking);
+            } else {
+                alert("No hay datos de inscripción activos para respaldar.");
+            }
+        };
+    }
+}
 
 /* ==========================================================================
    3. MÓDULO DE NAVEGACIÓN DE VISTAS
@@ -650,7 +691,6 @@ async function loadSystemSettings() {
     try {
         if (!supabaseClient) return;
 
-        // 1. Traer la tasa oficial guardada en la tabla system_settings
         const { data, error } = await supabaseClient
             .from('system_settings')
             .select('*')
@@ -660,11 +700,8 @@ async function loadSystemSettings() {
         if (error) throw error;
 
         if (data && data.value) {
-            // Actualizamos el estado global con la tasa real de la BD
             appState.bcvRate = parseFloat(data.value.rate);
             console.log(`Tasa BCV cargada desde system_settings: ${appState.bcvRate}`);
-
-            // 2. Actualizar la UI de precios y moneda con la tasa nueva
             updateCurrencyUI();
             updateFormPricing();
         }
@@ -689,6 +726,7 @@ async function resolveBcvRate() {
             appState.bcvRate = rate;
             appState.bcvSource = 'api';
             updateCurrencyUI();
+            updateFormPricing(); // <-- Forzar actualización inmediata del formulario
             return;
         }
     } catch (err) {
@@ -696,7 +734,7 @@ async function resolveBcvRate() {
     }
 
     // CAPA 2: Base de Datos Supabase de respaldo
-    if (typeof supabaseClient !== 'undefined' && supabaseClient !== null) {
+    if (supabaseClient !== null) {
         try {
             const { data } = await supabaseClient
                 .from('system_settings')
@@ -708,6 +746,7 @@ async function resolveBcvRate() {
                 appState.bcvRate = parseFloat(data.value.rate);
                 appState.bcvSource = 'supabase';
                 updateCurrencyUI();
+                updateFormPricing();
                 return;
             }
         } catch (err) {
@@ -718,6 +757,7 @@ async function resolveBcvRate() {
     // CAPA 3: Fallback local por defecto
     appState.bcvSource = 'default';
     updateCurrencyUI();
+    updateFormPricing();
     triggerEmergencyMode();
 }
 
@@ -737,7 +777,7 @@ function updateCurrencyUI() {
 }
 
 function triggerEmergencyMode() {
-    console.error('ALERTA: Sistema Naiguatá en Modo de Emergencia - Fallo de Conexión Total');
+    console.error('ALERTA: Sistema Naiguatá en Modo de Emergencia - Fallo de Conexión Total. Usando tasa base: ' + appState.bcvRate);
 }
 
 async function loadSupabaseData() {
@@ -1023,6 +1063,28 @@ function compartirFichaInscripcion(booking) {
     // Envío seguro codificado por URL
     const urlWhatsApp = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
     window.open(urlWhatsApp, '_blank');
+}
+
+// Asegurar que la inicialización de pases no congele el formulario
+function initSuccessViewEvents() {
+    const btnPrint = document.getElementById('btn-print-pass');
+    const btnShare = document.getElementById('btn-share-adventure');
+
+    if (btnPrint) {
+        btnPrint.onclick = function () {
+            window.print();
+        };
+    }
+
+    if (btnShare) {
+        btnShare.onclick = function () {
+            if (typeof appState !== 'undefined' && appState.lastBooking) {
+                compartirFichaInscripcion(appState.lastBooking);
+            } else {
+                alert("No hay datos de inscripción activos para respaldar.");
+            }
+        };
+    }
 }
 
 // Función para preparar la estructura completa del pase e imprimirlo
