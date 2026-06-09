@@ -941,10 +941,33 @@ function enviarEmailNotificacion(booking) {
 function renderCheckoutSuccess(booking) {
     console.log("DEBUG: Iniciando renderizado de pase con:", booking);
 
-    // CORRECCIÓN CRÍTICA: Cambiamos las clases .hidden por tu función de navegación real
-    switchView('success-view');
+    const successView = document.getElementById('success-view');
+    if (!successView) {
+        console.error("DEBUG: No se encontró el elemento 'success-view'");
+        return;
+    }
 
-    // Verificación e inyección de datos (Tu matriz se queda impecable)
+    // 1. Aseguramos que el contenedor padre ('client-view') se mantenga activo y visible
+    const clientView = document.getElementById('client-view');
+    if (clientView) {
+        clientView.classList.add('active');
+    }
+
+    // 2. Ocultamos todos los elementos hermanos del pase dentro de client-view (Hero, rutas, formulario)
+    // Esto limpia la interfaz por completo dejando solo el pase digital en pantalla
+    const siblings = successView.parentElement.children;
+    for (let child of siblings) {
+        if (child !== successView) {
+            child.style.display = 'none';
+        }
+    }
+
+    // 3. Forzamos la visibilidad explícita del pase digital
+    successView.style.display = 'block';
+    successView.classList.add('active');
+    successView.classList.remove('hidden');
+
+    // Matriz de inyección de datos (Tu lógica impecable)
     const fields = [
         { id: 'pass-hiker-name', val: booking.name },
         { id: 'pass-date', val: booking.date },
@@ -965,7 +988,11 @@ function renderCheckoutSuccess(booking) {
         }
     });
 
+    // Inicializar los botones del pase (Imprimir, Compartir, etc.)
     initPassButtons(booking);
+
+    // Auto-scroll al inicio de la página para ver el pase desde arriba de forma limpia
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function initPassButtons(booking) {
