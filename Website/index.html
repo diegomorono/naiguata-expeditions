@@ -314,7 +314,7 @@
                             <select id="hiker-allergies" required>
                                 <option value="" disabled selected>Selecciona una opción</option>
                                 <option value="Ninguna">Ninguna</option>
-                                <option value="Frutos secos">Sí</option>
+                                <option value="Frutos secos">Frutos secos</option>
                             </select>
                             <span class="input-tip">Crítico: Si tienes alergia a los frutos secos, adaptaremos tus
                                 snacks.</span>
@@ -556,50 +556,16 @@
                                 <label for="payment-method-select">Método de Pago *</label>
                                 <select id="payment-method-select" required>
                                     <option value="" disabled selected>Selecciona tu forma de pago</option>
-                                    <option value="Pago Móvil">Pago Móvil (VES al cambio BCV)</option>
-                                    <option value="Binance">Binance Pay (USDT)</option>
-                                    <option value="Zelle">Zelle (USD)</option>
-                                    <option value="Efectivo">Efectivo el día del tour (USD)</option>
+                                    <option value="pagomovil">Pago Móvil (VES al cambio BCV)</option>
+                                    <option value="binance">Binance Pay (USDT)</option>
+                                    <option value="zelle">Zelle (USD)</option>
+                                    <option value="efectivo">Efectivo el día del tour (USD)</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div id="pay-info-pagomovil" class="payment-info-block glass-panel hidden"
-                            style="margin-top:10px; padding: 15px;">
-                            <h5 style="margin-top:0; color:var(--primary);">Datos para Pago Móvil (Banesco)</h5>
-                            <p
-                                style="font-size:0.85rem; color:var(--text-muted); margin: 5px 0 10px 0; line-height: 1.5;">
-                                📱 <strong>Celular:</strong> 04262062588 <br>
-                                💳 <strong>Cédula:</strong> V-24.218.655 <br>
-                                🏦 <strong>Banco:</strong> Banesco
-                            </p>
-                        </div>
-
-                        <div id="pay-info-binance" class="payment-info-block glass-panel hidden"
-                            style="margin-top:10px; padding: 15px; text-align: center;">
-                            <h5 style="margin-top:0; color:var(--primary);">Binance Pay (USDT)</h5>
-                            <p style="font-size:0.85rem; color:var(--text-muted); margin: 5px 0 10px 0;">
-                                📩 <strong>Email:</strong> thecardanomerch@gmail.com
-                            </p>
-                        </div>
-
-                        <div id="pay-info-zelle" class="payment-info-block glass-panel hidden"
-                            style="margin-top:10px; padding: 15px;">
-                            <h5 style="margin-top:0; color:var(--primary);">Zelle (USD)</h5>
-                            <p
-                                style="font-size:0.85rem; color:var(--text-muted); margin: 5px 0 10px 0; line-height: 1.5;">
-                                👤 <strong>Titular:</strong> Diego Moroño <br>
-                                📩 <strong>Email:</strong> diego.morono03@gmail.com
-                            </p>
-                        </div>
-
-                        <div id="pay-info-efectivo" class="payment-info-block glass-panel hidden"
-                            style="margin-top:10px; padding: 15px;">
-                            <h5 style="margin-top:0; color:var(--secondary);">Pago en Efectivo</h5>
-                            <p style="font-size:0.85rem; color:var(--text-muted); margin: 5px 0 0 0;">
-                                El pago se entregará al guía en persona el día del inicio del tour en La Julia.
-                            </p>
-                        </div>
+                        <div id="payment-instructions-box"
+                            style="margin-top: 12px; margin-bottom: 12px; display: none;"></div>
 
                         <div class="form-row" id="payment-ref-row" style="margin-top:15px;">
                             <div class="form-input-wrapper full-width">

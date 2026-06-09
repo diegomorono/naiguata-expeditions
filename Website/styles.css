@@ -2734,3 +2734,102 @@ select {
 .step-card:hover {
     border-color: rgba(255, 255, 255, 0.2) !important;
 }
+
+/* ==========================================================================
+   UNIFICACIÓN DE COLOR PARA PRECIOS DE CATERING Y EQUIPOS
+   ========================================================================== */
+
+/* Fuerza a que todos los textos de precio bajo los títulos de los items sean verdes */
+.pay-item span,
+.product-price,
+div[class*="catering"] span[style*="color"],
+div[class*="catering"] .price {
+    color: #10b981 !important;
+    /* El verde esmeralda brillante de tu interfaz */
+    font-weight: 600 !important;
+}
+
+/* En caso de que estés usando clases específicas para el texto del precio */
+.item-price,
+.equipment-price,
+.catering-price {
+    color: #10b981 !important;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   UNIFICACIÓN ESTRICTA DE SELECTORES (GÉNERO Y ALOJAMIENTO)
+   ========================================================================== */
+
+/* Forzar que todos los selects del formulario tengan el mismo tamaño, tipografía y comportamiento */
+#hiker-gender,
+#hiker-tent-preference,
+.form-input-wrapper select {
+    width: 100% !important;
+    height: 48px !important;
+    /* Forzamos una altura fija idéntica */
+    padding: 10px 16px !important;
+    /* Ajuste interno para centrar el texto */
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    /* Fondo oscuro idéntico */
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    /* Mismo borde sutil */
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    font-family: inherit !important;
+    font-size: 0.95rem !important;
+    /* Mismo tamaño de letra */
+    line-height: 1.5 !important;
+    outline: none !important;
+    cursor: pointer !important;
+    -webkit-appearance: none !important;
+    /* Elimina estilos rebeldes de navegadores */
+    -moz-appearance: none !important;
+    appearance: none !important;
+
+    /* Mantenemos la flechita clásica del select a la derecha de forma limpia */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 12px center !important;
+    background-size: 16px !important;
+    padding-right: 40px !important;
+}
+
+/* Evitar que cambien de tamaño o color al pasar el mouse (Hover unificado) */
+#hiker-gender:hover,
+#hiker-tent-preference:hover {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Evitar variaciones cuando el elemento está enfocado */
+#hiker-gender:focus,
+#hiker-tent-preference:focus {
+    border-color: var(--primary, #10b981) !important;
+    /* O el color de enfoque de tu sistema */
+}
+
+/* Unificación total del Selector de Métodos de Pago */
+#payment-method-select {
+    width: 100% !important;
+    height: 48px !important;
+    padding: 10px 16px !important;
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    font-size: 0.95rem !important;
+    outline: none !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 12px center !important;
+    background-size: 16px !important;
+}
+
+#payment-method-select:focus,
+#payment-method-select:active {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    box-shadow: none !important;
+}

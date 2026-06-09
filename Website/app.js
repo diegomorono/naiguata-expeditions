@@ -509,7 +509,7 @@ function populateSaturdays() {
     }
 }
 /* ==========================================================================
-   7. PASARELA DE PAGOS E INSTRUCCIONES DINÁMICAS Y PERSISTENCIA (DATO POR DATO)
+   7. PASARELA DE PAGOS E INSTRUCCIONES DINÁMICAS Y PERSISTENCIA (SINCRO REAL)
    ========================================================================== */
 function initPaymentInstructions() {
     const paymentButtons = document.querySelectorAll('.payment-btn');
@@ -519,24 +519,18 @@ function initPaymentInstructions() {
 
     if (!container) return;
 
-    // Diccionario de datos limpios para copiar uno por uno
+    // Diccionario con cálculo de montos dinámicos en tiempo real
     const data = {
         'zelle': [
             { label: 'Monto a Transferir', value: `${appState.totalCart || 0} USD` },
-            { label: 'Email', value: 'diego.morono03@gmail.com' },
-            { label: 'Nombre', value: 'Diego Moroño' }
+            { label: 'Titular', value: 'Diego Moroño' },
+            { label: 'Email', value: 'diego.morono03@gmail.com' }
         ],
         'binance': [
             { label: 'Monto a Transferir', value: `${appState.totalCart || 0} USDT` },
             { label: 'Email', value: 'thecardanomerch@gmail.com' }
         ],
         'pagomovil': [
-            { label: 'Monto en Bs.', value: `${((appState.totalCart || 0) * (appState.bcvRate || 1)).toFixed(2)} Bs.` },
-            { label: 'Teléfono', value: '04262062588' },
-            { label: 'Cédula', value: 'V24218655' },
-            { label: 'Banco', value: 'Banesco (0134)' }
-        ],
-        'pago_movil': [ // Duplicado por seguridad si el HTML usa guion bajo
             { label: 'Monto en Bs.', value: `${((appState.totalCart || 0) * (appState.bcvRate || 1)).toFixed(2)} Bs.` },
             { label: 'Teléfono', value: '04262062588' },
             { label: 'Cédula', value: 'V24218655' },
@@ -548,29 +542,30 @@ function initPaymentInstructions() {
     function updatePaymentUI(methodName) {
         if (!methodName) {
             container.innerHTML = '';
+            container.style.display = 'none';
             if (paymentDetails) paymentDetails.style.display = 'none';
             return;
         }
 
-        // Limpiar el string (quitar espacios, guiones y pasarlo a minúsculas)
-        const method = methodName.toLowerCase().trim().replace('_', '');
+        // LIMPIEZA RIGUROSA: Convierte "Pago Móvil" -> "pagomovil" para emparejar con el diccionario
+        const method = methodName.toLowerCase().trim().replace(/[^a-z0-9]/g, '');
 
-        // Sincronizar con el input oculto o select si es necesario
+        // Sincronizar con el input/select si es necesario
         const hiddenInput = document.getElementById('payment-method-select') || document.getElementById('payment-method');
         if (hiddenInput && hiddenInput.value !== methodName) {
             hiddenInput.value = methodName;
         }
 
-        // Renderizar los datos con los botones individuales de copia
         if (data[method]) {
-            container.innerHTML = `<div class="payment-grid" style="display: flex; flex-direction: column; gap: 12px; padding: 10px;">` +
+            container.style.display = 'block';
+            container.innerHTML = `<div class="payment-grid" style="display: flex; flex-direction: column; gap: 12px; background: rgba(15, 22, 30, 0.4); padding: 15px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08);">` +
                 data[method].map(item => `
-                    <div class="pay-item" style="display: flex; flex-direction: column; gap: 4px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px;">
-                        <span class="pay-lbl" style="font-size: 0.8rem; color: var(--text-muted); font-weight: bold; text-transform: uppercase;">${item.label}</span>
-                        <div class="pay-row" style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
-                            <code style="font-family: monospace; font-size: 1rem; color: var(--primary); background: transparent; padding: 0;">${item.value}</code>
+                    <div class="pay-item" style="display: flex; flex-direction: column; gap: 4px; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04);">
+                        <span class="pay-lbl" style="font-size: 0.75rem; color: #a1a1aa; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">${item.label}</span>
+                        <div class="pay-row" style="display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+                            <code style="font-family: monospace; font-size: 1rem; color: #10b981; background: transparent; padding: 0;">${item.value}</code>
                             <button type="button" class="mini-copy-btn" 
-                                    style="padding: 4px 10px; font-size: 0.8rem; background: var(--primary); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: all 0.2s;" 
+                                    style="padding: 5px 12px; font-size: 0.8rem; background: #10b981; color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s;" 
                                     onclick="copyToClipboard('${item.value}', this)">
                                 Copiar
                             </button>
@@ -580,31 +575,35 @@ function initPaymentInstructions() {
 
             if (paymentDetails) paymentDetails.style.display = 'block';
         } else if (method === 'efectivo') {
-            container.innerHTML = '<p class="payment-info" style="padding: 10px; margin: 0; color: var(--text);">Se cancela presencialmente el día del control técnico.</p>';
+            container.style.display = 'block';
+            container.innerHTML = `
+                <div style="background: rgba(15, 22, 30, 0.4); padding: 15px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08);">
+                    <p class="payment-info" style="margin: 0; color: var(--text-muted, #a1a1aa); font-size: 0.88rem; line-height: 1.5;">
+                        El pago se entregará en físico en persona al guía el día del inicio del tour en La Julia.
+                    </p>
+                </div>
+            `;
             if (paymentDetails) paymentDetails.style.display = 'block';
         } else {
             container.innerHTML = '';
+            container.style.display = 'none';
             if (paymentDetails) paymentDetails.style.display = 'none';
         }
 
-        // Guardar el borrador si la función global existe
         if (typeof saveFormDraft === 'function') {
             saveFormDraft();
         }
     }
 
-    // SOPORTE 1: Si usas una lista desplegable (Select)
     if (paymentSelect) {
         paymentSelect.addEventListener('change', (e) => {
             updatePaymentUI(e.target.value);
         });
-        // Ejecutar al cargar por si ya hay una opción preseleccionada por el borrador
         if (paymentSelect.value) {
             updatePaymentUI(paymentSelect.value);
         }
     }
 
-    // SOPORTE 2: Si usas botones individuales (.payment-btn)
     if (paymentButtons.length > 0) {
         paymentButtons.forEach(button => {
             button.addEventListener('click', () => {
@@ -618,26 +617,30 @@ function initPaymentInstructions() {
     }
 }
 
-// Función global que copia el dato específico al portapapeles
+// Función global limpia para el portapapeles
 function copyToClipboard(text, element) {
-    navigator.clipboard.writeText(text).then(() => {
+    // Quitamos los sufijos de moneda para copiar únicamente el dato puro e impecable
+    const cleanText = text.replace(' USD', '').replace(' USDT', '').replace(' Bs.', '').trim();
+
+    navigator.clipboard.writeText(cleanText).then(() => {
         if (element) {
             const originalText = element.textContent;
-            element.textContent = "✅ Copiado";
-            element.style.background = "#fff";
-            element.style.color = "#000";
+            element.textContent = "✅ Listo";
+            element.style.background = "#ffffff";
+            element.style.color = "#000000";
 
             setTimeout(() => {
                 element.textContent = originalText;
-                element.style.background = "var(--primary)";
-                element.style.color = "#000";
-            }, 1500);
+                element.style.background = "#10b981";
+                element.style.color = "#000000";
+            }, 1200);
         }
     }).catch(err => {
-        console.error('Error al copiar el dato: ', err);
+        console.error('Error al usar el portapapeles: ', err);
     });
 }
 
+// Ejecución automática al arrancar el script
 initPaymentInstructions();
 
 /* ==========================================================================
