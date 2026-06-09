@@ -2694,3 +2694,43 @@ select {
     background-color: var(--background-alt) !important;
     color: var(--text) !important;
 }
+
+/* ==========================================================================
+   CORRECCIÓN DEFINITIVA: ELIMINAR BORDES Y FONDOS VERDES
+   ========================================================================== */
+
+/* 1. Forzar que el selector de Género tenga exactamente el mismo borde sutil que el de Alojamiento */
+#hiker-gender,
+#hiker-gender:focus,
+select#hiker-gender {
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: rgba(15, 22, 30, 0.4) !important;
+    box-shadow: none !important;
+}
+
+/* 2. Quitar el recuadro o fondo verde de la tarjeta contenedor de Alergias Alimentarias */
+.step-card,
+div[class*="health"],
+div[class*="alergia"] {
+    background: rgba(15, 22, 30, 0.75) !important;
+    /* Mismo fondo oscuro de Datos del Participante */
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    /* Mismo borde gris sutil */
+    box-shadow: none !important;
+}
+
+/* 3. Asegurar que los selectores internos de Alergias sigan la misma estética gris/oscura */
+#hiker-allergies,
+select {
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    color: var(--text) !important;
+}
+
+/* 4. Efecto hover unificado para todos (Gris claro al pasar el mouse, NO verde) */
+#hiker-gender:hover,
+#hiker-tent-preference:hover,
+#hiker-allergies:hover,
+.step-card:hover {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
