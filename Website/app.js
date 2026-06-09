@@ -886,6 +886,7 @@ async function handleFormSubmission(e) {
             enviarEmailNotificacion(bookingData);
             renderCheckoutSuccess(bookingData);
             localStorage.removeItem('naiguata_form_draft');
+
         } catch (err) {
             console.error('Error en registro:', err);
             // Fallback
@@ -1052,7 +1053,7 @@ function ejecutarCompartirWhatsApp(bookingData) {
 }
 
 /* ==========================================================================
-   CORRECCIÓN: FUNCIÓN DE ÉXITO INTEGRADA A LA NAVEGACIÓN NATIVA
+   FUNCIÓN DE ÉXITO INTEGRADA A LA NAVEGACIÓN NATIVA
    ========================================================================== */
 function renderCheckoutSuccess(booking) {
     console.log("DEBUG: Iniciando renderizado de pase con:", booking);
@@ -1063,14 +1064,12 @@ function renderCheckoutSuccess(booking) {
         return;
     }
 
-    // 1. Aseguramos que el contenedor padre ('client-view') se mantenga activo y visible
+    // 1. Manejo de visibilidad (Limpiar interfaz)
     const clientView = document.getElementById('client-view');
     if (clientView) {
         clientView.classList.add('active');
     }
 
-    // 2. Ocultamos todos los elementos hermanos del pase dentro de client-view (Hero, rutas, formulario)
-    // Esto limpia la interfaz por completo dejando solo el pase digital en pantalla
     const siblings = successView.parentElement.children;
     for (let child of siblings) {
         if (child !== successView) {
@@ -1078,36 +1077,36 @@ function renderCheckoutSuccess(booking) {
         }
     }
 
-    // 3. Forzamos la visibilidad explícita del pase digital
     successView.style.display = 'block';
     successView.classList.add('active');
     successView.classList.remove('hidden');
 
-    // Matriz de inyección de datos (Tu lógica impecable)
+    // 2. Matriz de inyección de datos
     const fields = [
         { id: 'pass-hiker-name', val: booking.name },
         { id: 'pass-date', val: booking.date },
         { id: 'pass-group', val: booking.group_code || "Individual" },
-        { id: 'pass-diet', val: booking.diet },
-        { id: 'pass-tent', val: booking.tent_preference },
-        { id: 'pass-reference-display', val: booking.reference_number },
-        { id: 'pass-serial-number', val: booking.id }
+        { id: 'pass-diet', val: booking.diet || 'Estándar / Ninguna' },
+        { id: 'pass-tent', val: booking.tent_preference || 'Por asignar' },
+        { id: 'pass-reference-display', val: booking.reference_number || 'N/A' },
+        { id: 'pass-serial-number', val: booking.id },
+        // Nueva línea para el monto
+        { id: 'pass-total-amount', val: `${booking.total_usd.toFixed(2)} USD` }
     ];
 
     fields.forEach(field => {
         const el = document.getElementById(field.id);
         if (el) {
             el.textContent = field.val;
-            console.log(`DEBUG: Inyectado ${field.val} en ${field.id}`);
         } else {
-            console.error(`DEBUG: ERROR, no se encontró el elemento con ID: ${field.id}`);
+            console.warn(`DEBUG: No se encontró el elemento ${field.id}, omitiendo.`);
         }
     });
 
-    // Inicializar los botones del pase (Imprimir, Compartir, etc.)
+    // 3. Inicializar los botones (Imprimir, WhatsApp, Home)
     initPassButtons(booking);
 
-    // Auto-scroll al inicio de la página para ver el pase desde arriba de forma limpia
+    // 4. Scroll suave
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 

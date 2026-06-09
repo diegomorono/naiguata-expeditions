@@ -2839,27 +2839,35 @@ div[class*="catering"] .price {
    ========================================================================== */
 
 /* 1. Aseguramos que el Header, Nav y la sección Hero mantengan el fondo oscuro original */
-header, 
-.nav-container, 
-#hero, 
+header,
+.nav-container,
+#hero,
 section:first-of-type {
-    background-color: #0b0f14 !important; /* El color oscuro original de la marca */
+    background-color: #0b0f14 !important;
+    /* El color oscuro original de la marca */
 }
 
 /* 2. Todo el contenido/core que viene después del Hero se aclara muy ligeramente */
-main, 
-.main-content, 
-section:not(:first-of-type), 
-.route-section, 
-.booking-section, 
+main,
+.main-content,
+section:not(:first-of-type),
+.route-section,
+.booking-section,
 #form-step-container {
-    background-color: #11171e !important; /* Un tono sutilmente más claro y limpio */
+    background-color: #11171e !important;
+    /* Un tono sutilmente más claro y limpio */
     transition: background-color 0.3s ease;
 }
 
 /* 3. Ajuste opcional para las tarjetas/paneles del formulario para que mantengan contraste */
-.form-step-card, 
+.form-step-card,
 .payment-grid {
-    background: rgba(20, 29, 38, 0.5) !important; /* Adaptación sutil al nuevo fondo */
+    background: rgba(20, 29, 38, 0.5) !important;
+    /* Adaptación sutil al nuevo fondo */
     border: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+#success-view {
+    display: none;
+    /* Oculto por defecto */
 }
