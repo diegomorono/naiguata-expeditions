@@ -816,24 +816,26 @@ async function handleFormSubmission(e) {
         submitBtn.innerHTML = `<span class="spinner-small"></span> Procesando registro...`;
     }
 
+    // Captura de datos básicos
     const name = formatTitleCase(document.getElementById('hiker-name').value.trim());
     const email = document.getElementById('hiker-email').value.trim().toLowerCase();
     const whatsapp = document.getElementById('hiker-whatsapp').value.trim();
     const gender = document.getElementById('hiker-gender')?.value || 'No especificado';
     const medical = document.getElementById('hiker-medical')?.value.trim() || 'Ninguna.';
     const allergies = document.getElementById('hiker-allergies')?.value || 'Ninguna';
-
     const dateVal = document.getElementById('booking-date')?.value || document.getElementById('expedition-date')?.value;
     const paymentMethod = document.getElementById('payment-method')?.value || document.getElementById('payment-method-select')?.value;
     const referenceNumber = document.getElementById('payment-reference') ? document.getElementById('payment-reference').value.trim() : 'N/A';
-
     const totalUsd = parseFloat(document.getElementById('form-total-usd')?.textContent.replace(/[^0-9.]/g, '')) || 50.00;
     const passId = 'NE-' + Math.floor(100000 + Math.random() * 900000);
 
-    // Captura estas variables ANTES de crear el objeto bookingData
+    // Captura de valores dinámicos (Checklist/Config)
     const dietValue = document.getElementById('hiker-diet')?.value || 'Estándar';
     const tentValue = document.getElementById('tent-preference')?.value || 'Compartida';
-    // Asumiendo que estas funciones existen para obtener tus selecciones actuales
+    const porterValue = document.getElementById('porter-service')?.value || 'No';
+    const groupCodeInput = document.getElementById('booking-group')?.value.trim();
+    const finalGroupCode = (groupCodeInput && groupCodeInput.length > 0) ? groupCodeInput.toUpperCase() : 'INDIVIDUAL';
+
     const rentalsList = typeof getSelectedRentals === 'function' ? getSelectedRentals() : [];
     const cateringList = typeof getSelectedCatering === 'function' ? getSelectedCatering() : [];
 
@@ -849,34 +851,30 @@ async function handleFormSubmission(e) {
         total_usd: totalUsd,
         payment_method: paymentMethod,
         reference_number: referenceNumber,
-        rentals: rentalsList,       // Ahora usa la variable dinámica
-        catering: cateringList,     // Ahora usa la variable dinámica
-        diet: dietValue,            // Ahora usa la variable dinámica
-        tent_preference: tentValue  // Ahora usa la variable dinámica
+        rentals: rentalsList,
+        catering: cateringList,
+        diet: dietValue,
+        tent_preference: tentValue,
+        porter_service: porterValue,
+        group_code: finalGroupCode
     };
-
-    // 1. Capturamos el valor del input específico según tu HTML
-    const groupCodeInput = document.getElementById('booking-group')?.value.trim();
-
-    // 2. Si está vacío, le asignamos 'INDIVIDUAL', sino usamos el valor del usuario en mayúsculas
-    const finalGroupCode = (groupCodeInput && groupCodeInput.length > 0) ? groupCodeInput.toUpperCase() : 'INDIVIDUAL';
 
     if (typeof supabaseClient !== 'undefined' && supabaseClient) {
         try {
-            const { data, error } = await supabaseClient.rpc('registrar_excursionista', {
+            const { error } = await supabaseClient.rpc('registrar_excursionista', {
                 p_id: passId,
                 p_date: dateVal,
                 p_name: name,
                 p_email: email,
                 p_whatsapp: whatsapp,
-                p_group_code: finalGroupCode, // <--- AQUÍ SE INYECTA LA VARIABLE DINÁMICA
+                p_group_code: finalGroupCode,
                 p_gender: gender,
                 p_tent_preference: tentValue,
                 p_allergies: allergies,
                 p_diet: dietValue,
                 p_medical: medical,
-                p_rentals: rentalsList,
-                p_catering: cateringList,
+                p_rentals: JSON.stringify(rentalsList),
+                p_catering: JSON.stringify(cateringList),
                 p_porter_service: porterValue,
                 p_total_usd: totalUsd,
                 p_payment_method: paymentMethod,
@@ -886,15 +884,17 @@ async function handleFormSubmission(e) {
             if (error) throw error;
 
             enviarEmailNotificacion(bookingData);
-            if (typeof renderCheckoutSuccess === 'function') renderCheckoutSuccess(bookingData);
+            renderCheckoutSuccess(bookingData);
             localStorage.removeItem('naiguata_form_draft');
         } catch (err) {
-            console.error('Error registrando en servidor, guardando copia local:', err);
+            console.error('Error en registro:', err);
+            // Fallback
             if (typeof addToOfflineQueue === 'function') addToOfflineQueue(bookingData);
             if (typeof showOfflineSuccess === 'function') showOfflineSuccess(bookingData);
             enviarEmailNotificacion(bookingData);
         }
     } else {
+        // Modo offline si Supabase no está listo
         if (typeof addToOfflineQueue === 'function') addToOfflineQueue(bookingData);
         if (typeof showOfflineSuccess === 'function') showOfflineSuccess(bookingData);
         enviarEmailNotificacion(bookingData);
@@ -936,26 +936,48 @@ function enviarEmailNotificacion(booking) {
 }
 
 function renderCheckoutSuccess(booking) {
-    const nameDisplay = document.getElementById('pass-hiker-name');
-    const dateDisplay = document.getElementById('pass-date');
-    const groupDisplay = document.getElementById('pass-group');
-    const dietDisplay = document.getElementById('pass-diet');
-    const tentDisplay = document.getElementById('pass-tent');
-    const refDisplay = document.getElementById('pass-reference-display');
-    const rentalsDisplay = document.getElementById('pass-rentals');
-    const serialDisplay = document.getElementById('pass-serial-number');
+    const successView = document.getElementById('success-view');
+    const clientView = document.getElementById('client-view');
 
-    if (nameDisplay) nameDisplay.textContent = booking.name;
-    if (dateDisplay) dateDisplay.textContent = booking.date;
-    if (groupDisplay) groupDisplay.textContent = "Individual";
-    if (dietDisplay) dietDisplay.textContent = booking.diet || "Estándar";
-    if (tentDisplay) tentDisplay.textContent = booking.tent_preference || "Compartida";
-    if (refDisplay) refDisplay.textContent = booking.reference_number;
-    if (serialDisplay) serialDisplay.textContent = booking.id;
+    if (successView) successView.style.display = 'block';
+    if (clientView) clientView.style.display = 'none';
 
-    // Mostrar sección de éxito y ocultar cliente
-    if (document.getElementById('success-view')) document.getElementById('success-view').style.display = 'block';
-    if (document.getElementById('client-view')) document.getElementById('client-view').style.display = 'none';
+    // Llenado de datos en la UI
+    if (document.getElementById('pass-hiker-name')) document.getElementById('pass-hiker-name').textContent = booking.name;
+    if (document.getElementById('pass-date')) document.getElementById('pass-date').textContent = booking.date;
+    if (document.getElementById('pass-group')) document.getElementById('pass-group').textContent = booking.group_code || "Individual";
+    if (document.getElementById('pass-diet')) document.getElementById('pass-diet').textContent = booking.diet;
+    if (document.getElementById('pass-tent')) document.getElementById('pass-tent').textContent = booking.tent_preference;
+    if (document.getElementById('pass-reference-display')) document.getElementById('pass-reference-display').textContent = booking.reference_number;
+    if (document.getElementById('pass-serial-number')) document.getElementById('pass-serial-number').textContent = booking.id;
+
+    // Activación de botones
+    initPassButtons(booking);
+}
+
+function initPassButtons(booking) {
+    // Botón WhatsApp
+    const btnShare = document.getElementById('btn-share-adventure');
+    if (btnShare) {
+        btnShare.onclick = () => {
+            const msg = `¡Hola! Soy ${booking.name}. He registrado mi expedición a Naiguatá. Mi ID de pase es ${booking.id} para la fecha ${booking.date}.`;
+            window.open(`https://wa.me/58414XXXXXXX?text=${encodeURIComponent(msg)}`, '_blank');
+        };
+    }
+
+    // Botón Descargar (Simulamos impresión del pase)
+    const btnSave = document.getElementById('btn-save-pass'); // Asegúrate que tu botón en HTML tenga este ID
+    if (btnSave) {
+        btnSave.onclick = () => {
+            window.print(); // Imprime o guarda como PDF
+        };
+    }
+
+    // Botón Volver al Inicio
+    const btnHome = document.getElementById('btn-return-home');
+    if (btnHome) {
+        btnHome.onclick = () => location.reload();
+    }
 }
 /* ==========================================================================
    10. PASAPORTE DE AVENTURA, RETOS GAMIFICADOS Y UTILIDADES DEL TOUR
