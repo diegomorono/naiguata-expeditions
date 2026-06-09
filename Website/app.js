@@ -935,18 +935,16 @@ function enviarEmailNotificacion(booking) {
         });
 }
 
+/* ==========================================================================
+   CORRECCIÓN: FUNCIÓN DE ÉXITO INTEGRADA A LA NAVEGACIÓN NATIVA
+   ========================================================================== */
 function renderCheckoutSuccess(booking) {
     console.log("DEBUG: Iniciando renderizado de pase con:", booking);
 
-    const successView = document.getElementById('success-view');
-    const clientView = document.getElementById('client-view');
+    // CORRECCIÓN CRÍTICA: Cambiamos las clases .hidden por tu función de navegación real
+    switchView('success-view');
 
-    // SOLUCIÓN CSS: En lugar de usar .style.display, removemos e incluimos clases ocultas
-    // (Asegúrate de que en tu CSS uses .hidden o la clase correspondiente sin !important si vas a alternarla)
-    if (successView) successView.classList.remove('hidden');
-    if (clientView) clientView.classList.add('hidden');
-
-    // Verificación e inyección de datos (Tu matriz de campos se queda igual)
+    // Verificación e inyección de datos (Tu matriz se queda impecable)
     const fields = [
         { id: 'pass-hiker-name', val: booking.name },
         { id: 'pass-date', val: booking.date },
