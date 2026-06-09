@@ -926,7 +926,7 @@ function enviarEmailNotificacion(booking) {
         total_usd: `${booking.total_usd.toFixed(2)} USD`
     };
 
-    emailjs.send('service_f8qzcms', 'template_5w8usjw', templateParams)
+    emailjs.send('service_f8qzcms', 'template_r1l52td', templateParams)
         .then(() => {
             console.log('✉️ Notificación enviada exitosamente por correo electrónico.');
         })
@@ -936,22 +936,36 @@ function enviarEmailNotificacion(booking) {
 }
 
 function renderCheckoutSuccess(booking) {
+    console.log("DEBUG: Iniciando renderizado de pase con:", booking); // <-- ESTO ES CLAVE
+
     const successView = document.getElementById('success-view');
     const clientView = document.getElementById('client-view');
 
+    // Forzamos la visibilidad
     if (successView) successView.style.display = 'block';
     if (clientView) clientView.style.display = 'none';
 
-    // Llenado de datos en la UI
-    if (document.getElementById('pass-hiker-name')) document.getElementById('pass-hiker-name').textContent = booking.name;
-    if (document.getElementById('pass-date')) document.getElementById('pass-date').textContent = booking.date;
-    if (document.getElementById('pass-group')) document.getElementById('pass-group').textContent = booking.group_code || "Individual";
-    if (document.getElementById('pass-diet')) document.getElementById('pass-diet').textContent = booking.diet;
-    if (document.getElementById('pass-tent')) document.getElementById('pass-tent').textContent = booking.tent_preference;
-    if (document.getElementById('pass-reference-display')) document.getElementById('pass-reference-display').textContent = booking.reference_number;
-    if (document.getElementById('pass-serial-number')) document.getElementById('pass-serial-number').textContent = booking.id;
+    // Verificación de existencia de elementos
+    const fields = [
+        { id: 'pass-hiker-name', val: booking.name },
+        { id: 'pass-date', val: booking.date },
+        { id: 'pass-group', val: booking.group_code || "Individual" },
+        { id: 'pass-diet', val: booking.diet },
+        { id: 'pass-tent', val: booking.tent_preference },
+        { id: 'pass-reference-display', val: booking.reference_number },
+        { id: 'pass-serial-number', val: booking.id }
+    ];
 
-    // Activación de botones
+    fields.forEach(field => {
+        const el = document.getElementById(field.id);
+        if (el) {
+            el.textContent = field.val;
+            console.log(`DEBUG: Inyectado ${field.val} en ${field.id}`);
+        } else {
+            console.error(`DEBUG: ERROR, no se encontró el elemento con ID: ${field.id}`);
+        }
+    });
+
     initPassButtons(booking);
 }
 
@@ -1052,4 +1066,21 @@ async function computeSHA256(string) {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     // Convertimos a string hexadecimal
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function saveFormDraft() {
+    // Captura los valores actuales del formulario para guardarlos como borrador
+    const draftData = {
+        name: document.getElementById('hiker-name')?.value,
+        email: document.getElementById('hiker-email')?.value,
+        whatsapp: document.getElementById('hiker-whatsapp')?.value,
+        medical: document.getElementById('hiker-medical')?.value,
+        allergies: document.getElementById('hiker-allergies')?.value
+    };
+
+    try {
+        localStorage.setItem('naiguata_form_draft', JSON.stringify(draftData));
+    } catch (e) {
+        console.warn("No se pudo guardar el borrador:", e);
+    }
 }
