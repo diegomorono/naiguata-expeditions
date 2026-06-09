@@ -513,79 +513,118 @@ function populateSaturdays() {
    ========================================================================== */
 function initPaymentInstructions() {
     const paymentButtons = document.querySelectorAll('.payment-btn');
+    const paymentSelect = document.getElementById('payment-method') || document.getElementById('payment-method-select');
     const container = document.getElementById('payment-instructions-box') || document.getElementById('payment-instructions');
     const paymentDetails = document.getElementById('payment-details');
 
-    if (paymentButtons.length === 0 || !container) return;
+    if (!container) return;
 
-    // Diccionario de datos separados para copiar uno por uno
+    // Diccionario de datos limpios para copiar uno por uno
     const data = {
         'zelle': [
+            { label: 'Monto a Transferir', value: `${appState.totalCart || 0} USD` },
             { label: 'Email', value: 'diego.morono03@gmail.com' },
             { label: 'Nombre', value: 'Diego Moroño' }
         ],
         'binance': [
+            { label: 'Monto a Transferir', value: `${appState.totalCart || 0} USDT` },
             { label: 'Email', value: 'thecardanomerch@gmail.com' }
         ],
         'pagomovil': [
+            { label: 'Monto en Bs.', value: `${((appState.totalCart || 0) * (appState.bcvRate || 1)).toFixed(2)} Bs.` },
+            { label: 'Teléfono', value: '04262062588' },
+            { label: 'Cédula', value: 'V24218655' },
+            { label: 'Banco', value: 'Banesco (0134)' }
+        ],
+        'pago_movil': [ // Duplicado por seguridad si el HTML usa guion bajo
+            { label: 'Monto en Bs.', value: `${((appState.totalCart || 0) * (appState.bcvRate || 1)).toFixed(2)} Bs.` },
             { label: 'Teléfono', value: '04262062588' },
             { label: 'Cédula', value: 'V24218655' },
             { label: 'Banco', value: 'Banesco (0134)' }
         ]
     };
 
-    paymentButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            // 1. Cambiar estado visual del botón
-            paymentButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
+    // Función interna encargada de procesar el método y renderizar los datos
+    function updatePaymentUI(methodName) {
+        if (!methodName) {
+            container.innerHTML = '';
+            if (paymentDetails) paymentDetails.style.display = 'none';
+            return;
+        }
 
-            // 2. Leer el método en minúsculas para evitar errores de mayúsculas en el HTML
-            const method = (button.getAttribute('data-method') || button.getAttribute('data-data-method') || '').toLowerCase().trim();
+        // Limpiar el string (quitar espacios, guiones y pasarlo a minúsculas)
+        const method = methodName.toLowerCase().trim().replace('_', '');
 
-            // Sincronizar con el input oculto del formulario si existe
-            const hiddenInput = document.getElementById('payment-method-select') || document.getElementById('payment-method');
-            if (hiddenInput) hiddenInput.value = method;
+        // Sincronizar con el input oculto o select si es necesario
+        const hiddenInput = document.getElementById('payment-method-select') || document.getElementById('payment-method');
+        if (hiddenInput && hiddenInput.value !== methodName) {
+            hiddenInput.value = methodName;
+        }
 
-            // 3. Renderizar cada dato con su propio botón individual de copia
-            if (data[method]) {
-                container.innerHTML = `<div class="payment-grid" style="display: flex; flex-direction: column; gap: 12px; padding: 10px;">` +
-                    data[method].map(item => `
-                        <div class="pay-item" style="display: flex; flex-direction: column; gap: 4px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px;">
-                            <span class="pay-lbl" style="font-size: 0.8rem; color: var(--text-muted); font-weight: bold; text-transform: uppercase;">${item.label}</span>
-                            <div class="pay-row" style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
-                                <code style="font-family: monospace; font-size: 1rem; color: var(--primary); background: transparent; padding: 0;">${item.value}</code>
-                                <button type="button" class="mini-copy-btn" 
-                                        style="padding: 4px 10px; font-size: 0.8rem; background: var(--primary); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: all 0.2s;" 
-                                        onclick="copyToClipboard('${item.value}', this)">
-                                    Copiar
-                                </button>
-                            </div>
+        // Renderizar los datos con los botones individuales de copia
+        if (data[method]) {
+            container.innerHTML = `<div class="payment-grid" style="display: flex; flex-direction: column; gap: 12px; padding: 10px;">` +
+                data[method].map(item => `
+                    <div class="pay-item" style="display: flex; flex-direction: column; gap: 4px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px;">
+                        <span class="pay-lbl" style="font-size: 0.8rem; color: var(--text-muted); font-weight: bold; text-transform: uppercase;">${item.label}</span>
+                        <div class="pay-row" style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                            <code style="font-family: monospace; font-size: 1rem; color: var(--primary); background: transparent; padding: 0;">${item.value}</code>
+                            <button type="button" class="mini-copy-btn" 
+                                    style="padding: 4px 10px; font-size: 0.8rem; background: var(--primary); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: all 0.2s;" 
+                                    onclick="copyToClipboard('${item.value}', this)">
+                                Copiar
+                            </button>
                         </div>
-                    `).join('') + `</div>`;
-                if (paymentDetails) paymentDetails.style.display = 'block';
-            } else {
-                if (method === 'efectivo') {
-                    container.innerHTML = '<p class="payment-info" style="padding: 10px; margin: 0;">Se cancela presencialmente el día del control técnico.</p>';
-                    if (paymentDetails) paymentDetails.style.display = 'block';
-                } else {
-                    container.innerHTML = '';
-                    if (paymentDetails) paymentDetails.style.display = 'none';
-                }
-            }
+                    </div>
+                `).join('') + `</div>`;
 
+            if (paymentDetails) paymentDetails.style.display = 'block';
+        } else if (method === 'efectivo') {
+            container.innerHTML = '<p class="payment-info" style="padding: 10px; margin: 0; color: var(--text);">Se cancela presencialmente el día del control técnico.</p>';
+            if (paymentDetails) paymentDetails.style.display = 'block';
+        } else {
+            container.innerHTML = '';
+            if (paymentDetails) paymentDetails.style.display = 'none';
+        }
+
+        // Guardar el borrador si la función global existe
+        if (typeof saveFormDraft === 'function') {
             saveFormDraft();
+        }
+    }
+
+    // SOPORTE 1: Si usas una lista desplegable (Select)
+    if (paymentSelect) {
+        paymentSelect.addEventListener('change', (e) => {
+            updatePaymentUI(e.target.value);
         });
-    });
+        // Ejecutar al cargar por si ya hay una opción preseleccionada por el borrador
+        if (paymentSelect.value) {
+            updatePaymentUI(paymentSelect.value);
+        }
+    }
+
+    // SOPORTE 2: Si usas botones individuales (.payment-btn)
+    if (paymentButtons.length > 0) {
+        paymentButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                paymentButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                const methodAttr = button.getAttribute('data-method') || button.getAttribute('data-data-method') || '';
+                updatePaymentUI(methodAttr);
+            });
+        });
+    }
 }
 
-// Función global que copia el dato específico del botón que fue presionado
+// Función global que copia el dato específico al portapapeles
 function copyToClipboard(text, element) {
     navigator.clipboard.writeText(text).then(() => {
         if (element) {
             const originalText = element.textContent;
             element.textContent = "✅ Copiado";
-            element.style.background = "#fff"; // Cambia a blanco para resaltar el éxito
+            element.style.background = "#fff";
             element.style.color = "#000";
 
             setTimeout(() => {
@@ -598,6 +637,8 @@ function copyToClipboard(text, element) {
         console.error('Error al copiar el dato: ', err);
     });
 }
+
+initPaymentInstructions();
 
 /* ==========================================================================
    8. RESOLUCIÓN DE TASA DE CAMBIO BCV Y CONECTIVIDAD SUPABASE

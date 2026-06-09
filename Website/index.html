@@ -276,370 +276,355 @@
                             </div>
                         </div>
 
-                        <div class="form-row">
-                            <div class="form-input-wrapper">
-                                <label for="hiker-gender">Género *</label>
-                                <select id="hiker-gender" required>
-                                    <option value="" disabled selected>Selecciona una opción</option>
-                                    <option value="M">Masculino</option>
-                                    <option value="F">Femenino</option>
-                                </select>
-                                <span class="input-tip">Requerido para coordinar carpas compartidas de solo hombres o
-                                    solo mujeres.</span>
-                            </div>
-                            <div class="form-input-wrapper">
-                                <label for="hiker-tent-preference">Preferencia de Alojamiento *</label>
-                                <select id="hiker-tent-preference" required>
-                                    <option value="" disabled selected>Selecciona tu alojamiento</option>
-                                    <option value="carpa_2">Carpa 2 Personas</option>
-                                    <option value="carpa_3">Carpa 3 Personas</option>
-                                    <option value="carpa_4">Carpa 4 Personas</option>
-                                </select>
-                            </div>
+                        <div class="step-card">
+                            <label class="form-label" for="hiker-gender">Género *</label>
+                            <select id="hiker-gender" class="custom-select" required>
+                                <option value="" disabled selected>Selecciona una opción</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                            </select>
+                            <span class="input-tip">Requerido para coordinar carpas compartidas de solo hombres o solo
+                                mujeres.</span>
                         </div>
-
-                        <div class="form-group-title">Fecha de Expedición</div>
-                        <div class="form-row">
-                            <div class="form-input-wrapper full-width">
-                                <label for="booking-date">Sábados Disponibles *</label>
-                                <select id="booking-date" name="fecha_expedicion" required>
-                                    <option value="" disabled selected>Cargando fechas disponibles...</option>
-                                </select>
-                                <span class="input-tip">Elige el sábado que prefieras para tu ascenso.</span>
-                            </div>
+                        <div class="form-input-wrapper">
+                            <label for="hiker-tent-preference">Preferencia de Alojamiento *</label>
+                            <select id="hiker-tent-preference" required>
+                                <option value="" disabled selected>Selecciona tu alojamiento</option>
+                                <option value="carpa_2">Carpa 2 Personas</option>
+                                <option value="carpa_3">Carpa 3 Personas</option>
+                                <option value="carpa_4">Carpa 4 Personas</option>
+                            </select>
                         </div>
+                </div>
 
-                        <div class="form-group-title">Salud y Alimentación</div>
-                        <div class="form-row">
-                            <div class="form-input-wrapper full-width">
-                                <label for="hiker-allergies">¿Sufres de Alergias Alimentarias? *</label>
-                                <select id="hiker-allergies" required>
-                                    <option value="none" selected>Ninguna</option>
-                                    <option value="nuts">Alergia a los frutos secos (Nueces/Almendras)</option>
-                                </select>
-                                <span class="input-tip">Crítico: Si tienes allergy a los frutos secos, adaptaremos tus
-                                    snacks.</span>
-                            </div>
-                        </div>
+                <div class="form-group-title">Fecha de Expedición</div>
+                <div class="form-row">
+                    <div class="form-input-wrapper full-width">
+                        <label for="booking-date">Sábados Disponibles *</label>
+                        <select id="booking-date" name="fecha_expedicion" required>
+                            <option value="" disabled selected>Cargando fechas disponibles...</option>
+                        </select>
+                        <span class="input-tip">Elige el sábado que prefieras para tu ascenso.</span>
+                    </div>
+                </div>
 
-                        <div class="form-row">
-                            <div class="form-input-wrapper full-width">
-                                <label for="hiker-medical">Condiciones Médicas, Medicamentos o Detalles de
-                                    Alergias</label>
-                                <textarea id="hiker-medical" rows="3"
-                                    placeholder="Ej. Sufro de asma (llevo mi inhalador), o alergia severa al maní."></textarea>
-                            </div>
-                        </div>
+                <div class="form-group-title">Salud y Alimentación</div>
+                <div class="step-card">
+                    <label class="form-label" for="hiker-allergies">¿Sufres de Alergias Alimentarias? *</label>
+                    <select id="hiker-allergies" class="custom-select" required>
+                        <option value="" disabled selected>Selecciona una opción</option>
+                        <option value="No">No, ninguna</option>
+                        <option value="Si">Sí, tengo alergias</option>
+                    </select>
+                    <span class="input-tip">Por favor, indícanos detalles si seleccionas "Sí" para adaptar el catering
+                        de montaña.</span>
+                </div>
 
-                        <div class="form-group-title">Alquileres y Provisiones</div>
-                        <p class="form-section-description">Personaliza tu experiencia de alta montaña. Los cargos se
-                            sumarán al total de tu pase.</p>
+                <div class="form-row">
+                    <div class="form-input-wrapper full-width">
+                        <label for="hiker-medical">Condiciones Médicas, Medicamentos o Detalles de
+                            Alergias</label>
+                        <textarea id="hiker-medical" rows="3"
+                            placeholder="Ej. Sufro de asma (llevo mi inhalador), o alergia severa al maní."></textarea>
+                    </div>
+                </div>
 
-                        <div class="provisions-container">
-                            <div class="provision-section">
-                                <h4 class="provision-subsection-title">🎒 Alquiler de Equipos (Por Unidad)</h4>
-                                <div class="equipment-list">
+                <div class="form-group-title">Alquileres y Provisiones</div>
+                <p class="form-section-description">Personaliza tu experiencia de alta montaña. Los cargos se
+                    sumarán al total de tu pase.</p>
 
-                                    <div class="equipment-row">
-                                        <div class="equipment-info">
-                                            <span class="equipment-name">Saco de Dormir (0-10°C)</span>
-                                            <span class="equipment-price">$10.00 USD / ud <small
-                                                    style="color: rgba(255,255,255,0.3)">(Disponibles: 4)</small></span>
-                                        </div>
-                                        <div class="stepper-container">
-                                            <button type="button" class="stepper-btn minus"
-                                                data-target="saco_dormir">−</button>
-                                            <input type="number" id="saco_dormir"
-                                                class="calc-trigger equipment-input stepper-input" data-price="10"
-                                                data-id="saco_dormir" min="0" data-max="4" value="0" readonly>
-                                            <button type="button" class="stepper-btn plus"
-                                                data-target="saco_dormir">+</button>
-                                        </div>
-                                    </div>
+                <div class="provisions-container">
+                    <div class="provision-section">
+                        <h4 class="provision-subsection-title">🎒 Alquiler de Equipos (Por Unidad)</h4>
+                        <div class="equipment-list">
 
-                                    <div class="equipment-row">
-                                        <div class="equipment-info">
-                                            <span class="equipment-name">Esterilla / Aislante</span>
-                                            <span class="equipment-price">$5.00 USD / ud <small
-                                                    style="color: rgba(255,255,255,0.3)">(Disponibles: 6)</small></span>
-                                        </div>
-                                        <div class="stepper-container">
-                                            <button type="button" class="stepper-btn minus"
-                                                data-target="esterilla">−</button>
-                                            <input type="number" id="esterilla"
-                                                class="calc-trigger equipment-input stepper-input" data-price="5"
-                                                data-id="esterilla" min="0" data-max="6" value="0" readonly>
-                                            <button type="button" class="stepper-btn plus"
-                                                data-target="esterilla">+</button>
-                                        </div>
-                                    </div>
-
-                                    <div class="equipment-row">
-                                        <div class="equipment-info">
-                                            <span class="equipment-name">Poncho Impermeable</span>
-                                            <span class="equipment-price">$5.00 USD / ud <small
-                                                    style="color: rgba(255,255,255,0.3)">(Disponibles:
-                                                    10)</small></span>
-                                        </div>
-                                        <div class="stepper-container">
-                                            <button type="button" class="stepper-btn minus"
-                                                data-target="poncho">−</button>
-                                            <input type="number" id="poncho"
-                                                class="calc-trigger equipment-input stepper-input" data-price="5"
-                                                data-id="poncho" min="0" data-max="10" value="0" readonly>
-                                            <button type="button" class="stepper-btn plus"
-                                                data-target="poncho">+</button>
-                                        </div>
-                                    </div>
-
-                                    <div class="equipment-row">
-                                        <div class="equipment-info">
-                                            <span class="equipment-name">Linterna Frontal</span>
-                                            <span class="equipment-price">$5.00 USD / ud <small
-                                                    style="color: rgba(255,255,255,0.3)">(Disponibles: 2)</small></span>
-                                        </div>
-                                        <div class="stepper-container">
-                                            <button type="button" class="stepper-btn minus"
-                                                data-target="linterna_frontal">−</button>
-                                            <input type="number" id="linterna_frontal"
-                                                class="calc-trigger equipment-input stepper-input" data-price="5"
-                                                data-id="linterna_frontal" min="0" data-max="2" value="0" readonly>
-                                            <button type="button" class="stepper-btn plus"
-                                                data-target="linterna_frontal">+</button>
-                                        </div>
-                                    </div>
-
-                                    <div class="equipment-row">
-                                        <div class="equipment-info">
-                                            <span class="equipment-name">Linterna de Tienda</span>
-                                            <span class="equipment-price">$5.00 USD / ud <small
-                                                    style="color: rgba(255,255,255,0.3)">(Disponibles: 4)</small></span>
-                                        </div>
-                                        <div class="stepper-container">
-                                            <button type="button" class="stepper-btn minus"
-                                                data-target="linterna_tienda">−</button>
-                                            <input type="number" id="linterna_tienda"
-                                                class="calc-trigger equipment-input stepper-input" data-price="5"
-                                                data-id="linterna_tienda" min="0" data-max="4" value="0" readonly>
-                                            <button type="button" class="stepper-btn plus"
-                                                data-target="linterna_tienda">+</button>
-                                        </div>
-                                    </div>
-
-                                    <div class="equipment-row">
-                                        <div class="equipment-info">
-                                            <span class="equipment-name">Mochila de Travesía (35L)</span>
-                                            <span class="equipment-price">$10.00 USD / ud <small
-                                                    style="color: rgba(255,255,255,0.3)">(Disponibles: 1)</small></span>
-                                        </div>
-                                        <div class="stepper-container">
-                                            <button type="button" class="stepper-btn minus"
-                                                data-target="mochila_travesia">−</button>
-                                            <input type="number" id="mochila_travesia"
-                                                class="calc-trigger equipment-input stepper-input" data-price="10"
-                                                data-id="mochila_travesia" min="0" data-max="1" value="0" readonly>
-                                            <button type="button" class="stepper-btn plus"
-                                                data-target="mochila_travesia">+</button>
-                                        </div>
-                                    </div>
-
+                            <div class="equipment-row">
+                                <div class="equipment-info">
+                                    <span class="equipment-name">Saco de Dormir (0-10°C)</span>
+                                    <span class="equipment-price">$10.00 USD / ud <small
+                                            style="color: rgba(255,255,255,0.3)">(Disponibles: 4)</small></span>
+                                </div>
+                                <div class="stepper-container">
+                                    <button type="button" class="stepper-btn minus" data-target="saco_dormir">−</button>
+                                    <input type="number" id="saco_dormir"
+                                        class="calc-trigger equipment-input stepper-input" data-price="10"
+                                        data-id="saco_dormir" min="0" data-max="4" value="0" readonly>
+                                    <button type="button" class="stepper-btn plus" data-target="saco_dormir">+</button>
                                 </div>
                             </div>
 
-                            <div class="provision-section">
-                                <h4 class="provision-subsection-title">🍎 Catering y Snacks Extra</h4>
-                                <div class="catering-list">
-
-                                    <div class="catering-row">
-                                        <div class="catering-info">
-                                            <span class="catering-name">Dulce de Guayaba</span>
-                                            <span class="catering-price">$2.00 USD / ud</span>
-                                        </div>
-                                        <div class="stepper-container">
-                                            <button type="button" class="stepper-btn minus"
-                                                data-target="dulce_guayaba">−</button>
-                                            <input type="number" id="dulce_guayaba"
-                                                class="calc-trigger catering-input stepper-input" data-price="2"
-                                                data-id="dulce_guayaba" min="0" value="0" readonly>
-                                            <button type="button" class="stepper-btn plus"
-                                                data-target="dulce_guayaba">+</button>
-                                        </div>
-                                    </div>
-
-                                    <div class="catering-row">
-                                        <div class="catering-info">
-                                            <span class="catering-name">Barras Energéticas</span>
-                                            <span class="catering-price">$2.50 USD / ud</span>
-                                        </div>
-                                        <div class="stepper-container">
-                                            <button type="button" class="stepper-btn minus"
-                                                data-target="barras_energeticas">−</button>
-                                            <input type="number" id="barras_energeticas"
-                                                class="calc-trigger catering-input stepper-input" data-price="2.5"
-                                                data-id="barras_energeticas" min="0" value="0" readonly>
-                                            <button type="button" class="stepper-btn plus"
-                                                data-target="barras_energeticas">+</button>
-                                        </div>
-                                    </div>
-
-                                    <div class="catering-row">
-                                        <div class="catering-info">
-                                            <span class="catering-name">Mix de Frutos Secos (100g)</span>
-                                            <span class="catering-price">$4.00 USD / ud</span>
-                                        </div>
-                                        <div class="stepper-container">
-                                            <button type="button" class="stepper-btn minus"
-                                                data-target="frutos_secos">−</button>
-                                            <input type="number" id="frutos_secos"
-                                                class="calc-trigger catering-input stepper-input" data-price="4"
-                                                data-id="frutos_secos" min="0" value="0" readonly>
-                                            <button type="button" class="stepper-btn plus"
-                                                data-target="frutos_secos">+</button>
-                                        </div>
-                                    </div>
-
+                            <div class="equipment-row">
+                                <div class="equipment-info">
+                                    <span class="equipment-name">Esterilla / Aislante</span>
+                                    <span class="equipment-price">$5.00 USD / ud <small
+                                            style="color: rgba(255,255,255,0.3)">(Disponibles: 6)</small></span>
+                                </div>
+                                <div class="stepper-container">
+                                    <button type="button" class="stepper-btn minus" data-target="esterilla">−</button>
+                                    <input type="number" id="esterilla"
+                                        class="calc-trigger equipment-input stepper-input" data-price="5"
+                                        data-id="esterilla" min="0" data-max="6" value="0" readonly>
+                                    <button type="button" class="stepper-btn plus" data-target="esterilla">+</button>
                                 </div>
                             </div>
 
-                            <div class="provision-section">
-                                <h4 class="provision-subsection-title">🧳 Gestión de Carga</h4>
-                                <div class="form-input-wrapper full-width">
-                                    <label>Servicio de Portador Especializado</label>
-                                    <div class="carrier-buttons-grid"
-                                        style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px; margin-bottom: 8px;">
-
-                                        <button type="button" class="carrier-btn active" data-value="0"
-                                            data-name="Ninguno - Carga el cliente">
-                                            <span class="carrier-title">No, yo mismo cargaré mi carpa asignada</span>
-                                            <span class="carrier-price">$0 USD</span>
-                                        </button>
-
-                                        <button type="button" class="carrier-btn" data-value="30"
-                                            data-name="Portador Carpa 2P">
-                                            <span class="carrier-title">Servicio de Portador - Carpa de 2
-                                                personas</span>
-                                            <span class="carrier-price">+$30 USD</span>
-                                        </button>
-
-                                        <button type="button" class="carrier-btn" data-value="40"
-                                            data-name="Portador Carpa 3P">
-                                            <span class="carrier-title">Servicio de Portador - Carpa de 3
-                                                personas</span>
-                                            <span class="carrier-price">+$40 USD</span>
-                                        </button>
-
-                                        <button type="button" class="carrier-btn" data-value="50"
-                                            data-name="Portador Carpa 4P">
-                                            <span class="carrier-title">Servicio de Portador - Carpa de 4
-                                                personas</span>
-                                            <span class="carrier-price">+$50 USD</span>
-                                        </button>
-
-                                    </div>
-                                    <input type="hidden" id="logistic-carrier-select" class="calc-trigger"
-                                        name="logisticCarrier" value="0">
-                                    <span class="input-tip">Obligatorio interactuar si deseas delegar el esfuerzo físico
-                                        del traslado de pernocta.</span>
+                            <div class="equipment-row">
+                                <div class="equipment-info">
+                                    <span class="equipment-name">Poncho Impermeable</span>
+                                    <span class="equipment-price">$5.00 USD / ud <small
+                                            style="color: rgba(255,255,255,0.3)">(Disponibles:
+                                            10)</small></span>
+                                </div>
+                                <div class="stepper-container">
+                                    <button type="button" class="stepper-btn minus" data-target="poncho">−</button>
+                                    <input type="number" id="poncho" class="calc-trigger equipment-input stepper-input"
+                                        data-price="5" data-id="poncho" min="0" data-max="10" value="0" readonly>
+                                    <button type="button" class="stepper-btn plus" data-target="poncho">+</button>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="form-group-title">Módulo de Pago</div>
-                        <div class="form-row">
-                            <div class="form-input-wrapper full-width">
-                                <label for="payment-method-select">Método de Pago *</label>
-                                <select id="payment-method-select" required>
-                                    <option value="" disabled selected>Selecciona tu forma de pago</option>
-                                    <option value="Pago Móvil">Pago Móvil (VES al cambio BCV)</option>
-                                    <option value="Binance">Binance Pay (USDT)</option>
-                                    <option value="Zelle">Zelle (USD)</option>
-                                    <option value="Efectivo">Efectivo el día del tour (USD)</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div id="pay-info-pagomovil" class="payment-info-block glass-panel hidden"
-                            style="margin-top:10px; padding: 15px;">
-                            <h5 style="margin-top:0; color:var(--primary);">Datos para Pago Móvil (Banesco)</h5>
-                            <p
-                                style="font-size:0.85rem; color:var(--text-muted); margin: 5px 0 10px 0; line-height: 1.5;">
-                                📱 <strong>Celular:</strong> 04262062588 <br>
-                                💳 <strong>Cédula:</strong> V-24.218.655 <br>
-                                🏦 <strong>Banco:</strong> Banesco
-                            </p>
-                        </div>
-
-                        <div id="pay-info-binance" class="payment-info-block glass-panel hidden"
-                            style="margin-top:10px; padding: 15px; text-align: center;">
-                            <h5 style="margin-top:0; color:var(--primary);">Binance Pay (USDT)</h5>
-                            <p style="font-size:0.85rem; color:var(--text-muted); margin: 5px 0 10px 0;">
-                                📩 <strong>Email:</strong> thecardanomerch@gmail.com
-                            </p>
-                        </div>
-
-                        <div id="pay-info-zelle" class="payment-info-block glass-panel hidden"
-                            style="margin-top:10px; padding: 15px;">
-                            <h5 style="margin-top:0; color:var(--primary);">Zelle (USD)</h5>
-                            <p
-                                style="font-size:0.85rem; color:var(--text-muted); margin: 5px 0 10px 0; line-height: 1.5;">
-                                👤 <strong>Titular:</strong> Diego Moroño <br>
-                                📩 <strong>Email:</strong> diego.morono03@gmail.com
-                            </p>
-                        </div>
-
-                        <div id="pay-info-efectivo" class="payment-info-block glass-panel hidden"
-                            style="margin-top:10px; padding: 15px;">
-                            <h5 style="margin-top:0; color:var(--secondary);">Pago en Efectivo</h5>
-                            <p style="font-size:0.85rem; color:var(--text-muted); margin: 5px 0 0 0;">
-                                El pago se entregará al guía en persona el día del inicio del tour en La Julia.
-                            </p>
-                        </div>
-
-                        <div class="form-row" id="payment-ref-row" style="margin-top:15px;">
-                            <div class="form-input-wrapper full-width">
-                                <label for="payment-reference">Número de Referencia / Comprobante / C.I. *</label>
-                                <input type="text" id="payment-reference" required
-                                    placeholder="Ej. 12345678 o C.I. del pagador">
-                                <span class="input-tip">Ingresa el número de referencia bancario, ID de Binance, email
-                                    de Zelle o tu Cédula de Identidad.</span>
-                            </div>
-                        </div>
-
-                        <div class="form-summary-card">
-                            <div class="summary-line">
-                                <span>Costo Base del Tour:</span>
-                                <span>$50.00 USD</span>
-                            </div>
-                            <div id="rental-summary-row" class="summary-line hidden">
-                                <span>Adicionales (Alquileres/Snacks/Portador):</span>
-                                <span id="rental-cost-display">+$0.00 USD</span>
-                            </div>
-                            <hr class="summary-divider">
-                            <div class="summary-line total-line">
-                                <span>Total a Pagar:</span>
-                                <div class="total-values">
-                                    <span class="total-usd" id="form-total-usd">$50.00 USD</span>
-                                    <span class="total-ves" id="form-total-ves">Bs. 0.00</span>
+                            <div class="equipment-row">
+                                <div class="equipment-info">
+                                    <span class="equipment-name">Linterna Frontal</span>
+                                    <span class="equipment-price">$5.00 USD / ud <small
+                                            style="color: rgba(255,255,255,0.3)">(Disponibles: 2)</small></span>
+                                </div>
+                                <div class="stepper-container">
+                                    <button type="button" class="stepper-btn minus"
+                                        data-target="linterna_frontal">−</button>
+                                    <input type="number" id="linterna_frontal"
+                                        class="calc-trigger equipment-input stepper-input" data-price="5"
+                                        data-id="linterna_frontal" min="0" data-max="2" value="0" readonly>
+                                    <button type="button" class="stepper-btn plus"
+                                        data-target="linterna_frontal">+</button>
                                 </div>
                             </div>
+
+                            <div class="equipment-row">
+                                <div class="equipment-info">
+                                    <span class="equipment-name">Linterna de Tienda</span>
+                                    <span class="equipment-price">$5.00 USD / ud <small
+                                            style="color: rgba(255,255,255,0.3)">(Disponibles: 4)</small></span>
+                                </div>
+                                <div class="stepper-container">
+                                    <button type="button" class="stepper-btn minus"
+                                        data-target="linterna_tienda">−</button>
+                                    <input type="number" id="linterna_tienda"
+                                        class="calc-trigger equipment-input stepper-input" data-price="5"
+                                        data-id="linterna_tienda" min="0" data-max="4" value="0" readonly>
+                                    <button type="button" class="stepper-btn plus"
+                                        data-target="linterna_tienda">+</button>
+                                </div>
+                            </div>
+
+                            <div class="equipment-row">
+                                <div class="equipment-info">
+                                    <span class="equipment-name">Mochila de Travesía (35L)</span>
+                                    <span class="equipment-price">$10.00 USD / ud <small
+                                            style="color: rgba(255,255,255,0.3)">(Disponibles: 1)</small></span>
+                                </div>
+                                <div class="stepper-container">
+                                    <button type="button" class="stepper-btn minus"
+                                        data-target="mochila_travesia">−</button>
+                                    <input type="number" id="mochila_travesia"
+                                        class="calc-trigger equipment-input stepper-input" data-price="10"
+                                        data-id="mochila_travesia" min="0" data-max="1" value="0" readonly>
+                                    <button type="button" class="stepper-btn plus"
+                                        data-target="mochila_travesia">+</button>
+                                </div>
+                            </div>
+
                         </div>
+                    </div>
 
-                        <label class="safety-declaration">
-                            <input type="checkbox" id="safety-agree" required>
-                            <span>Entiendo que subir al Pico Naiguatá es una actividad de alta exigencia física y
-                                certifico que me encuentro en condiciones físicas saludables para realizar el ascenso de
-                                ~7-9 horas.</span>
-                        </label>
+                    <div class="provision-section">
+                        <h4 class="provision-subsection-title">🍎 Catering y Snacks Extra</h4>
+                        <div class="catering-list">
 
-                        <button type="submit" class="btn-primary btn-large btn-full-width">
-                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5"
-                                fill="none" class="btn-icon">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                            </svg>
-                            Confirmar Registro y Generar Pase
-                        </button>
-                    </form>
+                            <div class="catering-row">
+                                <div class="catering-info">
+                                    <span class="catering-name">Dulce de Guayaba</span>
+                                    <span class="catering-price">$2.00 USD / ud</span>
+                                </div>
+                                <div class="stepper-container">
+                                    <button type="button" class="stepper-btn minus"
+                                        data-target="dulce_guayaba">−</button>
+                                    <input type="number" id="dulce_guayaba"
+                                        class="calc-trigger catering-input stepper-input" data-price="2"
+                                        data-id="dulce_guayaba" min="0" value="0" readonly>
+                                    <button type="button" class="stepper-btn plus"
+                                        data-target="dulce_guayaba">+</button>
+                                </div>
+                            </div>
+
+                            <div class="catering-row">
+                                <div class="catering-info">
+                                    <span class="catering-name">Barras Energéticas</span>
+                                    <span class="catering-price">$2.50 USD / ud</span>
+                                </div>
+                                <div class="stepper-container">
+                                    <button type="button" class="stepper-btn minus"
+                                        data-target="barras_energeticas">−</button>
+                                    <input type="number" id="barras_energeticas"
+                                        class="calc-trigger catering-input stepper-input" data-price="2.5"
+                                        data-id="barras_energeticas" min="0" value="0" readonly>
+                                    <button type="button" class="stepper-btn plus"
+                                        data-target="barras_energeticas">+</button>
+                                </div>
+                            </div>
+
+                            <div class="catering-row">
+                                <div class="catering-info">
+                                    <span class="catering-name">Mix de Frutos Secos (100g)</span>
+                                    <span class="catering-price">$4.00 USD / ud</span>
+                                </div>
+                                <div class="stepper-container">
+                                    <button type="button" class="stepper-btn minus"
+                                        data-target="frutos_secos">−</button>
+                                    <input type="number" id="frutos_secos"
+                                        class="calc-trigger catering-input stepper-input" data-price="4"
+                                        data-id="frutos_secos" min="0" value="0" readonly>
+                                    <button type="button" class="stepper-btn plus" data-target="frutos_secos">+</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="provision-section">
+                        <h4 class="provision-subsection-title">🧳 Gestión de Carga</h4>
+                        <div class="form-input-wrapper full-width">
+                            <label>Servicio de Portador Especializado</label>
+                            <div class="carrier-buttons-grid"
+                                style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px; margin-bottom: 8px;">
+
+                                <button type="button" class="carrier-btn active" data-value="0"
+                                    data-name="Ninguno - Carga el cliente">
+                                    <span class="carrier-title">No, yo mismo cargaré mi carpa asignada</span>
+                                    <span class="carrier-price">$0 USD</span>
+                                </button>
+
+                                <button type="button" class="carrier-btn" data-value="30" data-name="Portador Carpa 2P">
+                                    <span class="carrier-title">Servicio de Portador - Carpa de 2
+                                        personas</span>
+                                    <span class="carrier-price">+$30 USD</span>
+                                </button>
+
+                                <button type="button" class="carrier-btn" data-value="40" data-name="Portador Carpa 3P">
+                                    <span class="carrier-title">Servicio de Portador - Carpa de 3
+                                        personas</span>
+                                    <span class="carrier-price">+$40 USD</span>
+                                </button>
+
+                                <button type="button" class="carrier-btn" data-value="50" data-name="Portador Carpa 4P">
+                                    <span class="carrier-title">Servicio de Portador - Carpa de 4
+                                        personas</span>
+                                    <span class="carrier-price">+$50 USD</span>
+                                </button>
+
+                            </div>
+                            <input type="hidden" id="logistic-carrier-select" class="calc-trigger"
+                                name="logisticCarrier" value="0">
+                            <span class="input-tip">Obligatorio interactuar si deseas delegar el esfuerzo físico
+                                del traslado de pernocta.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group-title">Módulo de Pago</div>
+                <div class="form-row">
+                    <div class="form-input-wrapper full-width">
+                        <label for="payment-method-select">Método de Pago *</label>
+                        <select id="payment-method-select" required>
+                            <option value="" disabled selected>Selecciona tu forma de pago</option>
+                            <option value="Pago Móvil">Pago Móvil (VES al cambio BCV)</option>
+                            <option value="Binance">Binance Pay (USDT)</option>
+                            <option value="Zelle">Zelle (USD)</option>
+                            <option value="Efectivo">Efectivo el día del tour (USD)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="pay-info-pagomovil" class="payment-info-block glass-panel hidden"
+                    style="margin-top:10px; padding: 15px;">
+                    <h5 style="margin-top:0; color:var(--primary);">Datos para Pago Móvil (Banesco)</h5>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin: 5px 0 10px 0; line-height: 1.5;">
+                        📱 <strong>Celular:</strong> 04262062588 <br>
+                        💳 <strong>Cédula:</strong> V-24.218.655 <br>
+                        🏦 <strong>Banco:</strong> Banesco
+                    </p>
+                </div>
+
+                <div id="pay-info-binance" class="payment-info-block glass-panel hidden"
+                    style="margin-top:10px; padding: 15px; text-align: center;">
+                    <h5 style="margin-top:0; color:var(--primary);">Binance Pay (USDT)</h5>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin: 5px 0 10px 0;">
+                        📩 <strong>Email:</strong> thecardanomerch@gmail.com
+                    </p>
+                </div>
+
+                <div id="pay-info-zelle" class="payment-info-block glass-panel hidden"
+                    style="margin-top:10px; padding: 15px;">
+                    <h5 style="margin-top:0; color:var(--primary);">Zelle (USD)</h5>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin: 5px 0 10px 0; line-height: 1.5;">
+                        👤 <strong>Titular:</strong> Diego Moroño <br>
+                        📩 <strong>Email:</strong> diego.morono03@gmail.com
+                    </p>
+                </div>
+
+                <div id="pay-info-efectivo" class="payment-info-block glass-panel hidden"
+                    style="margin-top:10px; padding: 15px;">
+                    <h5 style="margin-top:0; color:var(--secondary);">Pago en Efectivo</h5>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin: 5px 0 0 0;">
+                        El pago se entregará al guía en persona el día del inicio del tour en La Julia.
+                    </p>
+                </div>
+
+                <div class="form-row" id="payment-ref-row" style="margin-top:15px;">
+                    <div class="form-input-wrapper full-width">
+                        <label for="payment-reference">Número de Referencia / Comprobante / C.I. *</label>
+                        <input type="text" id="payment-reference" required
+                            placeholder="Ej. 12345678 o C.I. del pagador">
+                        <span class="input-tip">Ingresa el número de referencia bancario, ID de Binance, email
+                            de Zelle o tu Cédula de Identidad.</span>
+                    </div>
+                </div>
+
+                <div class="form-summary-card">
+                    <div class="summary-line">
+                        <span>Costo Base del Tour:</span>
+                        <span>$50.00 USD</span>
+                    </div>
+                    <div id="rental-summary-row" class="summary-line hidden">
+                        <span>Adicionales (Alquileres/Snacks/Portador):</span>
+                        <span id="rental-cost-display">+$0.00 USD</span>
+                    </div>
+                    <hr class="summary-divider">
+                    <div class="summary-line total-line">
+                        <span>Total a Pagar:</span>
+                        <div class="total-values">
+                            <span class="total-usd" id="form-total-usd">$50.00 USD</span>
+                            <span class="total-ves" id="form-total-ves">Bs. 0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <label class="safety-declaration">
+                    <input type="checkbox" id="safety-agree" required>
+                    <span>Entiendo que subir al Pico Naiguatá es una actividad de alta exigencia física y
+                        certifico que me encuentro en condiciones físicas saludables para realizar el ascenso de
+                        ~7-9 horas.</span>
+                </label>
+
+                <button type="submit" class="btn-primary btn-large btn-full-width">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none"
+                        class="btn-icon">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    Confirmar Registro y Generar Pase
+                </button>
+                </form>
                 </div>
             </section>
 
