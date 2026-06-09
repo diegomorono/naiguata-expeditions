@@ -890,67 +890,73 @@ function enviarEmailNotificacion(booking) {
 
 // 🖥️ MANTIENE LA FUNCIÓN DE RENDERIZADO DE CHECKOUT EXACTAMENTE IGUAL QUE ANTES
 function renderCheckoutSuccess(booking) {
-    const mainContainer = document.getElementById('form-step-container') || document.querySelector('main');
-    if (!mainContainer) return;
+    // 1. Mapeamos y cargamos los datos reales del participante dentro del bloque HTML limpio
+    const nameDisplay = document.getElementById('pass-hiker-name');
+    const dateDisplay = document.getElementById('pass-date');
+    const groupDisplay = document.getElementById('pass-group');
+    const dietDisplay = document.getElementById('pass-diet');
+    const tentDisplay = document.getElementById('pass-tent');
+    const refDisplay = document.getElementById('pass-reference-display');
+    const rentalsDisplay = document.getElementById('pass-rentals');
+    const serialDisplay = document.getElementById('pass-serial-number');
 
+    // Función interna para estabilizar eñes y caracteres rotos como Moroño
+    const sanearTexto = (str) => {
+        if (!str) return '';
+        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(//g, "ñ");
+    };
+
+    if (nameDisplay) nameDisplay.innerText = sanearTexto(booking.name || booking.hiker_name);
+    if (dateDisplay) dateDisplay.innerText = booking.date || booking.expedition_date || 'Próximo Sábado';
+    if (groupDisplay) groupDisplay.innerText = (booking.group_code || booking.booking_group || 'INDIVIDUAL').toUpperCase();
+
+    const alergias = booking.allergies || booking.allergies_info || 'Ninguna';
+    const medica = booking.medical || booking.medical_info || 'Ninguna';
+    if (dietDisplay) dietDisplay.innerText = `Alergias: ${alergias} | Médica: ${medica}`;
+
+    if (tentDisplay) tentDisplay.innerText = booking.tent_preference || booking.accommodation || 'Por asignar';
+
+    // Mostramos la referencia reportada limpia como texto normal sin cajas negras
+    if (refDisplay) refDisplay.innerText = booking.reference_number || booking.payment_reference || 'N/A';
+
+    // Cálculo preciso de montos en dólares y bolívares dinámicos usando el estado de la app
     const tasaBCV = typeof appState !== 'undefined' && appState.bcvRate ? appState.bcvRate : 1;
-    const totalVES = booking.total_usd * tasaBCV;
+    const totalUSD = parseFloat(booking.total_usd) || 50.00;
+    const totalVES = totalUSD * tasaBCV;
 
-    mainContainer.innerHTML = `
-        <div class="checkout-success-container" style="max-width: 700px; margin: 40px auto; padding: 25px; background: rgba(15, 22, 30, 0.7); border-radius: 16px; border: 1px solid rgba(16, 185, 129, 0.2); backdrop-filter: blur(10px); animation: fadeIn 0.5s ease-out;">
-            
-            <div style="text-align: center; margin-bottom: 30px;">
-                <div style="width: 60px; height: 60px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
-                    <span style="font-size: 2rem; color: #10b981;">✓</span>
-                </div>
-                <h2 style="color: #ffffff; margin: 0 0 5px 0; font-size: 1.8rem; font-family: system-ui, sans-serif;">¡Inscripción Recibida!</h2>
-                <p style="color: #a1a1aa; margin: 0; font-size: 0.95rem;">Tu cupo para subir al Pico Naiguatá ha sido pre-reservado.</p>
-            </div>
+    if (rentalsDisplay) {
+        rentalsDisplay.innerText = `$${totalUSD.toFixed(2)} USD (${totalVES.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs.)`;
+    }
+    if (serialDisplay) serialDisplay.innerText = booking.id || booking.pass_id || 'NE-XXXXXX';
 
-            <div style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 25px; font-family: system-ui, sans-serif;">
-                <h4 style="color: #10b981; margin: 0 0 15px 0; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;">Resumen de tu Registro</h4>
-                
-                <table style="width: 100%; border-collapse: collapse; color: #e4e4e7; font-size: 0.9rem; line-height: 2;">
-                    <tr><td style="color: #a1a1aa; width: 40%;">ID de Pase:</td><td style="font-weight: bold; font-family: monospace; color: #10b981;">${booking.id}</td></tr>
-                    <tr><td style="color: #a1a1aa;">Participante:</td><td style="font-weight: bold;">${booking.name}</td></tr>
-                    <tr><td style="color: #a1a1aa;">Fecha de Expedición:</td><td>${booking.date}</td></tr>
-                    <tr><td style="color: #a1a1aa;">Método de Pago:</td><td>${booking.payment_method}</td></tr>
-                    <tr><td style="color: #a1a1aa;">Referencia reportada:</td><td><code>${booking.reference_number}</code></td></tr>
-                    <tr style="border-top: 1px solid rgba(255,255,255,0.1);"><td style="color: #ffffff; font-weight: bold; padding-top: 10px;">Total Registrado:</td><td style="color: #10b981; font-weight: bold; font-size: 1.1rem; padding-top: 10px;">$${booking.total_usd.toFixed(2)} USD <span style="font-size: 0.8rem; color: #a1a1aa;">(${totalVES.toLocaleString('es-VE')} Bs.)</span></td></tr>
-                </table>
+    // 2. Vinculamos de forma segura los eventos Onclick a los botones del HTML real
+    const btnPrint = document.getElementById('btn-print-pass');
+    if (btnPrint) {
+        btnPrint.onclick = function () {
+            window.print();
+        };
+    }
 
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button onclick="window.print()" style="flex: 1; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s;">
-                        🖨️ Guardar PDF / Imprimir
-                    </button>
-                    <button onclick="compartirFichaInscripcion('${booking.name}', '${booking.date}')" style="flex: 1; padding: 12px; background: #10b981; border: none; color: #000; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s;">
-                        🔗 Compartir Registro
-                    </button>
-                </div>
-            </div>
+    const btnShare = document.getElementById('btn-share-adventure');
+    if (btnShare) {
+        btnShare.onclick = function () {
+            compartirFichaInscripcion(booking);
+        };
+    }
 
-            <div style="background: rgba(16, 185, 129, 0.03); padding: 20px; border-radius: 10px; border: 1px solid rgba(16, 185, 129, 0.15); font-family: system-ui, sans-serif;">
-                <div style="display: flex; align-items: flex-start; gap: 15px;">
-                    <span style="font-size: 1.8rem;">📋</span>
-                    <div style="flex: 1;">
-                        <h4 style="color: #ffffff; margin: 0 0 5px 0; font-size: 1rem;">Manual de la Expedición Obligatorio</h4>
-                        <p style="color: #a1a1aa; font-size: 0.85rem; margin: 0 0 15px 0; line-height: 1.4;">
-                            Hemos preparado una guía detallada con la lista de equipo obligatorio, tips de preparación física, rutas de agua y normas para el Parque Nacional Waraira Repano.
-                        </p>
-                        <div style="display: flex; gap: 12px;">
-                            <a href="/docs/manual-pico-naiguata.pdf" target="_blank" style="padding: 8px 16px; background: transparent; border: 1px solid #10b981; color: #10b981; border-radius: 6px; font-size: 0.85rem; font-weight: bold; text-decoration: none; text-align: center; transition: 0.2s;">
-                                📖 Leer en Línea
-                            </a>
-                            <a href="/docs/manual-pico-naiguata.pdf" download style="padding: 8px 16px; background: rgba(16, 185, 129, 0.1); border: 1px solid transparent; color: #10b981; border-radius: 6px; font-size: 0.85rem; font-weight: bold; text-decoration: none; text-align: center; transition: 0.2s;">
-                                ⬇️ Descargar PDF
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    // 3. Activamos la vista de éxito nativa sin destruir el entorno de ejecución
+    if (typeof switchView === 'function') {
+        switchView('success-view');
+    } else {
+        const successSection = document.getElementById('success-view');
+        if (successSection) {
+            document.querySelectorAll('.view-section').forEach(s => s.style.display = 'none');
+            successSection.style.display = 'block';
+        }
+    }
 
-        </div>
-    `;
+    // Limpieza de borradores y scroll suave hacia la parte superior
+    localStorage.removeItem('naiguata_form_draft');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
