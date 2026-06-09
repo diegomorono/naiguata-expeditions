@@ -936,16 +936,17 @@ function enviarEmailNotificacion(booking) {
 }
 
 function renderCheckoutSuccess(booking) {
-    console.log("DEBUG: Iniciando renderizado de pase con:", booking); // <-- ESTO ES CLAVE
+    console.log("DEBUG: Iniciando renderizado de pase con:", booking);
 
     const successView = document.getElementById('success-view');
     const clientView = document.getElementById('client-view');
 
-    // Forzamos la visibilidad
-    if (successView) successView.style.display = 'block';
-    if (clientView) clientView.style.display = 'none';
+    // SOLUCIÓN CSS: En lugar de usar .style.display, removemos e incluimos clases ocultas
+    // (Asegúrate de que en tu CSS uses .hidden o la clase correspondiente sin !important si vas a alternarla)
+    if (successView) successView.classList.remove('hidden');
+    if (clientView) clientView.classList.add('hidden');
 
-    // Verificación de existencia de elementos
+    // Verificación e inyección de datos (Tu matriz de campos se queda igual)
     const fields = [
         { id: 'pass-hiker-name', val: booking.name },
         { id: 'pass-date', val: booking.date },
@@ -979,11 +980,11 @@ function initPassButtons(booking) {
         };
     }
 
-    // Botón Descargar (Simulamos impresión del pase)
-    const btnSave = document.getElementById('btn-save-pass'); // Asegúrate que tu botón en HTML tenga este ID
+    // CORRECCIÓN DE ID: Cambiado de 'btn-save-pass' a 'btn-print-pass' para coincidir con tu HTML
+    const btnSave = document.getElementById('btn-print-pass');
     if (btnSave) {
         btnSave.onclick = () => {
-            window.print(); // Imprime o guarda como PDF
+            window.print();
         };
     }
 
@@ -993,6 +994,7 @@ function initPassButtons(booking) {
         btnHome.onclick = () => location.reload();
     }
 }
+
 /* ==========================================================================
    10. PASAPORTE DE AVENTURA, RETOS GAMIFICADOS Y UTILIDADES DEL TOUR
    ========================================================================== */
