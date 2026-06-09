@@ -830,25 +830,156 @@ async function handleFormSubmission(e) {
 
             if (error) throw error;
 
-            alert('¡Inscripción procesada con éxito!');
-            renderExpeditionPass(bookingData);
-            switchView('success-view');
+            // 📧 DETONANTE: Envío invisible de correo electrónico al administrador
+            enviarEmailNotificacion(bookingData);
+
+            // 🖥️ INTERFAZ: Salto directo al Checkout con manuales
+            renderCheckoutSuccess(bookingData);
+
             localStorage.removeItem('naiguata_form_draft');
         } catch (err) {
             console.error('Error registrando en servidor, guardando copia local:', err);
             addToOfflineQueue(bookingData);
             showOfflineSuccess(bookingData);
+            enviarEmailNotificacion(bookingData);
         }
     } else {
         // Ejecución en modo sin conexión si Supabase no está instanciado
         addToOfflineQueue(bookingData);
         showOfflineSuccess(bookingData);
+        enviarEmailNotificacion(bookingData);
     }
 
     if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalText;
     }
+}
+
+// 📩 FUNCIÓN DE ENVÍO POSTAL AUTOMÁTICO (EMAILJS)
+function enviarEmailNotificacion(booking) {
+    if (typeof emailjs === 'undefined') {
+        console.warn("EmailJS no está cargado en el index.html");
+        return;
+    }
+
+    // Parámetros mapeados exactamente para la plantilla de tu panel de EmailJS
+    const templateParams = {
+        admin_email: "diego.morono03@gmail.com",
+        pass_id: booking.id,
+        hiker_name: booking.name,
+        hiker_email: booking.email,
+        hiker_whatsapp: booking.whatsapp,
+        expedition_date: booking.date,
+        allergies_info: booking.allergies,
+        medical_info: booking.medical,
+        payment_method: booking.payment_method,
+        reference_number: booking.reference_number,
+        total_usd: `${booking.total_usd.toFixed(2)} USD`
+    };
+
+    // Reemplaza con tus IDs reales de la plataforma EmailJS
+    emailjs.send('service_f8qzcms', 'template_5w8usjw', templateParams)
+        .then(() => {
+            console.log('✉️ Notificación enviada exitosamente por correo electrónico.');
+        })
+        .catch((error) => {
+            console.error('Fallo crítico al despachar correo de notificación:', error);
+        });
+}
+
+// 🖥️ MANTIENE LA FUNCIÓN DE RENDERIZADO DE CHECKOUT EXACTAMENTE IGUAL QUE ANTES
+function renderCheckoutSuccess(booking) {
+    const mainContainer = document.getElementById('form-step-container') || document.querySelector('main');
+    if (!mainContainer) return;
+
+    const tasaBCV = typeof appState !== 'undefined' && appState.bcvRate ? appState.bcvRate : 1;
+    const totalVES = booking.total_usd * tasaBCV;
+
+    mainContainer.innerHTML = `
+        <div class="checkout-success-container" style="max-width: 700px; margin: 40px auto; padding: 25px; background: rgba(15, 22, 30, 0.7); border-radius: 16px; border: 1px solid rgba(16, 185, 129, 0.2); backdrop-filter: blur(10px); animation: fadeIn 0.5s ease-out;">
+            
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="width: 60px; height: 60px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
+                    <span style="font-size: 2rem; color: #10b981;">✓</span>
+                </div>
+                <h2 style="color: #ffffff; margin: 0 0 5px 0; font-size: 1.8rem; font-family: system-ui, sans-serif;">¡Inscripción Recibida!</h2>
+                <p style="color: #a1a1aa; margin: 0; font-size: 0.95rem;">Tu cupo para subir al Pico Naiguatá ha sido pre-reservado.</p>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 25px; font-family: system-ui, sans-serif;">
+                <h4 style="color: #10b981; margin: 0 0 15px 0; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;">Resumen de tu Registro</h4>
+                
+                <table style="width: 100%; border-collapse: collapse; color: #e4e4e7; font-size: 0.9rem; line-height: 2;">
+                    <tr><td style="color: #a1a1aa; width: 40%;">ID de Pase:</td><td style="font-weight: bold; font-family: monospace; color: #10b981;">${booking.id}</td></tr>
+                    <tr><td style="color: #a1a1aa;">Participante:</td><td style="font-weight: bold;">${booking.name}</td></tr>
+                    <tr><td style="color: #a1a1aa;">Fecha de Expedición:</td><td>${booking.date}</td></tr>
+                    <tr><td style="color: #a1a1aa;">Método de Pago:</td><td>${booking.payment_method}</td></tr>
+                    <tr><td style="color: #a1a1aa;">Referencia reportada:</td><td><code>${booking.reference_number}</code></td></tr>
+                    <tr style="border-top: 1px solid rgba(255,255,255,0.1);"><td style="color: #ffffff; font-weight: bold; padding-top: 10px;">Total Registrado:</td><td style="color: #10b981; font-weight: bold; font-size: 1.1rem; padding-top: 10px;">$${booking.total_usd.toFixed(2)} USD <span style="font-size: 0.8rem; color: #a1a1aa;">(${totalVES.toLocaleString('es-VE')} Bs.)</span></td></tr>
+                </table>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button onclick="window.print()" style="flex: 1; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s;">
+                        🖨️ Guardar PDF / Imprimir
+                    </button>
+                    <button onclick="compartirFichaInscripcion('${booking.name}', '${booking.date}')" style="flex: 1; padding: 12px; background: #10b981; border: none; color: #000; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s;">
+                        🔗 Compartir Registro
+                    </button>
+                </div>
+            </div>
+
+            <div style="background: rgba(16, 185, 129, 0.03); padding: 20px; border-radius: 10px; border: 1px solid rgba(16, 185, 129, 0.15); font-family: system-ui, sans-serif;">
+                <div style="display: flex; align-items: flex-start; gap: 15px;">
+                    <span style="font-size: 1.8rem;">📋</span>
+                    <div style="flex: 1;">
+                        <h4 style="color: #ffffff; margin: 0 0 5px 0; font-size: 1rem;">Manual de la Expedición Obligatorio</h4>
+                        <p style="color: #a1a1aa; font-size: 0.85rem; margin: 0 0 15px 0; line-height: 1.4;">
+                            Hemos preparado una guía detallada con la lista de equipo obligatorio, tips de preparación física, rutas de agua y normas para el Parque Nacional Waraira Repano.
+                        </p>
+                        <div style="display: flex; gap: 12px;">
+                            <a href="/docs/manual-pico-naiguata.pdf" target="_blank" style="padding: 8px 16px; background: transparent; border: 1px solid #10b981; color: #10b981; border-radius: 6px; font-size: 0.85rem; font-weight: bold; text-decoration: none; text-align: center; transition: 0.2s;">
+                                📖 Leer en Línea
+                            </a>
+                            <a href="/docs/manual-pico-naiguata.pdf" download style="padding: 8px 16px; background: rgba(16, 185, 129, 0.1); border: 1px solid transparent; color: #10b981; border-radius: 6px; font-size: 0.85rem; font-weight: bold; text-decoration: none; text-align: center; transition: 0.2s;">
+                                ⬇️ Descargar PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    `;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function compartirFichaInscripcion(booking) {
+    // Si por alguna razón pasas solo texto en lugar del objeto completo, usamos un fallback seguro
+    const id = booking.id || 'NE-XXXXXX';
+    const nombre = booking.name || 'Excursionista';
+    const fecha = booking.date || 'Próximo Sábado';
+    const metodo = booking.payment_method || 'Por verificar';
+    const ref = booking.reference_number || 'N/A';
+    const total = booking.total_usd ? `$${booking.total_usd.toFixed(2)} USD` : '$50.00 USD';
+
+    // Estructuramos el mensaje premium que el cliente se va a auto-enviar para guardar su respaldo
+    let mensaje = `🏔️ *MI COMPROBANTE - Naiguatá Expeditions* 🏔️\n\n`;
+    mensaje += `¡Listo! Ya estoy inscrito para la aventura. Aquí tengo mi pase de abordaje digital:\n\n`;
+    mensaje += `🆔 *ID Pase:* ${id}\n`;
+    mensaje += `👤 *Pasajero:* ${nombre}\n`;
+    mensaje += `🗓 *Fecha de Ascenso:* ${fecha}\n`;
+    mensaje += `💳 *Método de Pago:* ${metodo}\n`;
+    mensaje += `🔢 *Referencia:* ${ref}\n`;
+    mensaje += `💰 *Monto Registrado:* ${total}\n\n`;
+    mensaje += `📌 _Conserva este mensaje. Nos vemos en La Julia para conquistar la cumbre._`;
+
+    // Creamos el enlace de WhatsApp universal (sin número de teléfono específico, 
+    // así WhatsApp abre la lista de contactos del usuario para que elija su propio chat o el de un amigo)
+    const urlWhatsApp = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+
+    // Abrimos la pestaña
+    window.open(urlWhatsApp, '_blank');
 }
 
 function addToOfflineQueue(bookingData) {

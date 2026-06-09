@@ -14,6 +14,13 @@
         rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="./styles.css">
+    <!-- EmailJS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function () {
+            emailjs.init("9XBQKLOu-wgK2SGug"); // Consigues esto registrándote gratis en emailjs.com
+        })();
+    </script>
 </head>
 
 <body>
@@ -618,8 +625,18 @@
             </section>
 
             <!-- SUCCESS VIEW / PASS PRINT PAGE -->
-            <section id="success-view" class="view-section">
+            <section id="success-view" class="view-section" data-tags="checkout success pass confirmation static-view"
+                data-price="50.00">
                 <div class="success-container glass-panel">
+
+                    <div class="success-actions">
+                        <button id="btn-print-pass" class="btn-primary">...</button>
+                        <button id="btn-share-adventure" class="btn-outline" onclick="compartirFichaInscripcion()">
+                            🔗 Guardar en mi WhatsApp
+                        </button>
+                        <button id="btn-return-home" class="btn-secondary">Volver al Inicio</button>
+                    </div>
+
                     <div class="success-header">
                         <div class="success-icon-badge">✓</div>
                         <h2>¡Registro de Expedición Exitoso!</h2>
