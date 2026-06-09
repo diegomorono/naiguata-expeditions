@@ -11,11 +11,8 @@ let supabaseClient = null;
 
 function initSupabase() {
     if (window.supabase && typeof window.supabase.createClient === 'function') {
-        // 2. Asignación a tu variable única
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log("Supabase inicializado correctamente.");
-        // 🔥 DISPARAR CARGA DE CONFIGURACIONES AQUÍ
-        loadSystemSettings();
     } else {
         setTimeout(initSupabase, 500);
     }
@@ -710,7 +707,7 @@ async function loadSystemSettings() {
             appState.bcvRate = parseFloat(data.value.rate);
             console.log(`Tasa BCV cargada desde system_settings: ${appState.bcvRate}`);
             updateCurrencyUI();
-            updateFormPricing();
+            if (typeof updateFormPricing === 'function') updateFormPricing();
         }
     } catch (err) {
         console.error("Error cargando la configuración inicial (BCV/Pagos):", err);
@@ -733,7 +730,7 @@ async function resolveBcvRate() {
             appState.bcvRate = rate;
             appState.bcvSource = 'api';
             updateCurrencyUI();
-            updateFormPricing(); // <-- Forzar actualización inmediata del formulario
+            if (typeof updateFormPricing === 'function') updateFormPricing();
             return;
         }
     } catch (err) {
@@ -753,7 +750,7 @@ async function resolveBcvRate() {
                 appState.bcvRate = parseFloat(data.value.rate);
                 appState.bcvSource = 'supabase';
                 updateCurrencyUI();
-                updateFormPricing();
+                if (typeof updateFormPricing === 'function') updateFormPricing();
                 return;
             }
         } catch (err) {
@@ -764,7 +761,7 @@ async function resolveBcvRate() {
     // CAPA 3: Fallback local por defecto
     appState.bcvSource = 'default';
     updateCurrencyUI();
-    updateFormPricing();
+    if (typeof updateFormPricing === 'function') updateFormPricing();
     triggerEmergencyMode();
 }
 
@@ -799,7 +796,7 @@ async function loadSupabaseData() {
         const { data: catData } = await supabaseClient.from('catering_inventory').select('*');
         if (catData) appState.cateringCatalog = catData;
 
-        updateFormPricing();
+        if (typeof updateFormPricing === 'function') updateFormPricing();
     } catch (err) {
         console.error('Error cargando catálogos de Supabase:', err);
     }
@@ -819,7 +816,6 @@ async function handleFormSubmission(e) {
         submitBtn.innerHTML = `<span class="spinner-small"></span> Procesando registro...`;
     }
 
-    // Captura segura de datos
     const name = formatTitleCase(document.getElementById('hiker-name').value.trim());
     const email = document.getElementById('hiker-email').value.trim().toLowerCase();
     const whatsapp = document.getElementById('hiker-whatsapp').value.trim();
@@ -834,6 +830,13 @@ async function handleFormSubmission(e) {
     const totalUsd = parseFloat(document.getElementById('form-total-usd')?.textContent.replace(/[^0-9.]/g, '')) || 50.00;
     const passId = 'NE-' + Math.floor(100000 + Math.random() * 900000);
 
+    // Captura estas variables ANTES de crear el objeto bookingData
+    const dietValue = document.getElementById('hiker-diet')?.value || 'Estándar';
+    const tentValue = document.getElementById('tent-preference')?.value || 'Compartida';
+    // Asumiendo que estas funciones existen para obtener tus selecciones actuales
+    const rentalsList = typeof getSelectedRentals === 'function' ? getSelectedRentals() : [];
+    const cateringList = typeof getSelectedCatering === 'function' ? getSelectedCatering() : [];
+
     const bookingData = {
         id: passId,
         date: dateVal,
@@ -846,30 +849,35 @@ async function handleFormSubmission(e) {
         total_usd: totalUsd,
         payment_method: paymentMethod,
         reference_number: referenceNumber,
-        rentals: [],
-        catering: [],
-        diet: 'Estándar',
-        tent_preference: 'Compartida'
+        rentals: rentalsList,       // Ahora usa la variable dinámica
+        catering: cateringList,     // Ahora usa la variable dinámica
+        diet: dietValue,            // Ahora usa la variable dinámica
+        tent_preference: tentValue  // Ahora usa la variable dinámica
     };
+
+    // 1. Capturamos el valor del input específico según tu HTML
+    const groupCodeInput = document.getElementById('booking-group')?.value.trim();
+
+    // 2. Si está vacío, le asignamos 'INDIVIDUAL', sino usamos el valor del usuario en mayúsculas
+    const finalGroupCode = (groupCodeInput && groupCodeInput.length > 0) ? groupCodeInput.toUpperCase() : 'INDIVIDUAL';
 
     if (typeof supabaseClient !== 'undefined' && supabaseClient) {
         try {
-            // Envío directo mediante llamada RPC atómica a Postgres
             const { data, error } = await supabaseClient.rpc('registrar_excursionista', {
                 p_id: passId,
                 p_date: dateVal,
                 p_name: name,
                 p_email: email,
                 p_whatsapp: whatsapp,
-                p_group_code: 'INDIVIDUAL',
+                p_group_code: finalGroupCode, // <--- AQUÍ SE INYECTA LA VARIABLE DINÁMICA
                 p_gender: gender,
-                p_tent_preference: 'Compartida',
+                p_tent_preference: tentValue,
                 p_allergies: allergies,
-                p_diet: 'Estándar',
+                p_diet: dietValue,
                 p_medical: medical,
-                p_rentals: JSON.stringify([]),
-                p_catering: JSON.stringify([]),
-                p_porter_service: 'No',
+                p_rentals: rentalsList,
+                p_catering: cateringList,
+                p_porter_service: porterValue,
                 p_total_usd: totalUsd,
                 p_payment_method: paymentMethod,
                 p_reference_number: referenceNumber
@@ -877,23 +885,18 @@ async function handleFormSubmission(e) {
 
             if (error) throw error;
 
-            // 📧 DETONANTE: Envío invisible de correo electrónico al administrador
             enviarEmailNotificacion(bookingData);
-
-            // 🖥️ INTERFAZ: Salto directo al Checkout con manuales
-            renderCheckoutSuccess(bookingData);
-
+            if (typeof renderCheckoutSuccess === 'function') renderCheckoutSuccess(bookingData);
             localStorage.removeItem('naiguata_form_draft');
         } catch (err) {
             console.error('Error registrando en servidor, guardando copia local:', err);
-            addToOfflineQueue(bookingData);
-            showOfflineSuccess(bookingData);
+            if (typeof addToOfflineQueue === 'function') addToOfflineQueue(bookingData);
+            if (typeof showOfflineSuccess === 'function') showOfflineSuccess(bookingData);
             enviarEmailNotificacion(bookingData);
         }
     } else {
-        // Ejecución en modo sin conexión si Supabase no está instanciado
-        addToOfflineQueue(bookingData);
-        showOfflineSuccess(bookingData);
+        if (typeof addToOfflineQueue === 'function') addToOfflineQueue(bookingData);
+        if (typeof showOfflineSuccess === 'function') showOfflineSuccess(bookingData);
         enviarEmailNotificacion(bookingData);
     }
 
@@ -903,14 +906,12 @@ async function handleFormSubmission(e) {
     }
 }
 
-// 📩 FUNCIÓN DE ENVÍO POSTAL AUTOMÁTICO (EMAILJS)
 function enviarEmailNotificacion(booking) {
     if (typeof emailjs === 'undefined') {
         console.warn("EmailJS no está cargado en el index.html");
         return;
     }
 
-    // Parámetros mapeados exactamente para la plantilla de tu panel de EmailJS
     const templateParams = {
         admin_email: "diego.morono03@gmail.com",
         pass_id: booking.id,
@@ -925,7 +926,6 @@ function enviarEmailNotificacion(booking) {
         total_usd: `${booking.total_usd.toFixed(2)} USD`
     };
 
-    // Reemplaza con tus IDs reales de la plataforma EmailJS
     emailjs.send('service_f8qzcms', 'template_5w8usjw', templateParams)
         .then(() => {
             console.log('✉️ Notificación enviada exitosamente por correo electrónico.');
@@ -935,9 +935,7 @@ function enviarEmailNotificacion(booking) {
         });
 }
 
-// 🖥️ MANTIENE LA FUNCIÓN DE RENDERIZADO DE CHECKOUT EXACTAMENTE IGUAL QUE ANTES
 function renderCheckoutSuccess(booking) {
-    // 1. Mapeamos y cargamos los datos reales del participante dentro del bloque HTML limpio
     const nameDisplay = document.getElementById('pass-hiker-name');
     const dateDisplay = document.getElementById('pass-date');
     const groupDisplay = document.getElementById('pass-group');
@@ -947,212 +945,18 @@ function renderCheckoutSuccess(booking) {
     const rentalsDisplay = document.getElementById('pass-rentals');
     const serialDisplay = document.getElementById('pass-serial-number');
 
-    // Función interna para estabilizar eñes y caracteres rotos como Moroño
-    const sanearTexto = (str) => {
-        if (!str) return '';
-        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(//g, "ñ");
-    };
+    if (nameDisplay) nameDisplay.textContent = booking.name;
+    if (dateDisplay) dateDisplay.textContent = booking.date;
+    if (groupDisplay) groupDisplay.textContent = "Individual";
+    if (dietDisplay) dietDisplay.textContent = booking.diet || "Estándar";
+    if (tentDisplay) tentDisplay.textContent = booking.tent_preference || "Compartida";
+    if (refDisplay) refDisplay.textContent = booking.reference_number;
+    if (serialDisplay) serialDisplay.textContent = booking.id;
 
-    if (nameDisplay) nameDisplay.innerText = sanearTexto(booking.name || booking.hiker_name);
-    if (dateDisplay) dateDisplay.innerText = booking.date || booking.expedition_date || 'Próximo Sábado';
-    if (groupDisplay) groupDisplay.innerText = (booking.group_code || booking.booking_group || 'INDIVIDUAL').toUpperCase();
-
-    const alergias = booking.allergies || booking.allergies_info || 'Ninguna';
-    const medica = booking.medical || booking.medical_info || 'Ninguna';
-    if (dietDisplay) dietDisplay.innerText = `Alergias: ${alergias} | Médica: ${medica}`;
-
-    if (tentDisplay) tentDisplay.innerText = booking.tent_preference || booking.accommodation || 'Por asignar';
-
-    // Mostramos la referencia reportada limpia como texto normal sin cajas negras
-    if (refDisplay) refDisplay.innerText = booking.reference_number || booking.payment_reference || 'N/A';
-
-    // Cálculo preciso de montos en dólares y bolívares dinámicos usando el estado de la app
-    const tasaBCV = typeof appState !== 'undefined' && appState.bcvRate ? appState.bcvRate : 1;
-    const totalUSD = parseFloat(booking.total_usd) || 50.00;
-    const totalVES = totalUSD * tasaBCV;
-
-    if (rentalsDisplay) {
-        rentalsDisplay.innerText = `$${totalUSD.toFixed(2)} USD (${totalVES.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs.)`;
-    }
-    if (serialDisplay) serialDisplay.innerText = booking.id || booking.pass_id || 'NE-XXXXXX';
-
-    // 2. Vinculamos de forma segura los eventos Onclick a los botones del HTML real
-    const btnPrint = document.getElementById('btn-print-pass');
-    if (btnPrint) {
-        btnPrint.onclick = function () {
-            window.print();
-        };
-    }
-
-    const btnShare = document.getElementById('btn-share-adventure');
-    if (btnShare) {
-        btnShare.onclick = function () {
-            compartirFichaInscripcion(booking);
-        };
-    }
-
-    // 3. Activamos la vista de éxito nativa sin destruir el entorno de ejecución
-    if (typeof switchView === 'function') {
-        switchView('success-view');
-    } else {
-        const successSection = document.getElementById('success-view');
-        if (successSection) {
-            document.querySelectorAll('.view-section').forEach(s => s.style.display = 'none');
-            successSection.style.display = 'block';
-        }
-    }
-
-    // Limpieza de borradores y scroll suave hacia la parte superior
-    localStorage.removeItem('naiguata_form_draft');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Mostrar sección de éxito y ocultar cliente
+    if (document.getElementById('success-view')) document.getElementById('success-view').style.display = 'block';
+    if (document.getElementById('client-view')) document.getElementById('client-view').style.display = 'none';
 }
-
-function compartirFichaInscripcion(booking) {
-    // Función interna para sanear problemas de caracteres eñes/acentos extraños
-    const limpiarTexto = (str) => {
-        if (!str) return '';
-        return str
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "") // Remueve acentos críticos si es necesario
-            .replace(//g, "ñ"); // Parche directo si el string ya viene roto
-    };
-
-    // Extracción y mapeo dinámico puro desde el objeto real de la base de datos
-    const id = booking.pass_id || booking.id || 'N/A';
-    let nombre = booking.hiker_name || booking.name || '';
-    nombre = limpiarTexto(nombre); // Asegura estabilidad en el nombre enviado
-
-    const whatsapp = booking.hiker_whatsapp || booking.whatsapp || 'N/A';
-    const grupo = booking.group_code || booking.booking_group || 'Ninguno';
-    const alojamiento = booking.accommodation || booking.tent_preference || 'Por asignar';
-    const fecha = booking.expedition_date || booking.date || '';
-
-    // Ficha Médica y Salud
-    const alergias = booking.allergies_info || booking.allergies || 'Ninguna';
-    const medica = booking.medical_info || booking.medical || 'Ninguna reportada';
-
-    // Facturación
-    const metodo = booking.payment_method || '';
-    const ref = booking.reference_number || booking.payment_reference || 'N/A';
-
-    // Cálculo de montos monetarios dinámicos
-    const total = booking.total_usd
-        ? (typeof booking.total_usd === 'number' ? `$${booking.total_usd.toFixed(2)} USD` : booking.total_usd)
-        : 'N/A';
-    const totalVes = booking.total_ves ? ` (${booking.total_ves})` : '';
-
-    // Estructura del mensaje corporativo optimizado para WhatsApp
-    let mensaje = `🏔️ *MI COMPROBANTE - Naiguatá Expeditions* 🏔️\n\n`;
-    mensaje += `¡Listo! Ya estoy oficialmente inscrito para el ascenso. Aquí tengo los detalles completos de mi registro y pase digital:\n\n`;
-
-    mensaje += `📌 *DATOS DEL PARTICIPANTE*\n`;
-    mensaje += `▪️ *ID Pase:* ${id}\n`;
-    mensaje += `▪️ *Pasajero:* ${nombre}\n`;
-    mensaje += `▪️ *WhatsApp:* ${whatsapp}\n`;
-    mensaje += `▪️ *Código de Grupo:* ${grupo}\n`;
-    mensaje += `▪️ *Alojamiento:* ${alojamiento}\n\n`;
-
-    mensaje += `🗓️ *FECHA DE ASCENSO*\n`;
-    mensaje += `▪️ ${fecha}\n\n`;
-
-    mensaje += `🍏 *SALUD Y ALIMENTACIÓN*\n`;
-    mensaje += `▪️ *¿Alergias?:* ${alergias}\n`;
-    mensaje += `▪️ *Condiciones Médicas:* ${medica}\n\n`;
-
-    mensaje += `💳 *DETALLES DE PAGO*\n`;
-    mensaje += `▪️ *Method:* ${metodo}\n`;
-    mensaje += `▪️ *Referencia:* ${ref}\n`;
-    mensaje += `▪️ *Monto Registrado:* ${total}${totalVes}\n\n`;
-
-    mensaje += `__________________________________\n`;
-    mensaje += `🌲 _Conserva este mensaje como respaldo. Nos vemos en el PGP La Julia para conquistar la cumbre del Gigante de la Costa._`;
-
-    // Envío seguro codificado por URL
-    const urlWhatsApp = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
-    window.open(urlWhatsApp, '_blank');
-}
-
-// Asegurar que la inicialización de pases no congele el formulario
-function initSuccessViewEvents() {
-    const btnPrint = document.getElementById('btn-print-pass');
-    const btnShare = document.getElementById('btn-share-adventure');
-
-    if (btnPrint) {
-        btnPrint.onclick = function () {
-            window.print();
-        };
-    }
-
-    if (btnShare) {
-        btnShare.onclick = function () {
-            if (typeof appState !== 'undefined' && appState.lastBooking) {
-                compartirFichaInscripcion(appState.lastBooking);
-            } else {
-                alert("No hay datos de inscripción activos para respaldar.");
-            }
-        };
-    }
-}
-
-// Función para preparar la estructura completa del pase e imprimirlo
-function configurarBotonImpresion(booking) {
-    const btnPrint = document.getElementById('btn-print-pass');
-    if (!btnPrint) return;
-
-    btnPrint.onclick = function () {
-        // 1. Inyectamos dinámicamente TODOS los campos recolectados en el Pase de Abordaje Imprimible
-        document.getElementById('pass-hiker-name').innerText = booking.hiker_name || booking.name || 'Hiker';
-        document.getElementById('pass-date').innerText = booking.expedition_date || booking.date || 'Sábado';
-        document.getElementById('pass-group').innerText = (booking.group_code || booking.booking_group || 'NINGUNO').toUpperCase();
-
-        // Unimos los datos médicos y de alergias para la sección de dieta del pase impreso
-        const alergiasTexto = booking.allergies_info || booking.allergies || 'Ninguna';
-        const medicaTexto = booking.medical_info || booking.medical || 'Ninguna';
-        document.getElementById('pass-diet').innerText = `Alergias: ${alergiasTexto} | Médica: ${medicaTexto}`;
-
-        // Alojamiento asignado
-        document.getElementById('pass-tent').innerText = booking.accommodation || booking.tent_preference || 'Por asignar (Carpa Grupal)';
-
-        // Alquileres y montos totales detallados
-        const totalDinero = booking.total_usd ? `$${booking.total_usd} USD` : '$50.00 USD';
-        const totalBolivares = booking.total_ves ? ` / ${booking.total_ves}` : '';
-        document.getElementById('pass-rentals').innerText = `${totalDinero}${totalBolivares} (Ref: ${booking.reference_number || 'N/A'})`;
-
-        // Número de serie del ticket inferior
-        document.getElementById('pass-serial-number').innerText = booking.pass_id || booking.id || 'NE-XXXXXX';
-
-        // 2. Ejecutar la acción de impresión nativa enfocada en la tarjeta del pase
-        window.print();
-    };
-}
-
-function addToOfflineQueue(bookingData) {
-    const queue = JSON.parse(localStorage.getItem('naiguata_offline_queue') || '[]');
-    queue.push(bookingData);
-    localStorage.setItem('naiguata_offline_queue', JSON.stringify(queue));
-}
-
-async function processOfflineQueue() {
-    if (!navigator.onLine || typeof supabaseClient === 'undefined' || !supabaseClient) return;
-    const queue = JSON.parse(localStorage.getItem('naiguata_offline_queue') || '[]');
-    if (queue.length === 0) return;
-
-    console.log('¡Conexión restaurada! Sincronizando registros offline...');
-    // Lógica para vaciar la cola recursivamente aquí...
-    localStorage.setItem('naiguata_offline_queue', JSON.stringify([]));
-}
-
-window.addEventListener('online', processOfflineQueue);
-
-function showOfflineSuccess(booking) {
-    renderExpeditionPass(booking);
-    const serialEl = document.getElementById('pass-serial-number');
-    if (serialEl) {
-        serialEl.innerHTML = `${booking.id} <span style="font-size: 0.7rem; color: #ff5252; display:block;">Pase Offline (Pendiente de Sincronizar)</span>`;
-    }
-    switchView('success-view');
-}
-
 /* ==========================================================================
    10. PASAPORTE DE AVENTURA, RETOS GAMIFICADOS Y UTILIDADES DEL TOUR
    ========================================================================== */
