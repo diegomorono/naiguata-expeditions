@@ -98,7 +98,7 @@ const routeSteps = [
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("[Naiguatá OS] Iniciando secuencia de montaje de la interfaz...");
 
-    // 1. Módulos del Core de la Interfaz (Saneado sin redundancias)
+    // 1. Módulos del Core de la Interfaz (Ejecución aislada y segura)
     const modulos = [
         { name: 'Navegación de Vistas', func: initAppNavigation },
         { name: 'Planificador de Equipaje', func: initGearChecklist },
@@ -119,31 +119,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 2. Resolución segura de la Tasa BCV y configuraciones críticas de red
+    // 2. Resolución asíncrona segura de la Tasa BCV (Sin colgar el hilo principal)
     try {
-        console.log("[Init] Resolviendo tasas cambiarias y eventos de éxito...");
-
+        console.log("[Init] Resolviendo tasas cambiarias de respaldo...");
         if (typeof resolveBcvRate === 'function') {
             await resolveBcvRate();
         }
-
         if (typeof loadSystemSettings === 'function') {
             loadSystemSettings();
         }
-
-        // Inicialización segura de los botones de éxito aislados
-        initSuccessViewEvents();
-
     } catch (e) {
-        console.error("[Critical Error] Falló la configuración de red inicial (BCV):", e);
+        console.error("[Network Error] Falló la configuración de red inicial (BCV):", e);
     }
 
-    // 3. Procesos asíncronos secundarios y persistencia local
+    // 3. Inicialización de listeners para la vista de éxito
+    try {
+        initSuccessViewEvents();
+    } catch (e) {
+        console.error("[UI Error] No se pudieron vincular los eventos de éxito:", e);
+    }
+
+    // 4. Procesos asíncronos secundarios y persistencia local
     try { if (typeof loadSupabaseData === 'function') loadSupabaseData(); } catch (e) { }
     try { if (typeof restoreFormDraft === 'function') restoreFormDraft(); } catch (e) { }
     try { if (typeof processOfflineQueue === 'function') processOfflineQueue(); } catch (e) { }
 
-    // 4. Renderizar funciones manuales de contingencia e inyección visual
+    // 5. Renderizar componentes e inyecciones visuales (Sábados, Mochila, Portadores)
     setTimeout(() => {
         try { if (typeof renderRouteGraphic === 'function') renderRouteGraphic(); } catch (e) { }
         try { if (typeof renderBackpackChecklist === 'function') renderBackpackChecklist(); } catch (e) { }
@@ -153,7 +154,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 /* ==========================================================================
-   2.1 FUNCIONES DE VISTA DE ÉXITO AISLADAS
+   2.1 FUNCIONES DE VISTA DE ÉXITO Y LIMPIEZA SANEADAS
    ========================================================================== */
 function initSuccessViewEvents() {
     const btnPrint = document.getElementById('btn-print-pass');
@@ -170,10 +171,16 @@ function initSuccessViewEvents() {
             if (typeof appState !== 'undefined' && appState.lastBooking) {
                 compartirFichaInscripcion(appState.lastBooking);
             } else {
-                alert("No hay datos de inscripción activos para respaldar.");
+                alert("No se encontraron registros de inscripción activos para respaldar.");
             }
         };
     }
+}
+
+function sanearTexto(str) {
+    if (!str) return '';
+    // Corregido eliminando la trampa de caracteres vacíos que rompía el compilador
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
 /* ==========================================================================
