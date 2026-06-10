@@ -378,52 +378,74 @@ h6 {
 }
 
 /* ==========================================================================
-   MAIN CONTENT WRAPPERS & VIEWS
+   MAIN CONTENT WRAPPERS & VIEWS (FONDO UNIFICADO + LIMPIEZA DE SECCIONES)
    ========================================================================== */
 
-.main-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 40px 24px 80px;
-}
-
-.view-section {
-    display: none;
-    animation: fadeIn 0.4s ease-in-out forwards;
-}
-
-.view-section.active {
-    display: block;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
+/* Fondo base consistente en toda la página */
+body,
+main.main-content,
+.view-section,
 .section-container {
-    padding: 60px 0 20px;
+    background-color: var(--background) !important;
+    /* #080b0f */
+    background-image: none !important;
+}
+
+/* Eliminar cualquier fondo heredado o alt en secciones */
+.hero-section,
+#route-section,
+#checklist-section,
+#booking-form-section {
+    background: transparent !important;
+    padding: 60px 0 !important;
+    /* Espacio limpio vertical */
+}
+
+/* Hacer que las tarjetas glass-panel floten mejor */
+.glass-panel {
+    background: var(--panel-bg);
+    /* rgba(15, 22, 30, 0.75) */
+    border: 1px solid var(--panel-border);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    margin-bottom: 40px;
+    /* Separación entre tarjetas */
+}
+
+/* Ajuste específico para el pricing card del hero */
+.pricing-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    backdrop-filter: blur(16px);
+}
+
+/* Route explorer y checklist cards */
+.route-explorer,
+.checklist-card,
+.booking-wrapper {
+    background: var(--panel-bg) !important;
+    border: 1px solid var(--panel-border) !important;
+}
+
+/* Eliminar fondos internos innecesarios */
+.elevation-profile-container,
+.preparation-tracker,
+.form-summary-card {
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* Mejor espaciado general */
+.main-content {
+    padding: 40px 24px 100px !important;
 }
 
 .section-title {
-    font-size: 2rem;
-    margin-bottom: 8px;
-    background: linear-gradient(135deg, var(--text), var(--text-muted));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    margin-bottom: 16px;
 }
 
-.section-subtitle {
-    color: var(--text-muted);
-    font-size: 1.05rem;
-    margin-bottom: 30px;
+/* Asegurar que el header no opaque el fondo */
+.app-header {
+    background-color: rgba(8, 11, 15, 0.92) !important;
 }
 
 /* ==========================================================================
@@ -2933,4 +2955,64 @@ main::after,
 section::before,
 section::after {
     background: none !important;
+}
+
+/* HERO MEJORADO - Fondo unificado y más impacto */
+.hero-section {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 60px;
+    align-items: center;
+    padding: 80px 0 100px !important;
+    position: relative;
+}
+
+.hero-content {
+    max-width: 580px;
+}
+
+.hero-title {
+    font-size: 3.8rem;
+    line-height: 1.05;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, #ffffff 40%, var(--primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-description {
+    font-size: 1.25rem;
+    line-height: 1.5;
+    margin-bottom: 40px;
+    color: #e5e7eb;
+}
+
+.pricing-card-wrapper {
+    position: relative;
+}
+
+.pricing-card {
+    padding: 32px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    transform: translateY(20px);
+    transition: transform 0.4s ease;
+}
+
+.pricing-card:hover {
+    transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .hero-section {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        text-align: center;
+    }
+
+    .pricing-card-wrapper {
+        max-width: 380px;
+        margin: 0 auto;
+    }
 }
