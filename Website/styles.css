@@ -453,11 +453,9 @@ main.main-content,
    ========================================================================== */
 
 .hero-section {
-    display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: 40px;
-    align-items: center;
-    padding: 40px 0 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
 
 .hero-content {
@@ -554,23 +552,21 @@ main.main-content,
 }
 
 .price-features {
-    list-style: none;
-    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 20px 0;
 }
 
-.price-features li {
+.feature-tag {
     display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 14px;
-    font-size: 0.95rem;
+    align-items: center;
+    gap: 10px;
 }
 
 .check-icon {
     width: 18px;
     height: 18px;
-    color: var(--primary);
-    margin-top: 2px;
     flex-shrink: 0;
 }
 
@@ -2964,6 +2960,8 @@ section::after {
     gap: 60px;
     align-items: center;
     padding: 80px 0 100px !important;
+    max-width: 1200px;
+    margin: 0 auto;
     position: relative;
 }
 
