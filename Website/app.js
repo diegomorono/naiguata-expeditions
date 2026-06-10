@@ -819,7 +819,7 @@ async function handleFormSubmission(e) {
     }
 
     try {
-        // 1. CAPTURA DIRECTA Y SANITIZADA DESDE EL DOM REAL
+        // 1. CAPTURA DIRECTA DESDE EL DOM REAL
         const name = formatTitleCase(document.getElementById('hiker-name').value.trim());
         const email = document.getElementById('hiker-email').value.trim().toLowerCase();
         const whatsapp = document.getElementById('hiker-whatsapp').value.trim();
@@ -827,7 +827,6 @@ async function handleFormSubmission(e) {
         const medical = document.getElementById('hiker-medical')?.value.trim() || 'Ninguna.';
         const allergies = document.getElementById('hiker-allergies')?.value || 'Ninguna';
 
-        // Manejo de fechas alternas según el ID del formulario
         const dateVal = document.getElementById('expedition-date')?.value || document.getElementById('booking-date')?.value || '';
         const paymentMethod = document.getElementById('payment-method')?.value || 'No especificado';
         const referenceNumber = document.getElementById('payment-reference') ? document.getElementById('payment-reference').value.trim() : 'N/A';
@@ -836,7 +835,6 @@ async function handleFormSubmission(e) {
         const totalUsd = totalElement ? parseFloat(totalElement.textContent.replace(/[^0-9.]/g, '')) : 50.00;
         const passId = 'NE-' + Math.floor(100000 + Math.random() * 900000);
 
-        // Opciones lógicas de preferencias
         const dietValue = document.getElementById('dietary-preference')?.value || 'Estándar';
         const tentValue = document.getElementById('tent-preference')?.value || 'Carpa compartida';
 
@@ -846,18 +844,26 @@ async function handleFormSubmission(e) {
         const groupCodeInput = document.getElementById('group-code')?.value.trim();
         const finalGroupCode = (groupCodeInput && groupCodeInput.length > 0) ? groupCodeInput.toUpperCase() : 'INDIVIDUAL';
 
-        // Captura directa y real de los checkboxes marcados en el DOM
+        // EXTRAER DIRECTAMENTE DE LOS ELEMENTOS SELECCIONADOS EN EL CATÁLOGO ACTIVO (REPARACIÓN DE SELECTOR CRÍTICO)
         const rentalsList = [];
-        document.querySelectorAll('.equipment-checkbox:checked').forEach(cb => {
-            rentalsList.push(cb.value);
-        });
+        if (appState.inventory && appState.inventory.length > 0) {
+            appState.inventory.forEach(item => {
+                if (item.selected) {
+                    rentalsList.push(`${item.name} (${item.quantity || 1})`);
+                }
+            });
+        }
 
         const cateringList = [];
-        document.querySelectorAll('.catering-checkbox:checked').forEach(cb => {
-            cateringList.push(cb.value);
-        });
+        if (appState.cateringCatalog && appState.cateringCatalog.length > 0) {
+            appState.cateringCatalog.forEach(item => {
+                if (item.selected) {
+                    cateringList.push(item.name);
+                }
+            });
+        }
 
-        // 2. CONSTRUCCIÓN DEL OBJETO DE DATOS UNIFICADO (Alimentación idéntica para todo el sistema)
+        // 2. CONSTRUCCIÓN DEL OBJETO UNIFICADO SÓLIDO
         const bookingData = {
             id: passId,
             date: dateVal,
@@ -870,22 +876,20 @@ async function handleFormSubmission(e) {
             total_usd: totalUsd,
             payment_method: paymentMethod,
             reference_number: referenceNumber,
-            rentals: rentalsList,                // Para renderizado local
-            equipment_rentals: rentalsList,      // Sincronización exacta con Supabase
-            catering: cateringList,              // Para renderizado local
-            catering_services: cateringList,     // Sincronización exacta con Supabase
+            equipment_rentals: rentalsList,      // Sincronización exacta con Supabase (Array Text)
+            catering_services: cateringList,     // Sincronización exacta con Supabase (Array Text)
             diet: dietValue,
             tent_preference: tentValue,
             porter_service: porterValue,
             group_code: finalGroupCode
         };
 
-        console.log("Objeto unificado generado:", bookingData);
+        console.log("Objeto unificado generado con éxito:", bookingData);
 
-        // 3. PERSISTENCIA CONTROLADA EN LA BASE DE DATOS
+        // 3. PERSISTENCIA EN LA BASE DE DATOS SUPABASE
         if (typeof supabaseClient !== 'undefined' && supabaseClient) {
             try {
-                // Intento primario por inserción directa a la tabla (Garantiza consistencia estructural)
+                // Inserción directa en la tabla 'bookings' mapeando exactamente las columnas de tu Supabase
                 const { error: insertError } = await supabaseClient
                     .from('bookings')
                     .insert([{
@@ -900,7 +904,7 @@ async function handleFormSubmission(e) {
                         allergies: allergies,
                         diet: dietValue,
                         medical: medical,
-                        equipment_rentals: rentalsList,
+                        equipment_rentals: rentalsList, // Supabase acepta perfectamente arrays de JS nativos aquí
                         catering_services: cateringList,
                         porter_service: porterValue,
                         total_usd: totalUsd,
@@ -909,7 +913,7 @@ async function handleFormSubmission(e) {
                     }]);
 
                 if (insertError) {
-                    console.warn("Inserción directa falló, intentando procedimiento RPC alterno...");
+                    console.warn("Inserción directa falló, intentando procedimiento RPC alterno...", insertError);
                     const { error: rpcError } = await supabaseClient.rpc('registrar_excursionista', {
                         p_id: passId,
                         p_date: dateVal,
@@ -922,8 +926,8 @@ async function handleFormSubmission(e) {
                         p_allergies: allergies,
                         p_diet: dietValue,
                         p_medical: medical,
-                        p_rentals: JSON.stringify(rentalsList),
-                        p_catering: JSON.stringify(cateringList),
+                        p_rentals: rentalsList,
+                        p_catering: cateringList,
                         p_porter_service: porterValue,
                         p_total_usd: totalUsd,
                         p_payment_method: paymentMethod,
@@ -931,7 +935,7 @@ async function handleFormSubmission(e) {
                     });
                     if (rpcError) throw rpcError;
                 }
-                console.log("Guardado exitoso en Supabase.");
+                console.log("¡Guardado exitoso en Supabase!");
             } catch (dbErr) {
                 console.error("Fallo de red en base de datos, encolando localmente:", dbErr);
                 if (typeof addToOfflineQueue === 'function') addToOfflineQueue(bookingData);
@@ -940,18 +944,18 @@ async function handleFormSubmission(e) {
             if (typeof addToOfflineQueue === 'function') addToOfflineQueue(bookingData);
         }
 
-        // 4. FLUJO DE ÉXITO VISUAL E INTERFACES (Carga instantánea)
-        enviarEmailNotificacion(bookingData);
-        renderCheckoutSuccess(bookingData);
+        // 4. FLUJO DE INTERFACES DE ÉXITO
+        if (typeof enviarEmailNotificacion === 'function') enviarEmailNotificacion(bookingData);
+        if (typeof renderCheckoutSuccess === 'function') renderCheckoutSuccess(bookingData);
 
-        // Inicializar los botones pasándole este objeto con los datos ya reales
+        // Inyectamos el objeto con las variables garantizadas
         initPassButtons(bookingData);
 
         showView('success-view');
         localStorage.removeItem('naiguata_form_draft');
 
     } catch (err) {
-        console.error('Error crítico en el manejador:', err);
+        console.error('Error crítico en el manejador de formulario:', err);
     } finally {
         if (submitBtn) {
             submitBtn.disabled = false;
@@ -1166,25 +1170,22 @@ function initPassButtons(booking) {
     const btnShare = document.getElementById('btn-share-adventure');
     if (btnShare) {
         btnShare.onclick = () => {
-            // Mapeamos los arreglos de forma segura por si vienen vacíos
             const alquileres = booking.equipment_rentals && booking.equipment_rentals.length > 0
                 ? booking.equipment_rentals.join(', ')
-                : (booking.rentals && booking.rentals.length > 0 ? booking.rentals.join(', ') : 'Ninguno');
+                : 'Ninguno';
 
             const catering = booking.catering_services && booking.catering_services.length > 0
                 ? booking.catering_services.join(', ')
-                : (booking.catering && booking.catering.length > 0 ? booking.catering.join(', ') : 'Ninguno');
+                : 'Ninguno';
 
             const portador = booking.porter_service && booking.porter_service !== 'No'
                 ? `Sí (${booking.porter_service})`
                 : 'No requerido';
 
-            // El precio formateado con decimales limpios
             const totalUSD = typeof booking.total_usd === 'number'
                 ? booking.total_usd.toFixed(2)
                 : (booking.total_usd || '0.00');
 
-            // Construcción del mensaje estructurado para el equipo de guías
             const msg =
                 `🏔️ *¡NUEVO REGISTRO - NAIGUATÁ EXPEDITIONS!* 🥾\n\n` +
                 `👤 *DATOS DEL SENDERISTA:*\n` +
@@ -1210,7 +1211,6 @@ function initPassButtons(booking) {
                 `• *Monto Total:* *${totalUSD} USD*\n\n` +
                 `¡Nos vemos en la cumbre! 🧗‍♂️✨`;
 
-            // Usamos la API de redirección global limpia para evitar fallos de rutas
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
         };
     }
@@ -1219,14 +1219,13 @@ function initPassButtons(booking) {
     const btnSave = document.getElementById('btn-print-pass');
     if (btnSave) {
         btnSave.onclick = () => {
-            // Mapeamos los arreglos y servicios adicionales contratados de forma segura
             const alquileres = booking.equipment_rentals && booking.equipment_rentals.length > 0
                 ? booking.equipment_rentals.join(', ')
-                : (booking.rentals && booking.rentals.length > 0 ? booking.rentals.join(', ') : 'Ninguno');
+                : 'Ninguno';
 
             const catering = booking.catering_services && booking.catering_services.length > 0
                 ? booking.catering_services.join(', ')
-                : (booking.catering && booking.catering.length > 0 ? booking.catering.join(', ') : 'Ninguno');
+                : 'Ninguno';
 
             const portador = booking.porter_service && booking.porter_service !== 'No'
                 ? `Sí (${booking.porter_service})`
@@ -1236,7 +1235,6 @@ function initPassButtons(booking) {
                 ? booking.total_usd.toFixed(2)
                 : (booking.total_usd || '50.00');
 
-            // Creamos la ventana temporal estructurando la ficha con todas sus secciones
             const ventanaImpresion = window.open('', '_blank', 'height=850,width=800');
 
             ventanaImpresion.document.write('<html><head><title>Ficha Completa de Abordaje - Naiguatá Expeditions</title>');
@@ -1258,7 +1256,6 @@ function initPassButtons(booking) {
             ventanaImpresion.document.write('</style></head><body>');
             ventanaImpresion.document.write('<div class="print-wrapper">');
 
-            // Inyección estructurada de la ficha de inscripción
             ventanaImpresion.document.write(`
                 <table class="header-table">
                     <tr>
@@ -1310,9 +1307,7 @@ function initPassButtons(booking) {
                 </div>
             `);
 
-            ventanaImpresion.document.write('</div>');
-            ventanaImpresion.document.write('</body></html>');
-
+            ventanaImpresion.document.write('</div></body></html>');
             ventanaImpresion.document.close();
             ventanaImpresion.focus();
 
@@ -1323,7 +1318,6 @@ function initPassButtons(booking) {
         };
     }
 
-    // 3. BOTÓN VOLVER AL INICIO
     const btnHome = document.getElementById('btn-return-home');
     if (btnHome) {
         btnHome.onclick = () => location.reload();
