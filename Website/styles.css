@@ -3016,3 +3016,37 @@ section::after {
         margin: 0 auto;
     }
 }
+
+/* Clase contenedora para centrar el contenido y dar orden */
+.section-wrapper {
+    max-width: 1100px;
+    /* Limita el ancho para que no toque los bordes */
+    margin: 0 auto;
+    /* Centra automáticamente el bloque */
+    padding: 0 20px;
+    /* Evita que el contenido pegue en los bordes en móviles */
+}
+
+/* Unificación de color de fondo */
+.booking-section,
+.features-section {
+    /* Ajusta aquí los nombres de clase exactos de tus secciones */
+    background-color: var(--background-alt);
+    padding: 60px 0;
+}
+
+/* Efecto para que los contenedores internos "resalten" (POP) */
+.inner-card {
+    background: rgba(255, 255, 255, 0.03);
+    /* Un toque de luz sutil sobre el fondo oscuro */
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 24px;
+    transition: transform 0.3s ease;
+}
+
+.inner-card:hover {
+    border-color: var(--primary);
+    /* El verde "emerald" que ya tienes */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
