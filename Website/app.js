@@ -5,20 +5,33 @@
 const SUPABASE_URL = 'https://cnoeumcshfrfrzyvbxcn.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_qF2ETcffYEwh0nz27uV1rQ_JSxp7mA6';
 
-// INICIALIZACIÓN ROBUSTA:
+// Inicialización:
 let supabaseClient = null;
+let _initPromise = null;
 
-function initSupabase() {
-    if (window.supabase && typeof window.supabase.createClient === 'function') {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log("Supabase inicializado correctamente.");
-    } else {
-        setTimeout(initSupabase, 500);
-    }
+function getSupabaseClient() {
+    if (_initPromise) return _initPromise;
+
+    _initPromise = new Promise((resolve, reject) => {
+        const MAX_WAIT = 5000;
+        const start = Date.now();
+
+        const check = () => {
+            if (window.supabase && typeof window.supabase.createClient === 'function') {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log("Supabase inicializado correctamente.");
+                return resolve(supabaseClient);
+            }
+            if (Date.now() - start > MAX_WAIT) {
+                return reject(new Error('Supabase CDN no cargó a tiempo'));
+            }
+            setTimeout(check, 100);
+        };
+        check();
+    });
+
+    return _initPromise;
 }
-
-// Ejecutar inicialización
-initSupabase();
 
 const appState = {
     activeView: 'client-view',
@@ -115,8 +128,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 2. Resolución asíncrona segura de la Tasa BCV (Sin colgar el hilo principal)
+    // 2. Seguridad con Supabase y Resolución de Tasa BCV
     try {
+        console.log("[Init] Asegurando conexión con Supabase antes de cargar datos...");
+        await getSupabaseClient(); // Obliga al sistema a esperar que la base de datos esté lista
+
         console.log("[Init] Resolviendo tasas cambiarias de respaldo...");
         if (typeof resolveBcvRate === 'function') {
             await resolveBcvRate();
@@ -125,7 +141,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             loadSystemSettings();
         }
     } catch (e) {
-        console.error("[Network Error] Falló la configuración de red inicial (BCV):", e);
+        console.error("[Network Error] Falló la configuración de red inicial (BCV) o Supabase:", e);
     }
 
     // 3. Inicialización de listeners para la vista de éxito
@@ -136,7 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // 4. Procesos asíncronos secundarios y persistencia local
-    try { if (typeof loadSupabaseData === 'function') loadSupabaseData(); } catch (e) { }
+    try { if (typeof loadSupabaseData === 'function') await loadSupabaseData(); } catch (e) { }
     try { if (typeof restoreFormDraft === 'function') restoreFormDraft(); } catch (e) { }
     try { if (typeof processOfflineQueue === 'function') processOfflineQueue(); } catch (e) { }
 
@@ -248,7 +264,16 @@ function initElevationStepper() {
 function renderActiveStepDetails() {
     const container = document.getElementById('active-step-details');
     if (!container) return;
-    const step = routeSteps[appState.activeStateIndex || appState.activeStepIndex];
+
+    // El símbolo '??' arregla el bug: ahora sí reconoce el paso inicial (0)
+    const idx = appState.activeStepIndex ?? 0;
+    const step = routeSteps[idx];
+
+    // Red de seguridad: si no existe el paso, avisa en la consola y no rompe la página
+    if (!step) {
+        console.error(`[Stepper] El paso con número ${idx} no existe en tu lista de rutas.`);
+        return;
+    }
 
     container.innerHTML = `
         <div class="step-details-meta">
@@ -690,8 +715,11 @@ initPaymentInstructions();
 /* ==========================================================================
    8. RESOLUCIÓN DE TASA DE CAMBIO BCV Y CONECTIVIDAD SUPABASE
    ========================================================================== */
+
+
 async function loadSystemSettings() {
     try {
+        await getSupabaseClient();
         if (!supabaseClient) return;
 
         const { data, error } = await supabaseClient
@@ -784,8 +812,8 @@ function triggerEmergencyMode() {
 }
 
 async function loadSupabaseData() {
-    if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
     try {
+        await getSupabaseClient();
         const { data: invData } = await supabaseClient.from('inventory_stock').select('*');
         if (invData) appState.inventory = invData;
 
@@ -1041,55 +1069,11 @@ function ejecutarCompartirWhatsApp(bookingData) {
         }
     }
 
-    // 1. Formatear sección de servicios opcionales de forma limpia
-    const alquileres = booking.equipment_rentals && booking.equipment_rentals.length > 0
-        ? booking.equipment_rentals.join(', ')
-        : 'Ninguno';
+    // 1. Construir el cuerpo del mensaje usando la nueva función centralizada
+    const mensajeTexto = buildWhatsAppMessage(booking);
 
-    const catering = booking.catering_services && booking.catering_services.length > 0
-        ? booking.catering_services.join(', ')
-        : 'Ninguno';
-
-    const portador = booking.porter_service
-        ? `Sí (${booking.porter_service})`
-        : 'No requerido';
-
-    // 2. Construir el cuerpo del mensaje usando negritas de WhatsApp (*) y emojis de montaña
-    const mensajeTexto =
-        `🏔️ *¡EXPEDICIONES NAIGUATÁ!* 🥾\n\n` +
-        `👤 *DATOS DEL SENDERISTA:*\n` +
-        `• *Nombre:* ${booking.name || 'No especificado'}\n` +
-        `• *Género:* ${booking.gender || 'No especificado'}\n` +
-        `• *WhatsApp:* ${booking.whatsapp || 'No especificado'}\n` +
-        `• *Email:* ${booking.email || 'No especificado'}\n\n` +
-        `⛺ *LOGÍSTICA DE CAMPAMENTO:*\n` +
-        `• *Fecha:* ${booking.date || 'No especificada'}\n` +
-        `• *Código de Grupo:* ${booking.group_code || 'Individual'}\n` +
-        `• *Alojamiento:* ${booking.tent_preference || 'Carpa compartida'}\n\n` +
-        `🎒 *SERVICIOS ADICIONALES:*\n` +
-        `• *Alquiler de Equipos:* ${alquileres}\n` +
-        `• *Catering/Comidas:* ${catering}\n` +
-        `• *Servicio de Portador:* ${portador}\n\n` +
-        `🏥 *INFORMACIÓN MÉDICA:*\n` +
-        `• *Alergias:* ${booking.allergies || 'Ninguna'}\n` +
-        `• *Condición Médica:* ${booking.medical || 'Ninguna'}\n\n` +
-        `💳 *INFORMACIÓN DE PAGO:*\n` +
-        `• *Método:* ${booking.payment_method || 'No especificado'}\n` +
-        `• *Referencia:* ${booking.reference_number || 'No ingresada'}\n` +
-        `• *Monto Total:* *${typeof booking.total_usd === 'number' ? booking.total_usd.toFixed(2) : booking.total_usd || '0.00'} USD*\n\n` +
-        `¡Nos vemos en la cumbre! 🧗‍♂️✨`;
-
-    // 3. Codificar de manera segura para URLs de internet
-    const mensajeCodificado = encodeURIComponent(mensajeTexto);
-
-    // 4. Dirección de destino. Cambia el número por el de Diego (+34...) o déjalo vacío para que el usuario elija a quién enviárselo.
-    const whatsappUrl = `https://api.whatsapp.com/send?text=${mensajeCodificado}`;
-
-    // Si deseas que se envíe directamente al WhatsApp de soporte de la organización:
-    // const whatsappUrl = `https://wa.me/34673375681?text=${mensajeCodificado}`;
-
-    // 5. Despachar apertura de la API de WhatsApp
-    window.open(whatsappUrl, '_blank');
+    // 2. Despachar apertura única de la API de WhatsApp de forma segura
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensajeTexto)}`, '_blank');
 }
 
 /* ==========================================================================
@@ -1154,37 +1138,8 @@ function initPassButtons(booking) {
     const btnShare = document.getElementById('btn-share-adventure');
     if (btnShare) {
         btnShare.onclick = () => {
-            // Lectura directa de las variables limpias
-            const alquileres = booking.rentals && booking.rentals.length > 0 ? booking.rentals.join(', ') : 'Ninguno';
-            const catering = booking.catering && booking.catering.length > 0 ? booking.catering.join(', ') : 'Ninguno';
-            const portador = booking.porter_service && booking.porter_service !== 'No' ? `Sí (${booking.porter_service})` : 'No requerido';
-            const totalUSD = typeof booking.total_usd === 'number' ? booking.total_usd.toFixed(2) : (booking.total_usd || '0.00');
-
-            const msg =
-                `🏔️ *¡EXPEDICIONES NAIGUATÁ!* 🥾\n\n` +
-                `👤 *DATOS DEL SENDERISTA:*\n` +
-                `• *Nombre:* ${booking.name || 'No especificado'}\n` +
-                `• *Género:* ${booking.gender || 'No especificado'}\n` +
-                `• *WhatsApp:* ${booking.whatsapp || 'No especificado'}\n` +
-                `• *Email:* ${booking.email || 'No especificado'}\n\n` +
-                `⛺ *LOGÍSTICA DE CAMPAMENTO:*\n` +
-                `• *Fecha:* ${booking.date || 'No especificada'}\n` +
-                `• *Código de Grupo:* ${booking.group_code || 'Individual'}\n` +
-                `• *Alojamiento:* ${booking.tent_preference || 'Carpa compartida'}\n` +
-                `• *Dieta:* ${booking.diet || 'Estándar'}\n\n` +
-                `🎒 *SERVICIOS ADICIONALES:*\n` +
-                `• *Alquiler de Equipos:* ${alquileres}\n` +
-                `• *Catering/Comidas:* ${catering}\n` +
-                `• *Servicio de Portador:* ${portador}\n\n` +
-                `🏥 *INFORMACIÓN MÉDICA:*\n` +
-                `• *Alergias:* ${booking.allergies || 'Ninguna'}\n` +
-                `• *Condición Médica:* ${booking.medical || 'Ninguna'}\n\n` +
-                `💳 *INFORMACIÓN DE PAGO:*\n` +
-                `• *Método:* ${booking.payment_method || 'No especificado'}\n` +
-                `• *Referencia:* ${booking.reference_number || 'No ingresada'}\n` +
-                `• *Monto Total:* *${totalUSD} USD*\n\n` +
-                `¡Nos vemos en la cumbre! 🧗‍♂️✨`;
-
+            // Reemplazo de la segunda duplicación masiva usando la utilidad centralizada
+            const msg = buildWhatsAppMessage(booking);
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
         };
     }
@@ -1405,6 +1360,44 @@ function formatCurrency(val) {
 
 function formatTitleCase(str) {
     return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+}
+
+// Función centralizada para construir el mensaje de WhatsApp (Optimización DRY)
+function buildWhatsAppMessage(booking) {
+    const fmt = (arr) => arr?.length ? arr.join(', ') : 'Ninguno';
+    const totalUSD = typeof booking.total_usd === 'number'
+        ? booking.total_usd.toFixed(2) : '0.00';
+
+    return [
+        `🏔️ *EXPEDICIONES NAIGUATÁ* 🥾`,
+        ``,
+        `👤 *SENDERISTA:*`,
+        `• Nombre: ${booking.name}`,
+        `• Género: ${booking.gender}`,
+        `• WhatsApp: ${booking.whatsapp}`,
+        `• Email: ${booking.email}`,
+        ``,
+        `⛺ *LOGÍSTICA:*`,
+        `• Fecha: ${booking.date}`,
+        `• Grupo: ${booking.group_code || 'Individual'}`,
+        `• Carpa: ${booking.tent_preference}`,
+        ``,
+        `🎒 *SERVICIOS:*`,
+        `• Equipos: ${fmt(booking.rentals)}`,
+        `• Catering: ${fmt(booking.catering)}`,
+        `• Portador: ${booking.porter_service || 'No requerido'}`,
+        ``,
+        `🏥 *SALUD:*`,
+        `• Alergias: ${booking.allergies}`,
+        `• Médico: ${booking.medical}`,
+        ``,
+        `💳 *PAGO:*`,
+        `• Método: ${booking.payment_method}`,
+        `• Ref: ${booking.reference_number || 'N/A'}`,
+        `• Total: *$${totalUSD} USD*`,
+        ``,
+        `¡Nos vemos en la cumbre! 🧗‍♂️✨`,
+    ].join('\n');
 }
 
 function saveFormDraft() {
