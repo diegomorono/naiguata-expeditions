@@ -2898,34 +2898,42 @@ section:not(:first-of-type),
 }
 
 /* ==========================================================================
-   UNIFICACIÓN DE FONDO GLOBAL - CANVAS VERDE OSCURO / NEGRO
+   UNIFICACIÓN TOTAL - CANVAS VERDE OSCURO CONTINUO (SIN DIVISIONES)
    ========================================================================== */
 
-/* Unifica la base estructural de todas las secciones en un único tono abisal */
+/* Forzamos a que absolutamente toda la estructura comparta el mismo fondo verde sutil */
 html,
 body,
 main,
+.main-content,
 header,
 .nav-container,
 #hero,
 section,
 .route-section,
 .booking-section,
-#form-step-container {
-    background-color: #050c08 !important;
-    /* Verde montaña ultra profundo tirando a negro */
+#form-step-container,
+footer,
+.app-footer {
+    background-color: #0c1f15 !important;
+    /* Un verde oscuro de montaña más visible, menos lavado por el negro */
     background-image: none !important;
-    /* Elimina los degradados intermedios que cortaban el diseño */
+    /* Desactiva degradados que generaban las franjas del brush rojo */
+    border: none !important;
+    /* Elimina cualquier línea divisoria entre las secciones */
+    box-shadow: none !important;
+    /* Quita sombras que simulaban escalones o relieves horizontales */
 }
 
-/* Mantiene el diseño original, contraste y relieve de tus secciones favoritas */
+/* Protegemos el diseño flotante de tus 4 secciones preferidas */
 .form-step-card,
 .payment-grid,
 .inclusion-card,
 .feature-card {
-    background: rgba(15, 23, 30, 0.6) !important;
-    /* Mantiene la opacidad interna intacta */
+    background: rgba(10, 15, 12, 0.7) !important;
+    /* Tarjetas oscuras traslúcidas que contrastan con el fondo verde */
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    backdrop-filter: blur(10px);
-    /* Efecto esmerilado premium sobre el nuevo fondo */
+    /* Borde fino elegante */
+    backdrop-filter: blur(12px) !important;
+    /* Efecto esmerilado que deja ver el verde del fondo */
 }
