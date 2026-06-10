@@ -4,7 +4,6 @@
 
 const SUPABASE_URL = 'https://cnoeumcshfrfrzyvbxcn.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_qF2ETcffYEwh0nz27uV1rQ_JSxp7mA6';
-const ADMIN_PASSWORD_HASH = 'f6146b8353b55e153bf40786ebe755ac8aff89586fbd6111a89f35e8ebe00904';
 
 // INICIALIZACIÓN ROBUSTA:
 let supabaseClient = null;
@@ -1162,7 +1161,7 @@ function initPassButtons(booking) {
             const totalUSD = typeof booking.total_usd === 'number' ? booking.total_usd.toFixed(2) : (booking.total_usd || '0.00');
 
             const msg =
-                `🏔️ *¡NUEVO REGISTRO - NAIGUATÁ EXPEDITIONS!* 🥾\n\n` +
+                `🏔️ *¡EXPEDICIONES NAIGUATÁ!* 🥾\n\n` +
                 `👤 *DATOS DEL SENDERISTA:*\n` +
                 `• *Nombre:* ${booking.name || 'No especificado'}\n` +
                 `• *Género:* ${booking.gender || 'No especificado'}\n` +
@@ -1329,17 +1328,30 @@ function initAdminLogin() {
 
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const passwordInput = document.getElementById('admin-password');
-        if (!passwordInput) return;
 
-        const inputHash = await computeSHA256(passwordInput.value);
+        const username = document.getElementById('admin-username')?.value;
+        const password = document.getElementById('admin-password')?.value;
 
-        if (inputHash === ADMIN_PASSWORD_HASH) {
-            localStorage.setItem('admin_session', 'true');
-            if (document.getElementById('admin-login-view')) document.getElementById('admin-login-view').style.display = 'none';
-            if (document.getElementById('admin-dashboard')) document.getElementById('admin-dashboard').style.display = 'block';
-        } else {
-            alert('Contraseña maestra inválida.');
+        try {
+            // El cliente no hace ninguna operación de hashing. 
+            // Envía la contraseña tal cual por HTTPS (canal seguro).
+            const response = await fetch(`${SUPABASE_URL}/functions/v1/admin-login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (!response.ok) throw new Error('Credenciales inválidas');
+
+            const { token } = await response.json();
+            sessionStorage.setItem('admin_token', token);
+
+            alert('Acceso autorizado.');
+            // Aquí rediriges a tu dashboard
+
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Acceso denegado.');
         }
     });
 }
@@ -1393,15 +1405,6 @@ function formatCurrency(val) {
 
 function formatTitleCase(str) {
     return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
-}
-
-async function computeSHA256(string) {
-    const utf8 = new TextEncoder().encode(string);
-    // Usamos la API Web Crypto estándar del navegador
-    const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    // Convertimos a string hexadecimal
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 function saveFormDraft() {

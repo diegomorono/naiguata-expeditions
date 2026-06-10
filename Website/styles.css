@@ -3133,7 +3133,6 @@ section::after {
     max-width: 1100px;
     /* Aquí limitas el ancho total */
     margin: 0 auto;
-    /* ESTO ES LO QUE CENTRA EL BLOQUE EN LA PANTALLA */
 }
 
 /* 3. Ajuste Responsivo: Para que en móviles se apile */
