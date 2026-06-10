@@ -3169,38 +3169,3 @@ section::after {
     /* Aquí no usamos !important. Si necesitas espacio extra, úsalo aquí */
     padding: 40px 20px;
 }
-
-/* --- REGLA MAESTRA DE DISEÑO (No borrar) --- */
-
-/* 1. Fondo uniforme para toda la página */
-body {
-    background-color: #080b0f !important;
-}
-
-/* 2. Centrado general para todas las secciones */
-section {
-    background-color: #080b0f !important;
-    text-align: center !important;
-    padding: 60px 20px !important;
-}
-
-/* 3. EXCEPCIÓN: Mantenemos el Hero a la izquierda como estaba originalmente */
-#hero-section,
-#hero-section .section-wrapper {
-    text-align: left !important;
-}
-
-/* 4. Asegurar que los textos dentro de los contenedores estén centrados */
-section h2,
-section p,
-section ul {
-    margin-left: auto !important;
-    margin-right: auto !important;
-    text-align: center !important;
-}
-
-/* 5. Corrección para el formulario de reserva (dejarlo legible) */
-#booking-form-section,
-#booking-form-section .section-container {
-    text-align: center !important;
-}
