@@ -946,37 +946,35 @@ function enviarEmailNotificacion(booking) {
 // ==========================================================================
 
 function ejecutarImpresionCheckout() {
-    // Buscamos el contenedor del boleto. Remplaza 'pass-preview-card' por el ID real de tu tarjeta de pase si es distinto.
-    const checkoutElement = document.getElementById('pass-preview-card') ||
-        document.getElementById('checkout-ticket-container') ||
-        document.querySelector('.ticket-card-container');
+    // ID corregido según tu HTML anterior: 'printable-pass-card'
+    const checkoutElement = document.getElementById('printable-pass-card');
 
     if (!checkoutElement) {
-        alert('No se pudo encontrar el contenedor visual del pase para proceder con la impresión.');
+        alert('Error: No se encontró la tarjeta de pase.');
         return;
     }
 
-    // Ventana temporal limpia para saltarse los estilos oscuros en el papel
-    const ventanaImpresion = window.open('', '_blank', 'height=600,width=800');
+    const ventanaImpresion = window.open('', '_blank', 'width=800,height=600');
 
-    ventanaImpresion.document.write('<html><head><title>Pase de Abordaje - Naiguatá Expeditions</title>');
-    ventanaImpresion.document.write('<style>');
     ventanaImpresion.document.write(`
-        body { font-family: 'Inter', sans-serif; color: #111; padding: 30px; background: #fff; }
-        .print-wrapper { border: 2px dashed #10b981; padding: 25px; border-radius: 12px; max-width: 550px; margin: 0 auto; }
-        h2 { color: #059669; text-align: center; margin-top: 0; font-size: 22px; }
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 6px; }
-        .label { font-weight: bold; color: #444; }
-        .value { color: #000; font-weight: 500; }
-        .qr-section { text-align: center; margin-top: 20px; }
-        svg, img { max-width: 150px; margin: 10px auto; display: block; }
+        <html>
+            <head>
+                <title>Pase de Abordaje - Naiguatá Expeditions</title>
+                <style>
+                    body { font-family: 'Outfit', sans-serif; color: #000; background: #fff; padding: 20px; }
+                    /* Forzamos que el pase se vea bien */
+                    .pass-card { border: 2px solid #000; padding: 20px; max-width: 500px; margin: auto; border-radius: 0; }
+                    .pass-label { font-size: 10px; color: #666; text-transform: uppercase; display: block; }
+                    .pass-value { font-size: 14px; font-weight: 700; color: #000; }
+                    .pass-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+                    .pass-brand-logo { font-weight: 800; border-bottom: 2px solid #000; padding-bottom: 5px; }
+                </style>
+            </head>
+            <body>
+                ${checkoutElement.innerHTML}
+            </body>
+        </html>
     `);
-    ventanaImpresion.document.write('</style></head><body>');
-
-    ventanaImpresion.document.write('<div class="print-wrapper">');
-    ventanaImpresion.document.write(checkoutElement.innerHTML);
-    ventanaImpresion.document.write('</div>');
-    ventanaImpresion.document.write('</body></html>');
 
     ventanaImpresion.document.close();
     ventanaImpresion.focus();
@@ -1167,42 +1165,39 @@ function initPassButtons(booking) {
     const btnSave = document.getElementById('btn-print-pass');
     if (btnSave) {
         btnSave.onclick = () => {
-            // Buscamos el contenedor visual del pase
-            const checkoutElement = document.getElementById('pass-preview-card') ||
-                document.getElementById('checkout-ticket-container') ||
-                document.querySelector('.ticket-card-container');
+            // Buscamos el contenedor exacto que pusiste en tu HTML
+            const checkoutElement = document.getElementById('printable-pass-card');
 
             if (!checkoutElement) {
-                // Si por alguna razón falla el aislamiento, usamos el print nativo como respaldo
-                window.print();
+                alert('No se pudo encontrar el pase para imprimir.');
                 return;
             }
 
-            // Creamos una ventana temporal con fondo blanco para que se imprima perfecto en papel o PDF
-            const ventanaImpresion = window.open('', '_blank', 'height=600,width=800');
+            // Creamos una ventana temporal limpia
+            const ventanaImpresion = window.open('', '_blank', 'width=800,height=600');
 
-            ventanaImpresion.document.write('<html><head><title>Pase de Abordaje - Naiguatá Expeditions</title>');
-            ventanaImpresion.document.write('<style>');
             ventanaImpresion.document.write(`
-                body { font-family: 'Inter', sans-serif; color: #111; padding: 30px; background: #fff; }
-                .print-wrapper { border: 2px dashed #10b981; padding: 25px; border-radius: 12px; max-width: 550px; margin: 0 auto; }
-                h2 { color: #059669; text-align: center; margin-top: 0; font-size: 22px; }
-                .info-row { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 6px; }
-                .label { font-weight: bold; color: #444; }
-                .value { color: #000; font-weight: 500; }
-                .qr-section { text-align: center; margin-top: 20px; }
-                svg, img { max-width: 150px; margin: 10px auto; display: block; }
+                <html>
+                    <head>
+                        <title>Pase de Abordaje - Naiguatá Expeditions</title>
+                        <style>
+                            body { font-family: 'Outfit', sans-serif; color: #000; background: #fff; padding: 20px; }
+                            .pass-card { border: 2px solid #000; padding: 20px; max-width: 500px; margin: auto; }
+                            .pass-label { font-size: 10px; color: #666; text-transform: uppercase; display: block; }
+                            .pass-value { font-size: 14px; font-weight: 700; color: #000; }
+                            .pass-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+                            .pass-brand-logo { font-weight: 800; border-bottom: 2px solid #000; padding-bottom: 5px; }
+                        </style>
+                    </head>
+                    <body>
+                        ${checkoutElement.innerHTML}
+                    </body>
+                </html>
             `);
-            ventanaImpresion.document.write('</style></head><body>');
-            ventanaImpresion.document.write('<div class="print-wrapper">');
-            ventanaImpresion.document.write(checkoutElement.innerHTML);
-            ventanaImpresion.document.write('</div>');
-            ventanaImpresion.document.write('</body></html>');
 
             ventanaImpresion.document.close();
             ventanaImpresion.focus();
 
-            // Retraso de medio segundo para que el navegador asimile el HTML y los elementos gráficos
             setTimeout(() => {
                 ventanaImpresion.print();
                 ventanaImpresion.close();
@@ -1272,6 +1267,48 @@ function initAdminLogin() {
             alert('Contraseña maestra inválida.');
         }
     });
+}
+
+/**
+ * Función para abrir una ventana nueva, inyectar el pase limpio
+ * y ejecutar la impresión nativa del navegador.
+ */
+function imprimirPase() {
+    const checkoutElement = document.getElementById('printable-pass-card');
+
+    if (!checkoutElement) {
+        alert('No se pudo encontrar el pase para imprimir.');
+        return;
+    }
+
+    const ventanaImpresion = window.open('', '_blank', 'width=800,height=600');
+
+    ventanaImpresion.document.write(`
+        <html>
+            <head>
+                <title>Pase de Abordaje - Naiguatá Expeditions</title>
+                <style>
+                    body { font-family: 'Outfit', sans-serif; color: #000; background: #fff; padding: 20px; }
+                    .pass-card { border: 2px solid #000; padding: 20px; max-width: 500px; margin: auto; }
+                    .pass-label { font-size: 10px; color: #666; text-transform: uppercase; display: block; }
+                    .pass-value { font-size: 14px; font-weight: 700; color: #000; }
+                    .pass-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+                    .pass-brand-logo { font-weight: 800; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 10px; }
+                </style>
+            </head>
+            <body>
+                ${checkoutElement.innerHTML}
+            </body>
+        </html>
+    `);
+
+    ventanaImpresion.document.close();
+    ventanaImpresion.focus();
+
+    setTimeout(() => {
+        ventanaImpresion.print();
+        ventanaImpresion.close();
+    }, 500);
 }
 
 // Utilidades de formato y criptografía
