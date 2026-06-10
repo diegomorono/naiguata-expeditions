@@ -2898,17 +2898,23 @@ section:not(:first-of-type),
 }
 
 /* ==========================================================================
-   LIENZO CONTINUO ULTRA-OSCURO (VERDE NEGRO) SIN DIVISIONES RESIDUALES
+   LIENZO ÚNICO VERDE OSCURO (SIN CORTES NI FRANJAS)
    ========================================================================== */
 
-/* 1. Unificación radical de fondo: elimina cortes visuales de franjas horizontales */
+/* 1. El color base se aplica SOLO al fondo principal de la página */
 html,
-body,
-main,
-.main-content,
+body {
+    background-color: #051009 !important;
+    /* Negro muy oscuro con un toque sutil de verde montaña */
+    background-image: none !important;
+}
+
+/* 2. Volvemos TRANSPARENTES todos los contenedores para eliminar las franjas (Brushes Rojos) */
 header,
 .nav-container,
 #hero,
+main,
+.main-content,
 section,
 .route-section,
 .booking-section,
@@ -2918,36 +2924,20 @@ section,
 #form-step-container,
 footer,
 .app-footer {
-    background-color: #040a06 !important;
-    /* Negro de alta densidad con leve matiz verde montaña */
+    background-color: transparent !important;
+    /* Deja ver el fondo #051009 del body */
     background-image: none !important;
-    /* Desactiva radial-gradients o blobs que generaban divisiones */
+    /* Elimina cualquier degradado o foto de fondo que estorbe */
     border: none !important;
-    /* Elimina líneas y costuras entre secciones */
     box-shadow: none !important;
-    /* Quita sombras que creaban efecto de escalonado */
 }
 
-/* 2. Super-Contraste para tus 4 secciones flotantes preferidas */
+/* 3. Aseguramos que las tarjetas mantengan el contraste para que floten (Brush Azul) */
 .inclusion-card,
 .feature-card,
 .form-step-card,
 .payment-grid {
-    background: #0d1611 !important;
-    /* Fondo obsidiana ligeramente más claro para separarse del fondo global */
-    border: 1px solid rgba(16, 185, 129, 0.25) !important;
-    /* Borde esmeralda definido para que explote visualmente */
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(16, 185, 129, 0.04) !important;
-    /* Sombra profunda con aura sutil */
-    backdrop-filter: blur(8px) !important;
-    border-radius: 12px !important;
-    /* Bordes limpios y curvos para acentuar el diseño flotante */
-}
-
-/* Ajuste fino para asegurar que los títulos mantengan legibilidad absoluta */
-.inclusion-card *,
-.feature-card *,
-.form-step-card *,
-.payment-grid * {
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+    /* Sombra para dar el efecto de flotado */
 }
