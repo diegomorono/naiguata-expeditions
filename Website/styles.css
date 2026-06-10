@@ -2898,10 +2898,10 @@ section:not(:first-of-type),
 }
 
 /* ==========================================================================
-   UNIFICACIÓN TOTAL - CANVAS VERDE OSCURO CONTINUO (SIN DIVISIONES)
+   LIENZO CONTINUO ULTRA-OSCURO (VERDE NEGRO) SIN DIVISIONES RESIDUALES
    ========================================================================== */
 
-/* Forzamos a que absolutamente toda la estructura comparta el mismo fondo verde sutil */
+/* 1. Unificación radical de fondo: elimina cortes visuales de franjas horizontales */
 html,
 body,
 main,
@@ -2912,28 +2912,42 @@ header,
 section,
 .route-section,
 .booking-section,
+.inclusions-section,
+.features-section,
+.backpack-section,
 #form-step-container,
 footer,
 .app-footer {
-    background-color: #0c1f15 !important;
-    /* Un verde oscuro de montaña más visible, menos lavado por el negro */
+    background-color: #040a06 !important;
+    /* Negro de alta densidad con leve matiz verde montaña */
     background-image: none !important;
-    /* Desactiva degradados que generaban las franjas del brush rojo */
+    /* Desactiva radial-gradients o blobs que generaban divisiones */
     border: none !important;
-    /* Elimina cualquier línea divisoria entre las secciones */
+    /* Elimina líneas y costuras entre secciones */
     box-shadow: none !important;
-    /* Quita sombras que simulaban escalones o relieves horizontales */
+    /* Quita sombras que creaban efecto de escalonado */
 }
 
-/* Protegemos el diseño flotante de tus 4 secciones preferidas */
-.form-step-card,
-.payment-grid,
+/* 2. Super-Contraste para tus 4 secciones flotantes preferidas */
 .inclusion-card,
-.feature-card {
-    background: rgba(10, 15, 12, 0.7) !important;
-    /* Tarjetas oscuras traslúcidas que contrastan con el fondo verde */
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    /* Borde fino elegante */
-    backdrop-filter: blur(12px) !important;
-    /* Efecto esmerilado que deja ver el verde del fondo */
+.feature-card,
+.form-step-card,
+.payment-grid {
+    background: #0d1611 !important;
+    /* Fondo obsidiana ligeramente más claro para separarse del fondo global */
+    border: 1px solid rgba(16, 185, 129, 0.25) !important;
+    /* Borde esmeralda definido para que explote visualmente */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(16, 185, 129, 0.04) !important;
+    /* Sombra profunda con aura sutil */
+    backdrop-filter: blur(8px) !important;
+    border-radius: 12px !important;
+    /* Bordes limpios y curvos para acentuar el diseño flotante */
+}
+
+/* Ajuste fino para asegurar que los títulos mantengan legibilidad absoluta */
+.inclusion-card *,
+.feature-card *,
+.form-step-card *,
+.payment-grid * {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
