@@ -2897,59 +2897,40 @@ section:not(:first-of-type),
     }
 }
 
-/* ==========================================================================
-   LIENZO ÚNICO DEFINITIVO (VERDE ABISAL) Y TARJETAS FLOTANTES
-   ========================================================================== */
+/* --- LIMPIEZA TOTAL DE FONDOS (REEMPLAZAR BLOQUES ANTERIORES) --- */
 
-/* 1. Fondo Global Estricto (Verde muy oscuro, casi negro) */
+/* 1. Definimos el fondo base una sola vez en el body */
 html,
 body {
     background-color: #030805 !important;
     background-image: none !important;
 }
 
-/* 2. Destruir cualquier fondo en secciones, contenedores internos y pseudo-elementos */
+/* 2. Convertimos en transparentes todos los contenedores principales */
+/* Esto elimina las franjas porque "deja ver" el fondo del body */
 header,
 nav,
 main,
 section,
 footer,
 .container,
-.nav-container,
+.header-container,
 .footer-container,
+.app-header,
 .main-content,
 .route-section,
-.booking-section,
-#hero,
-#form-step-container {
+.booking-section {
     background-color: transparent !important;
     background-image: none !important;
     border: none !important;
-    box-shadow: none !important;
 }
 
-/* Apagar brillos o overlays inyectados por CSS */
+/* 3. Aseguramos que los elementos decorativos (si existen) no tengan fondo */
 body::before,
 body::after,
 main::before,
 main::after,
 section::before,
 section::after {
-    display: none !important;
     background: none !important;
-}
-
-/* 3. Asegurar que TUS TARJETAS tengan fondo propio para que destaquen y floten */
-.inclusion-card,
-.feature-card,
-.form-step-card,
-.payment-grid {
-    background-color: #0a140d !important;
-    /* Un verde-gris un 5% más claro que el fondo */
-    border: 1px solid rgba(16, 185, 129, 0.25) !important;
-    /* Borde esmeralda */
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8) !important;
-    /* Sombra profunda */
-    backdrop-filter: blur(10px) !important;
-    border-radius: 12px !important;
 }
