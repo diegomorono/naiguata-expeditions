@@ -1012,7 +1012,7 @@ main.main-content,
     color: var(--primary);
     border-bottom: 1px solid rgba(16, 185, 129, 0.2);
     padding-bottom: 6px;
-    margin-top: 10px;
+    margin-top: 5px;
 }
 
 .section-desc-small {
@@ -1030,7 +1030,7 @@ main.main-content,
 .form-input-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 4px;
 }
 
 .form-input-wrapper.full-width {
