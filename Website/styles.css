@@ -391,15 +391,6 @@ main.main-content,
     background-image: none !important;
 }
 
-/* Eliminar cualquier fondo heredado o alt en secciones */
-#route-section,
-#checklist-section,
-#booking-form-section {
-    background: transparent !important;
-    padding: 60px 0 !important;
-    /* Espacio limpio vertical */
-}
-
 /* Hacer que las tarjetas glass-panel floten mejor */
 .glass-panel {
     background: var(--panel-bg);
@@ -3133,4 +3124,25 @@ section::after {
         margin: 0 auto;
         max-width: 600px;
     }
+}
+
+/* --- CONFIGURACIÓN DE SECCIONES GENERALES --- */
+/* Esto reemplaza la regla genérica que borraste */
+
+.view-section {
+    width: 100%;
+    padding: 60px 20px;
+    /* Padding estándar para todas las secciones */
+    max-width: 1100px;
+    margin: 0 auto;
+    /* Centrado automático */
+    box-sizing: border-box;
+}
+
+/* Ajustes específicos si el Planificador o Ruta necesitan algo extra */
+#route-section,
+#booking-form-section,
+#checklist-section {
+    /* Aquí no usamos !important. Si necesitas espacio extra, úsalo aquí */
+    padding: 40px 20px;
 }
