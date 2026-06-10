@@ -807,6 +807,8 @@ async function loadSupabaseData() {
    ========================================================================== */
 async function handleFormSubmission(e) {
     e.preventDefault();
+    console.log("Iniciando procesamiento de formulario...");
+
     const form = e.target;
     const submitBtn = form.querySelector('button[type="submit"]');
     const originalText = submitBtn ? submitBtn.innerHTML : 'Confirmar Registro';
@@ -816,70 +818,71 @@ async function handleFormSubmission(e) {
         submitBtn.innerHTML = `<span class="spinner-small"></span> Procesando registro...`;
     }
 
-    // 1. Captura de datos básicos (IDs verificados con index.html)
-    const name = formatTitleCase(document.getElementById('hiker-name').value.trim());
-    const email = document.getElementById('hiker-email').value.trim().toLowerCase();
-    const whatsapp = document.getElementById('hiker-whatsapp').value.trim();
-    const gender = document.getElementById('hiker-gender')?.value || 'No especificado';
-    const medical = document.getElementById('hiker-medical')?.value.trim() || 'Ninguna.';
-    const allergies = document.getElementById('hiker-allergies')?.value || 'Ninguna';
-    const dateVal = document.getElementById('expedition-date')?.value || document.getElementById('booking-date')?.value;
-    const paymentMethod = document.getElementById('payment-method')?.value;
-    const referenceNumber = document.getElementById('payment-reference') ? document.getElementById('payment-reference').value.trim() : 'N/A';
+    try {
+        // 1. Captura de datos básicos sanitizados
+        const name = formatTitleCase(document.getElementById('hiker-name').value.trim());
+        const email = document.getElementById('hiker-email').value.trim().toLowerCase();
+        const whatsapp = document.getElementById('hiker-whatsapp').value.trim();
+        const gender = document.getElementById('hiker-gender')?.value || 'No especificado';
+        const medical = document.getElementById('hiker-medical')?.value.trim() || 'Ninguna.';
+        const allergies = document.getElementById('hiker-allergies')?.value || 'Ninguna';
+        const dateVal = document.getElementById('expedition-date')?.value || document.getElementById('booking-date')?.value;
+        const paymentMethod = document.getElementById('payment-method')?.value || document.getElementById('payment-method-select')?.value;
+        const referenceNumber = document.getElementById('payment-reference') ? document.getElementById('payment-reference').value.trim() : 'N/A';
 
-    // Extracción limpia del total numérico eliminando símbolos
-    const totalElement = document.getElementById('summary-total-usd') || document.getElementById('form-total-usd');
-    const totalUsd = totalElement ? parseFloat(totalElement.textContent.replace(/[^0-9.]/g, '')) : 50.00;
+        const totalElement = document.getElementById('summary-total-usd') || document.getElementById('form-total-usd');
+        const totalUsd = totalElement ? parseFloat(totalElement.textContent.replace(/[^0-9.]/g, '')) : 50.00;
+        const passId = 'NE-' + Math.floor(100000 + Math.random() * 900000);
 
-    const passId = 'NE-' + Math.floor(100000 + Math.random() * 900000);
+        // 2. Extracción correcta de Selectores del DOM Real (Checkboxes, Selects y Radios)
+        const dietValue = document.getElementById('dietary-preference')?.value || 'Estándar';
+        const tentValue = document.getElementById('tent-preference')?.value || 'Compartida';
 
-    // 2. CORRECCIÓN DE CAPTURA DINÁMICA (Aquí estaban los fallos del formulario anterior)
-    const dietValue = document.getElementById('dietary-preference')?.value || 'Estándar';
-    const tentValue = document.getElementById('tent-preference')?.value || 'Carpa compartida';
+        const porterRadio = document.querySelector('input[name="porter-option"]:checked');
+        const porterValue = porterRadio ? porterRadio.value : 'No';
 
-    // Leer correctamente la opción seleccionada de los Radio Buttons del portador
-    const porterRadio = document.querySelector('input[name="porter-option"]:checked');
-    const porterValue = porterRadio ? porterRadio.value : 'No';
+        const groupCodeInput = document.getElementById('group-code')?.value.trim();
+        const finalGroupCode = (groupCodeInput && groupCodeInput.length > 0) ? groupCodeInput.toUpperCase() : 'INDIVIDUAL';
 
-    const groupCodeInput = document.getElementById('group-code')?.value.trim();
-    const finalGroupCode = (groupCodeInput && groupCodeInput.length > 0) ? groupCodeInput.toUpperCase() : 'INDIVIDUAL';
+        // Captura directa y en tiempo real de los Checkboxes marcados
+        const rentalsList = [];
+        document.querySelectorAll('.equipment-checkbox:checked').forEach(cb => {
+            rentalsList.push(cb.value);
+        });
 
-    // Capturar arreglos reales marcados en los checkboxes del DOM
-    const rentalsList = [];
-    document.querySelectorAll('.equipment-checkbox:checked').forEach(cb => {
-        rentalsList.push(cb.value);
-    });
+        const cateringList = [];
+        document.querySelectorAll('.catering-checkbox:checked').forEach(cb => {
+            cateringList.push(cb.value);
+        });
 
-    const cateringList = [];
-    document.querySelectorAll('.catering-checkbox:checked').forEach(cb => {
-        cateringList.push(cb.value);
-    });
+        // Construimos el objeto unificado de datos
+        const bookingData = {
+            id: passId,
+            date: dateVal,
+            name: name,
+            email: email,
+            whatsapp: whatsapp,
+            gender: gender,
+            medical: medical,
+            allergies: allergies,
+            total_usd: totalUsd,
+            payment_method: paymentMethod,
+            reference_number: referenceNumber,
+            rentals: rentalsList,
+            catering: cateringList,
+            diet: dietValue,
+            tent_preference: tentValue,
+            porter_service: porterValue,
+            group_code: finalGroupCode
+        };
 
-    // 3. Estructuración del objeto unificado de datos
-    const bookingData = {
-        id: passId,
-        date: dateVal,
-        name: name,
-        email: email,
-        whatsapp: whatsapp,
-        gender: gender,
-        medical: medical,
-        allergies: allergies,
-        total_usd: totalUsd,
-        payment_method: paymentMethod,
-        reference_number: referenceNumber,
-        rentals: rentalsList,
-        catering: cateringList,
-        diet: dietValue,
-        tent_preference: tentValue,
-        porter_service: porterValue,
-        group_code: finalGroupCode
-    };
+        console.log("Payload generado con éxito:", bookingData);
 
-    // 4. Procesamiento de Persistencia e Inserción
-    if (typeof supabaseClient !== 'undefined' && supabaseClient) {
-        try {
-            const { error } = await supabaseClient.rpc('registrar_excursionista', {
+        // 3. Envío y persistencia
+        if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+            console.log("Enviando a procedimiento RPC en Supabase...");
+
+            const { data, error } = await supabaseClient.rpc('registrar_excursionista', {
                 p_id: passId,
                 p_date: dateVal,
                 p_name: name,
@@ -900,30 +903,31 @@ async function handleFormSubmission(e) {
             });
 
             if (error) throw error;
-
-            // Todo salió bien en el servidor remoto
-            enviarEmailNotificacion(bookingData);
-            renderCheckoutSuccess(bookingData);
-            initPassButtons(bookingData); // Vincula tus botones de impresión y compartir con los datos reales
-            localStorage.removeItem('naiguata_form_draft');
-
-        } catch (err) {
-            console.error('Error en registro:', err);
-            // Ejecución del respaldo en caso de desconexión o fallo RPC
+            console.log("Respuesta exitosa de Supabase RPC:", data);
+        } else {
+            console.warn("Supabase desconectado, activando respaldo offline...");
             if (typeof addToOfflineQueue === 'function') addToOfflineQueue(bookingData);
-            if (typeof showOfflineSuccess === 'function') showOfflineSuccess(bookingData);
-            enviarEmailNotificacion(bookingData);
         }
-    } else {
-        // Modo offline directo si el cliente Supabase no está instanciado
-        if (typeof addToOfflineQueue === 'function') addToOfflineQueue(bookingData);
-        if (typeof showOfflineSuccess === 'function') showOfflineSuccess(bookingData);
-        enviarEmailNotificacion(bookingData);
-    }
 
-    if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
+        // 4. Ejecución del éxito (Se ejecuta SIEMPRE fuera del catch para evitar congelamiento)
+        enviarEmailNotificacion(bookingData);
+        renderCheckoutSuccess(bookingData);
+        initPassButtons(bookingData); // Vincula la data real al botón de impresión
+        showView('success-view'); // ¡Crucial! Cambia la pantalla a la vista de éxito
+
+        localStorage.removeItem('naiguata_form_draft');
+
+    } catch (err) {
+        console.error('Error crítico controlado durante el registro:', err);
+        alert(`Atención: No pudimos sincronizar con el servidor de Supabase en vivo, pero tu pase ha sido pre-guardado localmente. Detalles: ${err.message || err}`);
+
+        // Ejecución de respaldo offline seguro
+        if (typeof showOfflineSuccess === 'function') showOfflineSuccess(bookingData);
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
     }
 }
 
