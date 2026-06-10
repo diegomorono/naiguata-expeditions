@@ -816,29 +816,46 @@ async function handleFormSubmission(e) {
         submitBtn.innerHTML = `<span class="spinner-small"></span> Procesando registro...`;
     }
 
-    // Captura de datos básicos
+    // 1. Captura de datos básicos (IDs verificados con index.html)
     const name = formatTitleCase(document.getElementById('hiker-name').value.trim());
     const email = document.getElementById('hiker-email').value.trim().toLowerCase();
     const whatsapp = document.getElementById('hiker-whatsapp').value.trim();
     const gender = document.getElementById('hiker-gender')?.value || 'No especificado';
     const medical = document.getElementById('hiker-medical')?.value.trim() || 'Ninguna.';
     const allergies = document.getElementById('hiker-allergies')?.value || 'Ninguna';
-    const dateVal = document.getElementById('booking-date')?.value || document.getElementById('expedition-date')?.value;
-    const paymentMethod = document.getElementById('payment-method')?.value || document.getElementById('payment-method-select')?.value;
+    const dateVal = document.getElementById('expedition-date')?.value || document.getElementById('booking-date')?.value;
+    const paymentMethod = document.getElementById('payment-method')?.value;
     const referenceNumber = document.getElementById('payment-reference') ? document.getElementById('payment-reference').value.trim() : 'N/A';
-    const totalUsd = parseFloat(document.getElementById('form-total-usd')?.textContent.replace(/[^0-9.]/g, '')) || 50.00;
+
+    // Extracción limpia del total numérico eliminando símbolos
+    const totalElement = document.getElementById('summary-total-usd') || document.getElementById('form-total-usd');
+    const totalUsd = totalElement ? parseFloat(totalElement.textContent.replace(/[^0-9.]/g, '')) : 50.00;
+
     const passId = 'NE-' + Math.floor(100000 + Math.random() * 900000);
 
-    // Captura de valores dinámicos (Checklist/Config)
-    const dietValue = document.getElementById('hiker-diet')?.value || 'Estándar';
-    const tentValue = document.getElementById('tent-preference')?.value || 'Compartida';
-    const porterValue = document.getElementById('porter-service')?.value || 'No';
-    const groupCodeInput = document.getElementById('booking-group')?.value.trim();
+    // 2. CORRECCIÓN DE CAPTURA DINÁMICA (Aquí estaban los fallos del formulario anterior)
+    const dietValue = document.getElementById('dietary-preference')?.value || 'Estándar';
+    const tentValue = document.getElementById('tent-preference')?.value || 'Carpa compartida';
+
+    // Leer correctamente la opción seleccionada de los Radio Buttons del portador
+    const porterRadio = document.querySelector('input[name="porter-option"]:checked');
+    const porterValue = porterRadio ? porterRadio.value : 'No';
+
+    const groupCodeInput = document.getElementById('group-code')?.value.trim();
     const finalGroupCode = (groupCodeInput && groupCodeInput.length > 0) ? groupCodeInput.toUpperCase() : 'INDIVIDUAL';
 
-    const rentalsList = typeof getSelectedRentals === 'function' ? getSelectedRentals() : [];
-    const cateringList = typeof getSelectedCatering === 'function' ? getSelectedCatering() : [];
+    // Capturar arreglos reales marcados en los checkboxes del DOM
+    const rentalsList = [];
+    document.querySelectorAll('.equipment-checkbox:checked').forEach(cb => {
+        rentalsList.push(cb.value);
+    });
 
+    const cateringList = [];
+    document.querySelectorAll('.catering-checkbox:checked').forEach(cb => {
+        cateringList.push(cb.value);
+    });
+
+    // 3. Estructuración del objeto unificado de datos
     const bookingData = {
         id: passId,
         date: dateVal,
@@ -859,6 +876,7 @@ async function handleFormSubmission(e) {
         group_code: finalGroupCode
     };
 
+    // 4. Procesamiento de Persistencia e Inserción
     if (typeof supabaseClient !== 'undefined' && supabaseClient) {
         try {
             const { error } = await supabaseClient.rpc('registrar_excursionista', {
@@ -883,19 +901,21 @@ async function handleFormSubmission(e) {
 
             if (error) throw error;
 
+            // Todo salió bien en el servidor remoto
             enviarEmailNotificacion(bookingData);
             renderCheckoutSuccess(bookingData);
+            initPassButtons(bookingData); // Vincula tus botones de impresión y compartir con los datos reales
             localStorage.removeItem('naiguata_form_draft');
 
         } catch (err) {
             console.error('Error en registro:', err);
-            // Fallback
+            // Ejecución del respaldo en caso de desconexión o fallo RPC
             if (typeof addToOfflineQueue === 'function') addToOfflineQueue(bookingData);
             if (typeof showOfflineSuccess === 'function') showOfflineSuccess(bookingData);
             enviarEmailNotificacion(bookingData);
         }
     } else {
-        // Modo offline si Supabase no está listo
+        // Modo offline directo si el cliente Supabase no está instanciado
         if (typeof addToOfflineQueue === 'function') addToOfflineQueue(bookingData);
         if (typeof showOfflineSuccess === 'function') showOfflineSuccess(bookingData);
         enviarEmailNotificacion(bookingData);
@@ -1161,23 +1181,18 @@ function initPassButtons(booking) {
         };
     }
 
-    // 2. GUARDAR / IMPRIMIR EVITANDO LA PÁGINA EN BLANCO
+    // 2. GUARDAR / IMPRIMIR GENERANDO LA FICHA DE DETALLES COMPLETA
     const btnSave = document.getElementById('btn-print-pass');
     if (btnSave) {
         btnSave.onclick = () => {
-            if (!booking) {
-                alert('No se encontraron datos de registro para proceder con la impresión.');
-                return;
-            }
+            // Mapeamos los arreglos y servicios adicionales contratados de forma segura
+            const alquileres = booking.equipment_rentals && booking.equipment_rentals.length > 0
+                ? booking.equipment_rentals.join(', ')
+                : (booking.rentals && booking.rentals.length > 0 ? booking.rentals.join(', ') : 'Ninguno');
 
-            // Mapeamos arreglos y servicios adicionales de forma segura por si vienen vacíos u objetos
-            const alquileres = Array.isArray(booking.rentals) && booking.rentals.length > 0
-                ? booking.rentals.join(', ')
-                : (booking.equipment_rentals && booking.equipment_rentals.length > 0 ? booking.equipment_rentals.join(', ') : 'Ninguno');
-
-            const catering = Array.isArray(booking.catering) && booking.catering.length > 0
-                ? booking.catering.join(', ')
-                : (booking.catering_services && booking.catering_services.length > 0 ? booking.catering_services.join(', ') : 'Ninguno');
+            const catering = booking.catering_services && booking.catering_services.length > 0
+                ? booking.catering_services.join(', ')
+                : (booking.catering && booking.catering.length > 0 ? booking.catering.join(', ') : 'Ninguno');
 
             const portador = booking.porter_service && booking.porter_service !== 'No'
                 ? `Sí (${booking.porter_service})`
@@ -1185,102 +1200,84 @@ function initPassButtons(booking) {
 
             const totalUSD = typeof booking.total_usd === 'number'
                 ? booking.total_usd.toFixed(2)
-                : (parseFloat(booking.total_usd) ? parseFloat(booking.total_usd).toFixed(2) : '0.00');
+                : (booking.total_usd || '50.00');
 
-            // Abrimos la ventana limpia de impresión
-            const ventanaImpresion = window.open('', '_blank', 'width=850,height=900');
+            // Creamos la ventana temporal estructurando la ficha con todas sus secciones
+            const ventanaImpresion = window.open('', '_blank', 'height=850,width=800');
 
+            ventanaImpresion.document.write('<html><head><title>Ficha Completa de Abordaje - Naiguatá Expeditions</title>');
+            ventanaImpresion.document.write('<style>');
             ventanaImpresion.document.write(`
-                <html>
-                    <head>
-                        <title>Pase Completo de Abordaje - Naiguatá Expeditions</title>
-                        <style>
-                            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap');
-                            body { font-family: 'Outfit', sans-serif; color: #111; background: #fff; padding: 40px; line-height: 1.5; }
-                            .print-container { max-width: 700px; margin: 0 auto; border: 2px solid #111; padding: 30px; border-radius: 8px; }
-                            
-                            /* Encabezado Principal */
-                            .header-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border-bottom: 3px double #111; padding-bottom: 15px; }
-                            .brand-title { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
-                            .serial-badge { text-align: right; font-size: 18px; font-weight: 700; color: #10b981; }
-                            
-                            /* Secciones del Documento */
-                            .section-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; background: #f3f4f6; padding: 6px 10px; margin-top: 20px; margin-bottom: 12px; border-left: 4px solid #111; }
-                            
-                            /* Grillas de Información */
-                            .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 25px; margin-bottom: 10px; }
-                            .info-item { display: flex; flex-direction: column; }
-                            .info-label { font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase; margin-bottom: 2px; }
-                            .info-value { font-size: 14px; font-weight: 500; color: #000; }
-                            
-                            /* Bloques de texto completo (Alergias / Médicos) */
-                            .full-width { grid-column: span 2; }
-                            
-                            /* Tabla de Precios e Información de Pago */
-                            .payment-box { margin-top: 25px; border-top: 1px dashed #111; padding-top: 15px; display: flex; justify-content: space-between; align-items: center; }
-                            .total-amount { font-size: 22px; font-weight: 800; }
-                            
-                            /* Nota de pie */
-                            .print-footer { text-align: center; margin-top: 35px; font-size: 11px; color: #777; border-top: 1px solid #eee; padding-top: 15px; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="print-container">
-                            <table class="header-table">
-                               <tr>
-                                   <td class="brand-title">🏔️ NAIGUATÁ EXPEDITIONS</td>
-                                   <td class="serial-badge">PASE: ${booking.id || 'N/A'}</td>
-                               </tr>
-                            </table>
-
-                            <div class="section-title">1. Información del Senderista</div>
-                            <div class="info-grid">
-                                <div class="info-item"><span class="info-label">Nombre Completo</span><span class="info-value">${booking.name || 'No especificado'}</span></div>
-                                <div class="info-item"><span class="info-label">Género / Sexo</span><span class="info-value">${booking.gender || 'No especificado'}</span></div>
-                                <div class="info-item"><span class="info-label">WhatsApp</span><span class="info-value">${booking.whatsapp || 'No especificado'}</span></div>
-                                <div class="info-item"><span class="info-label">Correo Electrónico</span><span class="info-value">${booking.email || 'No especificado'}</span></div>
-                            </div>
-
-                            <div class="section-title">2. Logística de la Ruta (Pico Naiguatá)</div>
-                            <div class="info-grid">
-                                <div class="info-item"><span class="info-label">Fecha de Expedición</span><span class="info-value">${booking.date || 'No especificada'}</span></div>
-                                <div class="info-item"><span class="info-label">Código de Grupo</span><span class="info-value">${booking.group_code || 'INDIVIDUAL'}</span></div>
-                                <div class="info-item"><span class="info-label">Preferencia de Carpa</span><span class="info-value">${booking.tent_preference || 'Por asignar'}</span></div>
-                                <div class="info-item"><span class="info-label">Preferencia Dietética</span><span class="info-value">${booking.diet || 'Estándar'}</span></div>
-                            </div>
-
-                            <div class="section-title">3. Servicios Adicionales Contratados</div>
-                            <div class="info-grid">
-                                <div class="info-item full-width"><span class="info-label">Alquiler de Equipos</span><span class="info-value">${alquileres}</span></div>
-                                <div class="info-item full-width"><span class="info-label">Catering y Alimentación</span><span class="info-value">${catering}</span></div>
-                                <div class="info-item"><span class="info-label">Servicio de Portador</span><span class="info-value">${portador}</span></div>
-                            </div>
-
-                            <div class="section-title">4. Ficha Médica y de Seguridad</div>
-                            <div class="info-grid">
-                                <div class="info-item full-width"><span class="info-label">Alergias Declaradas</span><span class="info-value">${booking.allergies || 'Ninguna'}</span></div>
-                                <div class="info-item full-width"><span class="info-label">Condiciones Médicas / Observaciones</span><span class="info-value">${booking.medical || 'Ninguna.'}</span></div>
-                            </div>
-
-                            <div class="section-title">5. Transacción Financiera</div>
-                            <div class="info-grid">
-                                <div class="info-item"><span class="info-label">Método de Pago</span><span class="info-value">${booking.payment_method || 'No especificado'}</span></div>
-                                <div class="info-item"><span class="info-label">Nro de Referencia Bancaria</span><span class="info-value">${booking.reference_number || 'N/A'}</span></div>
-                            </div>
-
-                            <div class="payment-box">
-                                <div><span class="info-label" style="font-size:13px;">ESTADO: Verificación Manual Pendiente</span></div>
-                                <div class="total-amount">TOTAL: ${totalUSD} USD</div>
-                            </div>
-
-                            <div class="print-footer">
-                                <p>Este documento sirve como comprobante oficial de registro para la expedición al Pico Naiguatá.</p>
-                                <p><strong>Naiguatá Expeditions © 2026</strong> · Caracas, Venezuela · Cumbre a 2.765 msnm.</p>
-                            </div>
-                        </div>
-                    </body>
-                </html>
+                body { font-family: 'Inter', sans-serif; color: #111; padding: 40px; background: #fff; line-height: 1.5; }
+                .print-wrapper { border: 2px solid #111; padding: 30px; border-radius: 0px; max-width: 650px; margin: 0 auto; }
+                .header-table { width: 100%; border-bottom: 3px solid #111; padding-bottom: 10px; margin-bottom: 20px; }
+                .brand-title { font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+                .pass-id { font-size: 18px; font-weight: 700; color: #059669; text-align: right; }
+                .section-title { font-size: 13px; font-weight: 800; text-transform: uppercase; background: #f3f4f6; padding: 6px 10px; margin-top: 20px; margin-bottom: 12px; border-left: 4px solid #111; letter-spacing: 0.5px; }
+                .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 25px; padding: 0 10px; }
+                .info-item { display: flex; flex-direction: column; }
+                .label { font-size: 10px; text-transform: uppercase; color: #6b7280; font-weight: 700; margin-bottom: 2px; }
+                .value { font-size: 14px; color: #000; font-weight: 500; }
+                .footer-banner { margin-top: 35px; border-top: 1px dashed #cdcdd2; padding-top: 15px; text-align: center; }
+                .total-box { font-size: 18px; font-weight: 800; text-align: right; margin-top: 25px; padding-right: 10px; text-transform: uppercase; }
             `);
+            ventanaImpresion.document.write('</style></head><body>');
+            ventanaImpresion.document.write('<div class="print-wrapper">');
+
+            // Inyección estructurada de la ficha de inscripción
+            ventanaImpresion.document.write(`
+                <table class="header-table">
+                    <tr>
+                        <td class="brand-title">🏔️ Naiguatá Expeditions</td>
+                        <td class="pass-id">PASE: ${booking.id || 'NE-PENDIENTE'}</td>
+                    </tr>
+                </table>
+
+                <div class="section-title">1. Información del Senderista</div>
+                <div class="info-grid">
+                    <div class="info-item"><span class="label">Nombre Completo</span><span class="value">${booking.name || 'No especificado'}</span></div>
+                    <div class="info-item"><span class="label">Género / Sexo</span><span class="value">${booking.gender || 'No especificado'}</span></div>
+                    <div class="info-item"><span class="label">WhatsApp</span><span class="value">${booking.whatsapp || 'No especificado'}</span></div>
+                    <div class="info-item"><span class="label">Correo Electrónico</span><span class="value">${booking.email || 'No especificado'}</span></div>
+                </div>
+
+                <div class="section-title">2. Logística de la Ruta (Pico Naiguatá)</div>
+                <div class="info-grid">
+                    <div class="info-item"><span class="label">Fecha de Expedición</span><span class="value">${booking.date || 'No especificada'}</span></div>
+                    <div class="info-item"><span class="label">Código de Grupo</span><span class="value">${booking.group_code || 'INDIVIDUAL'}</span></div>
+                    <div class="info-item"><span class="label">Preferencia de Carpa</span><span class="value">${booking.tent_preference || 'Compartida'}</span></div>
+                    <div class="info-item"><span class="label">Preferencia Dietética</span><span class="value">${booking.diet || 'Estándar'}</span></div>
+                </div>
+
+                <div class="section-title">3. Servicios Adicionales Contratados</div>
+                <div class="info-grid">
+                    <div class="info-item"><span class="label">Alquiler de Equipos</span><span class="value">${alquileres}</span></div>
+                    <div class="info-item"><span class="label">Catering y Alimentación</span><span class="value">${catering}</span></div>
+                    <div class="info-item" style="grid-column: span 2;"><span class="label">Servicio de Portador</span><span class="value">${portador}</span></div>
+                </div>
+
+                <div class="section-title">4. Ficha Médica y de Seguridad</div>
+                <div class="info-grid">
+                    <div class="info-item"><span class="label">Alergias Declaradas</span><span class="value">${booking.allergies || 'Ninguna'}</span></div>
+                    <div class="info-item"><span class="label">Condiciones Médicas / Observaciones</span><span class="value">${booking.medical || 'Ninguna.'}</span></div>
+                </div>
+
+                <div class="section-title">5. Transacción Financiera</div>
+                <div class="info-grid">
+                    <div class="info-item"><span class="label">Método de Pago</span><span class="value">${booking.payment_method || 'No especificado'}</span></div>
+                    <div class="info-item"><span class="label">Nro de Referencia Bancaria</span><span class="value">${booking.reference_number || 'N/A'}</span></div>
+                </div>
+
+                <div class="total-box">Total: ${totalUSD} USD</div>
+
+                <div class="footer-banner">
+                    <p style="font-size: 11px; color: #6b7280; margin: 0;">Este documento sirve como comprobante oficial de registro para la expedición al Pico Naiguatá.</p>
+                    <p style="font-size: 10px; color: #9ca3af; margin-top: 5px; font-weight: bold;">Naiguatá Expeditions © 2026 · Caracas, Venezuela · Cumbre a 2.765 msnm.</p>
+                </div>
+            `);
+
+            ventanaImpresion.document.write('</div>');
+            ventanaImpresion.document.write('</body></html>');
 
             ventanaImpresion.document.close();
             ventanaImpresion.focus();
@@ -1288,7 +1285,7 @@ function initPassButtons(booking) {
             setTimeout(() => {
                 ventanaImpresion.print();
                 ventanaImpresion.close();
-            }, 600);
+            }, 500);
         };
     }
 
