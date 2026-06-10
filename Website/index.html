@@ -111,144 +111,140 @@
             </div>
 
             <!-- Route Map & Elevation Stepper Section -->
-            <section class="section-container section-unified">
-                <div id="route-section" class="section-container section-unified">
-                    <div class="section-wrapper">
-                        <h2 class="section-title">La Travesía: De La Julia a la Cumbre</h2>
-                        <p class="section-subtitle">Explora el perfil de elevación y los puntos clave que conquistaremos
-                            en
-                            el camino.</p>
+            <div id="route-section" class="section-container section-unified">
+                <div class="section-wrapper">
+                    <h2 class="section-title">La Travesía: De La Julia a la Cumbre</h2>
+                    <p class="section-subtitle">Explora el perfil de elevación y los puntos clave que conquistaremos
+                        en
+                        el camino.</p>
 
-                        <div class="route-explorer glass-panel">
+                    <div class="route-explorer glass-panel">
 
-                            <div class="elevation-profile-container">
-                                <svg class="elevation-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-                                    <defs>
-                                        <linearGradient id="elevation-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                            <stop offset="0%" stop-color="var(--primary-glow)" stop-opacity="0.35" />
-                                            <stop offset="100%" stop-color="var(--primary-glow)" stop-opacity="0.0" />
-                                        </linearGradient>
-                                    </defs>
+                        <div class="elevation-profile-container">
+                            <svg class="elevation-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                <defs>
+                                    <linearGradient id="elevation-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stop-color="var(--primary-glow)" stop-opacity="0.35" />
+                                        <stop offset="100%" stop-color="var(--primary-glow)" stop-opacity="0.0" />
+                                    </linearGradient>
+                                </defs>
 
-                                    <path d="M 0 90 L 18 78 L 38 65 L 58 48 L 78 25 L 100 10 L 100 100 L 0 100 Z"
-                                        fill="url(#elevation-grad)" />
+                                <path d="M 0 90 L 18 78 L 38 65 L 58 48 L 78 25 L 100 10 L 100 100 L 0 100 Z"
+                                    fill="url(#elevation-grad)" />
 
-                                    <path d="M 0 90 L 18 78 L 38 65 L 58 48 L 78 25 L 100 10" stroke="var(--primary)"
-                                        stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M 0 90 L 18 78 L 38 65 L 58 48 L 78 25 L 100 10" stroke="var(--primary)"
+                                    stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
 
-                                    <circle cx="0" cy="90" r="1.5" class="map-dot active" data-step="0"></circle>
-                                    <circle cx="18" cy="78" r="1.2" class="map-dot" data-step="1"></circle>
-                                    <circle cx="38" cy="65" r="1.2" class="map-dot" data-step="2"></circle>
-                                    <circle cx="58" cy="48" r="1.2" class="map-dot" data-step="3"></circle>
-                                    <circle cx="78" cy="25" r="1.2" class="map-dot" data-step="4"></circle>
-                                    <circle cx="100" cy="10" r="1.5" class="map-dot" data-step="5"></circle>
-                                </svg>
+                                <circle cx="0" cy="90" r="1.5" class="map-dot active" data-step="0"></circle>
+                                <circle cx="18" cy="78" r="1.2" class="map-dot" data-step="1"></circle>
+                                <circle cx="38" cy="65" r="1.2" class="map-dot" data-step="2"></circle>
+                                <circle cx="58" cy="48" r="1.2" class="map-dot" data-step="3"></circle>
+                                <circle cx="78" cy="25" r="1.2" class="map-dot" data-step="4"></circle>
+                                <circle cx="100" cy="10" r="1.5" class="map-dot" data-step="5"></circle>
+                            </svg>
 
-                                <div class="elevation-label start-lbl">La Julia (1,140m)</div>
-                                <div class="elevation-label end-lbl">Pico Naiguatá (2,765m)</div>
-                            </div>
+                            <div class="elevation-label start-lbl">La Julia (1,140m)</div>
+                            <div class="elevation-label end-lbl">Pico Naiguatá (2,765m)</div>
+                        </div>
 
-                            <div class="stepper-nav">
-                                <button class="step-nav-btn active" data-step="0">1. PGP La Julia</button>
-                                <button class="step-nav-btn" data-step="1">2. El Tanque</button>
-                                <button class="step-nav-btn" data-step="2">3. Mirador Edén</button>
-                                <button class="step-nav-btn" data-step="3">4. Dos Banderas</button>
-                                <button class="step-nav-btn" data-step="4">5. El Anfiteatro</button>
-                                <button class="step-nav-btn" data-step="5">6. La Cumbre</button>
-                            </div>
+                        <div class="stepper-nav">
+                            <button class="step-nav-btn active" data-step="0">1. PGP La Julia</button>
+                            <button class="step-nav-btn" data-step="1">2. El Tanque</button>
+                            <button class="step-nav-btn" data-step="2">3. Mirador Edén</button>
+                            <button class="step-nav-btn" data-step="3">4. Dos Banderas</button>
+                            <button class="step-nav-btn" data-step="4">5. El Anfiteatro</button>
+                            <button class="step-nav-btn" data-step="5">6. La Cumbre</button>
+                        </div>
 
-                            <div class="step-details-card" id="active-step-details">
-                            </div>
+                        <div class="step-details-card" id="active-step-details">
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
 
             <!-- Smart Packing Checklist Section -->
-            <section class="section-container section-unified">
-                <div id="checklist-section" class="section-container section-unified">
-                    <div class="section-wrapper">
-                        <h2 class="section-title">Planificador Inteligente de Equipaje</h2>
-                        <p class="section-subtitle">Nosotros proveemos lo pesado; tú preparas lo personal. Completa la
-                            lista
-                            para verificar tu nivel de preparación.</p>
+            <div id="checklist-section" class="section-container section-unified">
+                <div class="section-wrapper">
+                    <h2 class="section-title">Planificador Inteligente de Equipaje</h2>
+                    <p class="section-subtitle">Nosotros proveemos lo pesado; tú preparas lo personal. Completa la
+                        lista
+                        para verificar tu nivel de preparación.</p>
 
-                        <div class="checklist-grid">
-                            <div class="checklist-card glass-panel">
-                                <div class="checklist-header">
-                                    <span class="chk-badge badge-green">Provisto por el Guía</span>
-                                    <h3>Nosotros nos encargamos</h3>
-                                </div>
-                                <ul class="gear-list static-list">
-                                    <li>
-                                        <div class="gear-icon-wrapper">⛺</div>
-                                        <div class="gear-text">
-                                            <strong>Carpa de Montaña</strong>
-                                            <span>Instalada y lista para ti en el campamento del Anfiteatro.</span>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="gear-icon-wrapper">🍌</div>
-                                        <div class="gear-text">
-                                            <strong>Bolsa de Snacks de Salida</strong>
-                                            <span>Mix de frutos secos/deshidratados (50g), 2 barras energéticas caseras
-                                                de
-                                                50g y 1 cambur fresco.</span>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="gear-icon-wrapper">🎒</div>
-                                        <div class="gear-text">
-                                            <strong>Logística y Permisología</strong>
-                                            <span>Registro en Inparques, coordinación de seguridad y guiatura
-                                                experta.</span>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="gear-icon-wrapper">🩹</div>
-                                        <div class="gear-text">
-                                            <strong>Primeros Auxilios</strong>
-                                            <span>Botiquín grupal de montaña, oxímetro de pulso y radios de
-                                                comunicación.</span>
-                                        </div>
-                                    </li>
-                                </ul>
+                    <div class="checklist-grid">
+                        <div class="checklist-card glass-panel">
+                            <div class="checklist-header">
+                                <span class="chk-badge badge-green">Provisto por el Guía</span>
+                                <h3>Nosotros nos encargamos</h3>
+                            </div>
+                            <ul class="gear-list static-list">
+                                <li>
+                                    <div class="gear-icon-wrapper">⛺</div>
+                                    <div class="gear-text">
+                                        <strong>Carpa de Montaña</strong>
+                                        <span>Instalada y lista para ti en el campamento del Anfiteatro.</span>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="gear-icon-wrapper">🍌</div>
+                                    <div class="gear-text">
+                                        <strong>Bolsa de Snacks de Salida</strong>
+                                        <span>Mix de frutos secos/deshidratados (50g), 2 barras energéticas caseras
+                                            de
+                                            50g y 1 cambur fresco.</span>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="gear-icon-wrapper">🎒</div>
+                                    <div class="gear-text">
+                                        <strong>Logística y Permisología</strong>
+                                        <span>Registro en Inparques, coordinación de seguridad y guiatura
+                                            experta.</span>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="gear-icon-wrapper">🩹</div>
+                                    <div class="gear-text">
+                                        <strong>Primeros Auxilios</strong>
+                                        <span>Botiquín grupal de montaña, oxímetro de pulso y radios de
+                                            comunicación.</span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="checklist-card glass-panel highlight-border">
+                            <div class="checklist-header">
+                                <span class="chk-badge badge-orange">Requerido Obligatorio</span>
+                                <h3>Debes traer en tu mochila</h3>
                             </div>
 
-                            <div class="checklist-card glass-panel highlight-border">
-                                <div class="checklist-header">
-                                    <span class="chk-badge badge-orange">Requerido Obligatorio</span>
-                                    <h3>Debes traer en tu mochila</h3>
+                            <div class="preparation-tracker">
+                                <div class="tracker-info">
+                                    <span class="tracker-text">Nivel de Preparación:</span>
+                                    <span class="tracker-percentage" id="prep-percentage">0%</span>
                                 </div>
-
-                                <div class="preparation-tracker">
-                                    <div class="tracker-info">
-                                        <span class="tracker-text">Nivel de Preparación:</span>
-                                        <span class="tracker-percentage" id="prep-percentage">0%</span>
-                                    </div>
-                                    <div class="progress-bar-bg">
-                                        <div class="progress-bar-fill" id="prep-bar" style="width: 0%"></div>
-                                    </div>
-                                    <div class="warning-banner hidden" id="checklist-warning">
-                                        <svg class="warning-icon" viewBox="0 0 24 24" width="16" height="16"
-                                            stroke="currentColor" stroke-width="2" fill="none">
-                                            <path
-                                                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
-                                            </path>
-                                            <line x1="12" y1="9" x2="12" y2="13"></line>
-                                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                                        </svg>
-                                        <span id="warning-text">Faltan elementos de supervivencia críticos.</span>
-                                    </div>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" id="prep-bar" style="width: 0%"></div>
                                 </div>
-
-                                <ul class="gear-list interactive-list" id="interactive-gear-list">
-                                </ul>
+                                <div class="warning-banner hidden" id="checklist-warning">
+                                    <svg class="warning-icon" viewBox="0 0 24 24" width="16" height="16"
+                                        stroke="currentColor" stroke-width="2" fill="none">
+                                        <path
+                                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                                        </path>
+                                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                    </svg>
+                                    <span id="warning-text">Faltan elementos de supervivencia críticos.</span>
+                                </div>
                             </div>
+
+                            <ul class="gear-list interactive-list" id="interactive-gear-list">
+                            </ul>
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
 
             <!-- Booking / Registration Form Section -->
             <section id="booking-form-section" class="content-centered">
