@@ -818,94 +818,74 @@ async function handleFormSubmission(e) {
         submitBtn.innerHTML = `<span class="spinner-small"></span> Procesando registro...`;
     }
 
-    // 1. CAPTURA DIRECTA DESDE EL DOM (Garantiza los datos pase lo que pase con el servidor)
-    const name = formatTitleCase(document.getElementById('hiker-name').value.trim());
-    const email = document.getElementById('hiker-email').value.trim().toLowerCase();
-    const whatsapp = document.getElementById('hiker-whatsapp').value.trim();
-    const gender = document.getElementById('hiker-gender')?.value || 'No especificado';
-    const medical = document.getElementById('hiker-medical')?.value.trim() || 'Ninguna.';
-    const allergies = document.getElementById('hiker-allergies')?.value || 'Ninguna';
-    const dateVal = document.getElementById('expedition-date')?.value || document.getElementById('booking-date')?.value;
-    const paymentMethod = document.getElementById('payment-method')?.value;
-    const referenceNumber = document.getElementById('payment-reference') ? document.getElementById('payment-reference').value.trim() : 'N/A';
+    try {
+        // 1. CAPTURA DIRECTA Y SANITIZADA DESDE EL DOM REAL
+        const name = formatTitleCase(document.getElementById('hiker-name').value.trim());
+        const email = document.getElementById('hiker-email').value.trim().toLowerCase();
+        const whatsapp = document.getElementById('hiker-whatsapp').value.trim();
+        const gender = document.getElementById('hiker-gender')?.value || 'No especificado';
+        const medical = document.getElementById('hiker-medical')?.value.trim() || 'Ninguna.';
+        const allergies = document.getElementById('hiker-allergies')?.value || 'Ninguna';
 
-    const totalElement = document.getElementById('summary-total-usd') || document.getElementById('form-total-usd');
-    const totalUsd = totalElement ? parseFloat(totalElement.textContent.replace(/[^0-9.]/g, '')) : 50.00;
-    const passId = 'NE-' + Math.floor(100000 + Math.random() * 900000);
+        // Manejo de fechas alternas según el ID del formulario
+        const dateVal = document.getElementById('expedition-date')?.value || document.getElementById('booking-date')?.value || '';
+        const paymentMethod = document.getElementById('payment-method')?.value || 'No especificado';
+        const referenceNumber = document.getElementById('payment-reference') ? document.getElementById('payment-reference').value.trim() : 'N/A';
 
-    const dietValue = document.getElementById('dietary-preference')?.value || 'Estándar';
-    const tentValue = document.getElementById('tent-preference')?.value || 'Compartida';
+        const totalElement = document.getElementById('summary-total-usd') || document.getElementById('form-total-usd');
+        const totalUsd = totalElement ? parseFloat(totalElement.textContent.replace(/[^0-9.]/g, '')) : 50.00;
+        const passId = 'NE-' + Math.floor(100000 + Math.random() * 900000);
 
-    const porterRadio = document.querySelector('input[name="porter-option"]:checked');
-    const porterValue = porterRadio ? porterRadio.value : 'No';
+        // Opciones lógicas de preferencias
+        const dietValue = document.getElementById('dietary-preference')?.value || 'Estándar';
+        const tentValue = document.getElementById('tent-preference')?.value || 'Carpa compartida';
 
-    const groupCodeInput = document.getElementById('group-code')?.value.trim();
-    const finalGroupCode = (groupCodeInput && groupCodeInput.length > 0) ? groupCodeInput.toUpperCase() : 'INDIVIDUAL';
+        const porterRadio = document.querySelector('input[name="porter-option"]:checked');
+        const porterValue = porterRadio ? porterRadio.value : 'No';
 
-    // Captura limpia de los checkboxes marcados
-    const rentalsList = [];
-    document.querySelectorAll('.equipment-checkbox:checked').forEach(cb => {
-        rentalsList.push(cb.value);
-    });
+        const groupCodeInput = document.getElementById('group-code')?.value.trim();
+        const finalGroupCode = (groupCodeInput && groupCodeInput.length > 0) ? groupCodeInput.toUpperCase() : 'INDIVIDUAL';
 
-    const cateringList = [];
-    document.querySelectorAll('.catering-checkbox:checked').forEach(cb => {
-        cateringList.push(cb.value);
-    });
+        // Captura directa y real de los checkboxes marcados en el DOM
+        const rentalsList = [];
+        document.querySelectorAll('.equipment-checkbox:checked').forEach(cb => {
+            rentalsList.push(cb.value);
+        });
 
-    // Creamos el objeto de datos local súper sólido
-    const bookingData = {
-        id: passId,
-        date: dateVal,
-        name: name,
-        email: email,
-        whatsapp: whatsapp,
-        gender: gender,
-        medical: medical,
-        allergies: allergies,
-        total_usd: totalUsd,
-        payment_method: paymentMethod,
-        reference_number: referenceNumber,
-        rentals: rentalsList,         // Clave estándar local
-        equipment_rentals: rentalsList, // Respaldo por si acaso
-        catering: cateringList,        // Clave estándar local
-        catering_services: cateringList, // Respaldo por si acaso
-        diet: dietValue,
-        tent_preference: tentValue,
-        porter_service: porterValue,
-        group_code: finalGroupCode
-    };
+        const cateringList = [];
+        document.querySelectorAll('.catering-checkbox:checked').forEach(cb => {
+            cateringList.push(cb.value);
+        });
 
-    // 2. PERSISTENCIA EN SUPABASE (Aislada en su propio bloque para que si falla, la página siga)
-    if (typeof supabaseClient !== 'undefined' && supabaseClient) {
-        try {
-            console.log("Enviando datos a Supabase...");
+        // 2. CONSTRUCCIÓN DEL OBJETO DE DATOS UNIFICADO (Alimentación idéntica para todo el sistema)
+        const bookingData = {
+            id: passId,
+            date: dateVal,
+            name: name,
+            email: email,
+            whatsapp: whatsapp,
+            gender: gender,
+            medical: medical,
+            allergies: allergies,
+            total_usd: totalUsd,
+            payment_method: paymentMethod,
+            reference_number: referenceNumber,
+            rentals: rentalsList,                // Para renderizado local
+            equipment_rentals: rentalsList,      // Sincronización exacta con Supabase
+            catering: cateringList,              // Para renderizado local
+            catering_services: cateringList,     // Sincronización exacta con Supabase
+            diet: dietValue,
+            tent_preference: tentValue,
+            porter_service: porterValue,
+            group_code: finalGroupCode
+        };
 
-            // Intentamos usar el RPC
-            const { data, error } = await supabaseClient.rpc('registrar_excursionista', {
-                p_id: passId,
-                p_date: dateVal,
-                p_name: name,
-                p_email: email,
-                p_whatsapp: whatsapp,
-                p_group_code: finalGroupCode,
-                p_gender: gender,
-                p_tent_preference: tentValue,
-                p_allergies: allergies,
-                p_diet: dietValue,
-                p_medical: medical,
-                p_rentals: JSON.stringify(rentalsList),
-                p_catering: JSON.stringify(cateringList),
-                p_porter_service: porterValue,
-                p_total_usd: totalUsd,
-                p_payment_method: paymentMethod,
-                p_reference_number: referenceNumber
-            });
+        console.log("Objeto unificado generado:", bookingData);
 
-            if (error) {
-                console.warn("El procedimiento RPC falló o no existe. Intentando inserción directa en la tabla 'bookings'...");
-
-                // RESPALDO: Si la función RPC no existe, insertamos directo en la tabla como fila normal
+        // 3. PERSISTENCIA CONTROLADA EN LA BASE DE DATOS
+        if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+            try {
+                // Intento primario por inserción directa a la tabla (Garantiza consistencia estructural)
                 const { error: insertError } = await supabaseClient
                     .from('bookings')
                     .insert([{
@@ -928,32 +908,55 @@ async function handleFormSubmission(e) {
                         reference_number: referenceNumber
                     }]);
 
-                if (insertError) throw insertError;
+                if (insertError) {
+                    console.warn("Inserción directa falló, intentando procedimiento RPC alterno...");
+                    const { error: rpcError } = await supabaseClient.rpc('registrar_excursionista', {
+                        p_id: passId,
+                        p_date: dateVal,
+                        p_name: name,
+                        p_email: email,
+                        p_whatsapp: whatsapp,
+                        p_group_code: finalGroupCode,
+                        p_gender: gender,
+                        p_tent_preference: tentValue,
+                        p_allergies: allergies,
+                        p_diet: dietValue,
+                        p_medical: medical,
+                        p_rentals: JSON.stringify(rentalsList),
+                        p_catering: JSON.stringify(cateringList),
+                        p_porter_service: porterValue,
+                        p_total_usd: totalUsd,
+                        p_payment_method: paymentMethod,
+                        p_reference_number: referenceNumber
+                    });
+                    if (rpcError) throw rpcError;
+                }
+                console.log("Guardado exitoso en Supabase.");
+            } catch (dbErr) {
+                console.error("Fallo de red en base de datos, encolando localmente:", dbErr);
+                if (typeof addToOfflineQueue === 'function') addToOfflineQueue(bookingData);
             }
-            console.log("Sincronización con Supabase completada con éxito.");
-
-        } catch (dbErr) {
-            console.error("Error en base de datos, guardando en cola offline:", dbErr);
+        } else {
             if (typeof addToOfflineQueue === 'function') addToOfflineQueue(bookingData);
         }
-    } else {
-        if (typeof addToOfflineQueue === 'function') addToOfflineQueue(bookingData);
-    }
 
-    // 3. FLUJO DE ÉXITO INMEDIATO (Se ejecuta pase lo que pase con el servidor)
-    try {
+        // 4. FLUJO DE ÉXITO VISUAL E INTERFACES (Carga instantánea)
         enviarEmailNotificacion(bookingData);
         renderCheckoutSuccess(bookingData);
-        initPassButtons(bookingData); // Esto inyecta los datos exactos en tus botones de impresión
-        showView('success-view');     // Te lleva de inmediato a la pantalla de checkout
-        localStorage.removeItem('naiguata_form_draft');
-    } catch (uiErr) {
-        console.error("Error al renderizar la vista de éxito:", uiErr);
-    }
 
-    if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
+        // Inicializar los botones pasándole este objeto con los datos ya reales
+        initPassButtons(bookingData);
+
+        showView('success-view');
+        localStorage.removeItem('naiguata_form_draft');
+
+    } catch (err) {
+        console.error('Error crítico en el manejador:', err);
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
     }
 }
 
@@ -1166,13 +1169,13 @@ function initPassButtons(booking) {
             // Mapeamos los arreglos de forma segura por si vienen vacíos
             const alquileres = booking.equipment_rentals && booking.equipment_rentals.length > 0
                 ? booking.equipment_rentals.join(', ')
-                : 'Ninguno';
+                : (booking.rentals && booking.rentals.length > 0 ? booking.rentals.join(', ') : 'Ninguno');
 
             const catering = booking.catering_services && booking.catering_services.length > 0
                 ? booking.catering_services.join(', ')
-                : 'Ninguno';
+                : (booking.catering && booking.catering.length > 0 ? booking.catering.join(', ') : 'Ninguno');
 
-            const portador = booking.porter_service
+            const portador = booking.porter_service && booking.porter_service !== 'No'
                 ? `Sí (${booking.porter_service})`
                 : 'No requerido';
 
@@ -1192,7 +1195,8 @@ function initPassButtons(booking) {
                 `⛺ *LOGÍSTICA DE CAMPAMENTO:*\n` +
                 `• *Fecha:* ${booking.date || 'No especificada'}\n` +
                 `• *Código de Grupo:* ${booking.group_code || 'Individual'}\n` +
-                `• *Alojamiento:* ${booking.tent_preference || 'Carpa compartida'}\n\n` +
+                `• *Alojamiento:* ${booking.tent_preference || 'Carpa compartida'}\n` +
+                `• *Dieta:* ${booking.diet || 'Estándar'}\n\n` +
                 `🎒 *SERVICIOS ADICIONALES:*\n` +
                 `• *Alquiler de Equipos:* ${alquileres}\n` +
                 `• *Catering/Comidas:* ${catering}\n` +
