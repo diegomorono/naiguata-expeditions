@@ -2898,46 +2898,58 @@ section:not(:first-of-type),
 }
 
 /* ==========================================================================
-   LIENZO ÚNICO VERDE OSCURO (SIN CORTES NI FRANJAS)
+   LIENZO ÚNICO DEFINITIVO (VERDE ABISAL) Y TARJETAS FLOTANTES
    ========================================================================== */
 
-/* 1. El color base se aplica SOLO al fondo principal de la página */
+/* 1. Fondo Global Estricto (Verde muy oscuro, casi negro) */
 html,
 body {
-    background-color: #051009 !important;
-    /* Negro muy oscuro con un toque sutil de verde montaña */
+    background-color: #030805 !important;
     background-image: none !important;
 }
 
-/* 2. Volvemos TRANSPARENTES todos los contenedores para eliminar las franjas (Brushes Rojos) */
+/* 2. Destruir cualquier fondo en secciones, contenedores internos y pseudo-elementos */
 header,
-.nav-container,
-#hero,
+nav,
 main,
-.main-content,
 section,
+footer,
+.container,
+.nav-container,
+.footer-container,
+.main-content,
 .route-section,
 .booking-section,
-.inclusions-section,
-.features-section,
-.backpack-section,
-#form-step-container,
-footer,
-.app-footer {
+#hero,
+#form-step-container {
     background-color: transparent !important;
-    /* Deja ver el fondo #051009 del body */
     background-image: none !important;
-    /* Elimina cualquier degradado o foto de fondo que estorbe */
     border: none !important;
     box-shadow: none !important;
 }
 
-/* 3. Aseguramos que las tarjetas mantengan el contraste para que floten (Brush Azul) */
+/* Apagar brillos o overlays inyectados por CSS */
+body::before,
+body::after,
+main::before,
+main::after,
+section::before,
+section::after {
+    display: none !important;
+    background: none !important;
+}
+
+/* 3. Asegurar que TUS TARJETAS tengan fondo propio para que destaquen y floten */
 .inclusion-card,
 .feature-card,
 .form-step-card,
 .payment-grid {
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
-    /* Sombra para dar el efecto de flotado */
+    background-color: #0a140d !important;
+    /* Un verde-gris un 5% más claro que el fondo */
+    border: 1px solid rgba(16, 185, 129, 0.25) !important;
+    /* Borde esmeralda */
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8) !important;
+    /* Sombra profunda */
+    backdrop-filter: blur(10px) !important;
+    border-radius: 12px !important;
 }
