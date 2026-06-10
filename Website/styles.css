@@ -451,16 +451,6 @@ main.main-content,
    HERO & PRICING
    ========================================================================== */
 
-.hero-section {
-    max-width: 1100px;
-    margin: 0 auto;
-    /* Esto centra el bloque */
-    padding: 60px 20px;
-    /* Esto le da el aire superior e inferior */
-    width: 100%;
-    /* Asegura que no se desborde */
-}
-
 .hero-content {
     display: flex;
     flex-direction: column;
@@ -1887,32 +1877,26 @@ textarea:focus {
    RESPONSIVE DESIGN BREAKPOINTS
    ========================================================================== */
 
-@media (max-width: 968px) {
-    .hero-section {
-        grid-template-columns: 1fr;
-        gap: 30px;
-    }
+.pricing-card-wrapper {
+    justify-content: center;
+}
 
-    .pricing-card-wrapper {
-        justify-content: center;
-    }
+.pricing-card {
+    max-width: 450px;
+}
 
-    .pricing-card {
-        max-width: 450px;
-    }
+.checklist-grid {
+    grid-template-columns: 1fr;
+}
 
-    .checklist-grid {
-        grid-template-columns: 1fr;
-    }
+.admin-grid {
+    grid-template-columns: 1fr;
+}
 
-    .admin-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .step-details-card {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
+.step-details-card {
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
 }
 
 @media (max-width: 600px) {
@@ -2956,18 +2940,6 @@ section::after {
     background: none !important;
 }
 
-/* HERO MEJORADO - Fondo unificado y más impacto */
-.hero-section {
-    display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: 60px;
-    align-items: center;
-    padding: 80px 0 100px !important;
-    max-width: 1200px;
-    margin: 0 auto;
-    position: relative;
-}
-
 .hero-content {
     max-width: 580px;
 }
@@ -3002,30 +2974,6 @@ section::after {
 
 .pricing-card:hover {
     transform: translateY(0);
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-    .hero-section {
-        grid-template-columns: 1fr;
-        gap: 40px;
-        text-align: center;
-    }
-
-    .pricing-card-wrapper {
-        max-width: 380px;
-        margin: 0 auto;
-    }
-}
-
-/* Clase contenedora para centrar el contenido y dar orden */
-.section-wrapper {
-    max-width: 1100px;
-    /* Limita el ancho para que no toque los bordes */
-    margin: 0 auto;
-    /* Centra automáticamente el bloque */
-    padding: 0 20px;
-    /* Evita que el contenido pegue en los bordes en móviles */
 }
 
 /* Unificación de color de fondo */
@@ -3082,23 +3030,6 @@ section::after {
     }
 }
 
-/* Esto fuerza la estructura lado a lado solo en el Hero */
-.hero-section .section-wrapper {
-    display: grid;
-    grid-template-columns: 1fr 450px;
-    /* Columna izquierda flexible, columna derecha fija */
-    gap: 40px;
-    align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-/* Ajuste para que en móviles no se desconfigure */
-@media (max-width: 992px) {
-    .hero-section .section-wrapper {
-        grid-template-columns: 1fr;
-    }
-}
 
 /* ==========================================================================
    UNIFICACIÓN VISUAL: BOOKING FORM
@@ -3166,4 +3097,40 @@ section::after {
     border: 0;
     border-top: 1px solid var(--panel-border);
     margin: 15px 0;
+}
+
+/* --- CONFIGURACIÓN DEFINITIVA HERO SECTION --- */
+
+/* 1. Contenedor exterior: ocupa todo el ancho, solo da aire (padding) */
+.hero-section {
+    width: 100%;
+    padding: 80px 20px 100px;
+    position: relative;
+    background: transparent;
+}
+
+/* 2. Wrapper central: EL QUE REALMENTE CENTRA TODO */
+.section-wrapper {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    /* Proporción de columnas */
+    gap: 60px;
+    align-items: center;
+    max-width: 1100px;
+    /* Aquí limitas el ancho total */
+    margin: 0 auto;
+    /* ESTO ES LO QUE CENTRA EL BLOQUE EN LA PANTALLA */
+}
+
+/* 3. Ajuste Responsivo: Para que en móviles se apile */
+@media (max-width: 950px) {
+    .section-wrapper {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .hero-content {
+        margin: 0 auto;
+        max-width: 600px;
+    }
 }
