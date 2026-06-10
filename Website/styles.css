@@ -3169,3 +3169,32 @@ section::after {
     /* Aquí no usamos !important. Si necesitas espacio extra, úsalo aquí */
     padding: 40px 20px;
 }
+
+/* --- REGLA DE EMERGENCIA: FIJADOR DE SECCIONES --- */
+
+/* 1. Selecciona cualquier sección que NO sea el hero */
+section:not(#hero-section) {
+    background-color: var(--background) !important;
+    /* Fuerza el color de fondo */
+    padding: 60px 20px !important;
+    /* Fuerza el espacio */
+    text-align: center !important;
+    /* Fuerza que todo el texto se centre */
+    display: block !important;
+    width: 100% !important;
+}
+
+/* 2. Asegura que los contenedores internos (divs) dentro de esas secciones también se centren */
+section:not(#hero-section) div {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
+}
+
+/* 3. Corrección específica para que los textos no se desalineen */
+section:not(#hero-section) h2,
+section:not(#hero-section) p,
+section:not(#hero-section) ul {
+    text-align: center !important;
+    margin: 10px auto !important;
+}
