@@ -37,6 +37,29 @@
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* 1. Fondo uniforme para toda la página */
+body {
+    background-color: var(--background);
+    /* Usa la variable que ya tienes */
+    color: var(--text);
+    margin: 0;
+    padding: 0;
+}
+
+/* 2. Clase maestra para centrar contenido */
+.content-centered {
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+    /* ESTO CENTRA TODOS LOS TEXTOS */
+    padding: 60px 20px;
+}
+
+/* 3. Asegurar que las secciones principales no tengan paddings forzados */
+section {
+    width: 100%;
+}
+
 /* ==========================================================================
    BASE STYLES & RESET
    ========================================================================== */
@@ -3111,6 +3134,7 @@ section::after {
     /* Aquí limitas el ancho total */
     margin: 0 auto;
     /* ESTO ES LO QUE CENTRA EL BLOQUE EN LA PANTALLA */
+    text-align: center;
 }
 
 /* 3. Ajuste Responsivo: Para que en móviles se apile */
