@@ -1030,7 +1030,7 @@ main.main-content,
 .form-input-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 3px;
 }
 
 .form-input-wrapper.full-width {
