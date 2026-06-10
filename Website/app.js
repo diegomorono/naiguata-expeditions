@@ -1165,32 +1165,119 @@ function initPassButtons(booking) {
     const btnSave = document.getElementById('btn-print-pass');
     if (btnSave) {
         btnSave.onclick = () => {
-            // Buscamos el contenedor exacto que pusiste en tu HTML
-            const checkoutElement = document.getElementById('printable-pass-card');
-
-            if (!checkoutElement) {
-                alert('No se pudo encontrar el pase para imprimir.');
+            if (!booking) {
+                alert('No se encontraron datos de registro para proceder con la impresión.');
                 return;
             }
 
-            // Creamos una ventana temporal limpia
-            const ventanaImpresion = window.open('', '_blank', 'width=800,height=600');
+            // Mapeamos arreglos y servicios adicionales de forma segura por si vienen vacíos u objetos
+            const alquileres = Array.isArray(booking.rentals) && booking.rentals.length > 0
+                ? booking.rentals.join(', ')
+                : (booking.equipment_rentals && booking.equipment_rentals.length > 0 ? booking.equipment_rentals.join(', ') : 'Ninguno');
+
+            const catering = Array.isArray(booking.catering) && booking.catering.length > 0
+                ? booking.catering.join(', ')
+                : (booking.catering_services && booking.catering_services.length > 0 ? booking.catering_services.join(', ') : 'Ninguno');
+
+            const portador = booking.porter_service && booking.porter_service !== 'No'
+                ? `Sí (${booking.porter_service})`
+                : 'No requerido';
+
+            const totalUSD = typeof booking.total_usd === 'number'
+                ? booking.total_usd.toFixed(2)
+                : (parseFloat(booking.total_usd) ? parseFloat(booking.total_usd).toFixed(2) : '0.00');
+
+            // Abrimos la ventana limpia de impresión
+            const ventanaImpresion = window.open('', '_blank', 'width=850,height=900');
 
             ventanaImpresion.document.write(`
                 <html>
                     <head>
-                        <title>Pase de Abordaje - Naiguatá Expeditions</title>
+                        <title>Pase Completo de Abordaje - Naiguatá Expeditions</title>
                         <style>
-                            body { font-family: 'Outfit', sans-serif; color: #000; background: #fff; padding: 20px; }
-                            .pass-card { border: 2px solid #000; padding: 20px; max-width: 500px; margin: auto; }
-                            .pass-label { font-size: 10px; color: #666; text-transform: uppercase; display: block; }
-                            .pass-value { font-size: 14px; font-weight: 700; color: #000; }
-                            .pass-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-                            .pass-brand-logo { font-weight: 800; border-bottom: 2px solid #000; padding-bottom: 5px; }
+                            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap');
+                            body { font-family: 'Outfit', sans-serif; color: #111; background: #fff; padding: 40px; line-height: 1.5; }
+                            .print-container { max-width: 700px; margin: 0 auto; border: 2px solid #111; padding: 30px; border-radius: 8px; }
+                            
+                            /* Encabezado Principal */
+                            .header-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border-bottom: 3px double #111; padding-bottom: 15px; }
+                            .brand-title { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+                            .serial-badge { text-align: right; font-size: 18px; font-weight: 700; color: #10b981; }
+                            
+                            /* Secciones del Documento */
+                            .section-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; background: #f3f4f6; padding: 6px 10px; margin-top: 20px; margin-bottom: 12px; border-left: 4px solid #111; }
+                            
+                            /* Grillas de Información */
+                            .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 25px; margin-bottom: 10px; }
+                            .info-item { display: flex; flex-direction: column; }
+                            .info-label { font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase; margin-bottom: 2px; }
+                            .info-value { font-size: 14px; font-weight: 500; color: #000; }
+                            
+                            /* Bloques de texto completo (Alergias / Médicos) */
+                            .full-width { grid-column: span 2; }
+                            
+                            /* Tabla de Precios e Información de Pago */
+                            .payment-box { margin-top: 25px; border-top: 1px dashed #111; padding-top: 15px; display: flex; justify-content: space-between; align-items: center; }
+                            .total-amount { font-size: 22px; font-weight: 800; }
+                            
+                            /* Nota de pie */
+                            .print-footer { text-align: center; margin-top: 35px; font-size: 11px; color: #777; border-top: 1px solid #eee; padding-top: 15px; }
                         </style>
                     </head>
                     <body>
-                        ${checkoutElement.innerHTML}
+                        <div class="print-container">
+                            <table class="header-table">
+                               <tr>
+                                   <td class="brand-title">🏔️ NAIGUATÁ EXPEDITIONS</td>
+                                   <td class="serial-badge">PASE: ${booking.id || 'N/A'}</td>
+                               </tr>
+                            </table>
+
+                            <div class="section-title">1. Información del Senderista</div>
+                            <div class="info-grid">
+                                <div class="info-item"><span class="info-label">Nombre Completo</span><span class="info-value">${booking.name || 'No especificado'}</span></div>
+                                <div class="info-item"><span class="info-label">Género / Sexo</span><span class="info-value">${booking.gender || 'No especificado'}</span></div>
+                                <div class="info-item"><span class="info-label">WhatsApp</span><span class="info-value">${booking.whatsapp || 'No especificado'}</span></div>
+                                <div class="info-item"><span class="info-label">Correo Electrónico</span><span class="info-value">${booking.email || 'No especificado'}</span></div>
+                            </div>
+
+                            <div class="section-title">2. Logística de la Ruta (Pico Naiguatá)</div>
+                            <div class="info-grid">
+                                <div class="info-item"><span class="info-label">Fecha de Expedición</span><span class="info-value">${booking.date || 'No especificada'}</span></div>
+                                <div class="info-item"><span class="info-label">Código de Grupo</span><span class="info-value">${booking.group_code || 'INDIVIDUAL'}</span></div>
+                                <div class="info-item"><span class="info-label">Preferencia de Carpa</span><span class="info-value">${booking.tent_preference || 'Por asignar'}</span></div>
+                                <div class="info-item"><span class="info-label">Preferencia Dietética</span><span class="info-value">${booking.diet || 'Estándar'}</span></div>
+                            </div>
+
+                            <div class="section-title">3. Servicios Adicionales Contratados</div>
+                            <div class="info-grid">
+                                <div class="info-item full-width"><span class="info-label">Alquiler de Equipos</span><span class="info-value">${alquileres}</span></div>
+                                <div class="info-item full-width"><span class="info-label">Catering y Alimentación</span><span class="info-value">${catering}</span></div>
+                                <div class="info-item"><span class="info-label">Servicio de Portador</span><span class="info-value">${portador}</span></div>
+                            </div>
+
+                            <div class="section-title">4. Ficha Médica y de Seguridad</div>
+                            <div class="info-grid">
+                                <div class="info-item full-width"><span class="info-label">Alergias Declaradas</span><span class="info-value">${booking.allergies || 'Ninguna'}</span></div>
+                                <div class="info-item full-width"><span class="info-label">Condiciones Médicas / Observaciones</span><span class="info-value">${booking.medical || 'Ninguna.'}</span></div>
+                            </div>
+
+                            <div class="section-title">5. Transacción Financiera</div>
+                            <div class="info-grid">
+                                <div class="info-item"><span class="info-label">Método de Pago</span><span class="info-value">${booking.payment_method || 'No especificado'}</span></div>
+                                <div class="info-item"><span class="info-label">Nro de Referencia Bancaria</span><span class="info-value">${booking.reference_number || 'N/A'}</span></div>
+                            </div>
+
+                            <div class="payment-box">
+                                <div><span class="info-label" style="font-size:13px;">ESTADO: Verificación Manual Pendiente</span></div>
+                                <div class="total-amount">TOTAL: ${totalUSD} USD</div>
+                            </div>
+
+                            <div class="print-footer">
+                                <p>Este documento sirve como comprobante oficial de registro para la expedición al Pico Naiguatá.</p>
+                                <p><strong>Naiguatá Expeditions © 2026</strong> · Caracas, Venezuela · Cumbre a 2.765 msnm.</p>
+                            </div>
+                        </div>
                     </body>
                 </html>
             `);
@@ -1201,7 +1288,7 @@ function initPassButtons(booking) {
             setTimeout(() => {
                 ventanaImpresion.print();
                 ventanaImpresion.close();
-            }, 500);
+            }, 600);
         };
     }
 
