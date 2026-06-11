@@ -80,4 +80,75 @@ function calculateFormCosts() {
     document.getElementById('summary-total-ves')?.textContent = new Intl.NumberFormat('es-VE', { style: 'currency', currency: 'VES' }).format(totalVES);
 }
 
-// ... (handleFormSubmission, sanearTexto, saveFormDraft, restoreFormDraft se mantienen IGUAL) ...
+// --- LÓGICA DE PERSISTENCIA Y ENVÍO ---
+
+async function handleFormSubmission(e) {
+    e.preventDefault();
+    const form = e.target;
+    const btnSubmit = document.getElementById('btn-submit-booking');
+
+    // Desactivar botón para evitar envíos duplicados
+    if (btnSubmit) btnSubmit.disabled = true;
+
+    try {
+        const supabase = await getSupabaseClient();
+
+        // Recopilación de datos
+        const formData = new FormData(form);
+        const registrationPayload = {
+            name: sanearTexto(formData.get('name')),
+            email: sanearTexto(formData.get('email')),
+            whatsapp: sanearTexto(formData.get('whatsapp')),
+            date: formData.get('date'),
+            gender: formData.get('gender'),
+            tent_preference: formData.get('tent_preference'),
+            medical: sanearTexto(formData.get('medical')),
+            allergies: sanearTexto(formData.get('allergies')),
+            payment_method: formData.get('payment_method'),
+            reference_number: sanearTexto(formData.get('reference_number')),
+            // Aquí capturamos los precios dinámicos calculados
+            total_usd: parseFloat(document.getElementById('summary-total-usd')?.textContent.replace(/[^0-9.]/g, '') || 0),
+            status: '🟡 Pendiente por Verificar'
+        };
+
+        // --- CORRECCIÓN CRÍTICA DE SINTAXIS ---
+        // Asegúrate de usar 'const { error }' y no asignar variables dentro del if
+        const { error } = await supabase.from('registrations').insert([registrationPayload]);
+
+        if (error) throw error;
+
+        alert("¡Inscripción exitosa! Nos vemos en el Ávila.");
+        localStorage.removeItem('naiguata_form_draft');
+        form.reset();
+
+    } catch (err) {
+        console.error("Error al enviar:", err);
+        alert("Hubo un error al procesar tu inscripción. Revisa la consola.");
+    } finally {
+        if (btnSubmit) btnSubmit.disabled = false;
+    }
+}
+
+function sanearTexto(texto) {
+    if (!texto) return '';
+    // Elimina caracteres peligrosos para evitar inyecciones XSS básicas
+    return texto.toString().replace(/[<>]/g, '');
+}
+
+function saveFormDraft() {
+    const form = document.getElementById('booking-form');
+    if (!form) return;
+    const data = new FormData(form);
+    const obj = Object.fromEntries(data.entries());
+    localStorage.setItem('naiguata_form_draft', JSON.stringify(obj));
+}
+
+function restoreFormDraft() {
+    const saved = localStorage.getItem('naiguata_form_draft');
+    if (!saved) return;
+    const data = JSON.parse(saved);
+    Object.keys(data).forEach(key => {
+        const input = document.querySelector(`[name="${key}"]`);
+        if (input) input.value = data[key];
+    });
+}
