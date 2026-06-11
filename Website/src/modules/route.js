@@ -1,7 +1,6 @@
 /* ==========================================================================
    DOMINIO DE RUTA - PERFIL DE ELEVACIÓN Y PASOS DEL AVILA
    ========================================================================== */
-
 import { appState } from '../config/state.js';
 
 export const routeSteps = [
@@ -13,32 +12,38 @@ export const routeSteps = [
     { name: "Pico Naiguatá", alt: 2765, dist: "8.5 km", desc: "La Cumbre Máxima de la Cordillera de la Costa. El icónico hito de la Cruz. Descenso de temperatura por debajo de 10°C.", icon: "✝️" }
 ];
 
+// Escuchamos el evento de datos listos para inicializar la UI
+window.addEventListener('app:data-ready', () => {
+    initElevationStepper();
+    renderRouteGraphic(); // Dibujamos el gráfico una vez la UI esté lista
+});
+
 export function initElevationStepper() {
-    const cards = document.querySelectorAll('.step-card');
-    cards.forEach(card => {
-        card.addEventListener('click', () => {
+    // Delegación de eventos: Escuchamos en el padre, no en cada tarjeta
+    const container = document.getElementById('route-container');
+    if (!container) return;
+
+    container.addEventListener('click', (e) => {
+        const card = e.target.closest('.step-card');
+        if (card) {
             const idx = parseInt(card.getAttribute('data-step-index') || '0', 10);
             showRouteDetails(idx);
-        });
+        }
     });
 }
 
 function showRouteDetails(index) {
     if (index < 0 || index >= routeSteps.length) return;
-    
+
     appState.activeStepIndex = index;
     const step = routeSteps[index];
 
-    // Actualización visual de las tarjetas del DOM
+    // Actualización de clases (usando delegación también aquí sería ideal, pero esto es correcto)
     document.querySelectorAll('.step-card').forEach((card, idx) => {
-        if (idx === index) {
-            card.classList.add('active');
-        } else {
-            card.classList.remove('active');
-        }
+        card.classList.toggle('active', idx === index);
     });
 
-    // Inyección de textos descriptivos dinámicos
+    // Inyección de textos
     const nodeIcon = document.getElementById('route-detail-icon');
     const nodeName = document.getElementById('route-detail-name');
     const nodeAlt = document.getElementById('route-detail-alt');
@@ -51,24 +56,26 @@ function showRouteDetails(index) {
     if (nodeDist) nodeDist.textContent = step.dist;
     if (nodeDesc) nodeDesc.textContent = step.desc;
 
-    // Repintar el lienzo gráfico si aplica
     renderRouteGraphic();
 }
 
 export function renderRouteGraphic() {
     const canvas = document.getElementById('elevation-canvas');
     if (!canvas) return;
+
+    // Configuración de resolución (si el elemento no tiene tamaño, no renderiza)
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     const W = canvas.clientWidth;
     const H = canvas.clientHeight;
+    if (W === 0 || H === 0) return; // Protección si el elemento está oculto
+
     canvas.width = W;
     canvas.height = H;
 
     ctx.clearRect(0, 0, W, H);
-
-    // Gradiente ambiental para la montaña
+    // ... (El resto de tu lógica de canvas se mantiene igual)
     const gridGrad = ctx.createLinearGradient(0, 0, 0, H);
     gridGrad.addColorStop(0, 'rgba(16, 185, 129, 0.25)');
     gridGrad.addColorStop(1, 'rgba(8, 11, 15, 0.9)');
@@ -79,9 +86,8 @@ export function renderRouteGraphic() {
 
     ctx.beginPath();
     ctx.moveTo(0, H);
-
     const stepX = W / (routeSteps.length - 1);
-    const maxAlt = 3000; 
+    const maxAlt = 3000;
 
     routeSteps.forEach((s, idx) => {
         const x = idx * stepX;
@@ -94,8 +100,7 @@ export function renderRouteGraphic() {
     ctx.fill();
     ctx.stroke();
 
-    // Dibujar indicador del nodo activo en el gráfico
-    const activeIdx = appState.activeStepIndex;
+    const activeIdx = appState.activeStepIndex || 0;
     const actX = activeIdx * stepX;
     const actY = H - (routeSteps[activeIdx].alt / maxAlt) * (H - 40);
 
@@ -105,7 +110,5 @@ export function renderRouteGraphic() {
     ctx.beginPath();
     ctx.arc(actX, actY, 8, 0, Math.PI * 2);
     ctx.fill();
-
-    // Reset de sombras
     ctx.shadowBlur = 0;
 }

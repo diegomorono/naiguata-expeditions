@@ -32,21 +32,19 @@ export async function resolveBcvRate() {
 export async function loadSystemSettings() {
     try {
         const supabase = await getSupabaseClient();
-
         console.log("[Naiguatá API] Iniciando carga de catálogos...");
 
-        // Usamos allSettled para que si un fallo no bloquee los otros
         const [invRes, servRes, catRes] = await Promise.allSettled([
-            supabase.from('inventory_stock').select('*'), // QUITAMOS EL FILTRO POR AHORA para probar
+            supabase.from('inventory_stock').select('*'),
             supabase.from('logistic_services').select('*'),
             supabase.from('catering_inventory').select('*')
         ]);
 
-        // Procesamiento seguro de resultados
+        // Procesamiento seguro
         if (invRes.status === 'fulfilled' && invRes.value.data) {
             appState.inventory = invRes.value.data;
         } else {
-            console.error("Fallo en inventory_stock:", invRes.reason || invRes.value?.error);
+            console.error("Error en inventory_stock:", invRes.reason || invRes.value?.error);
         }
 
         if (servRes.status === 'fulfilled' && servRes.value.data) {
@@ -57,10 +55,16 @@ export async function loadSystemSettings() {
             appState.cateringCatalog = catRes.value.data;
         }
 
-        // Renderizar componentes una vez cargados los datos
-        // Asegúrate de disparar eventos de refresco aquí si es necesario
-        console.log("[Naiguatá API] Catálogos sincronizados.");
+        // --- ARQUITECTURA DE DATOS LISTOS ---
+        console.log("[Naiguatá API] Catálogos cargados. Total items:", {
+            inventory: appState.inventory?.length || 0,
+            catering: appState.cateringCatalog?.length || 0
+        });
+
+        // DISPARADOR GLOBAL: Avisamos a los módulos que los datos existen
+        window.dispatchEvent(new CustomEvent('app:data-ready'));
+
     } catch (error) {
-        console.error("[Naiguatá API] Error crítico:", error);
+        console.error("[Naiguatá API] Error crítico en red:", error);
     }
 }

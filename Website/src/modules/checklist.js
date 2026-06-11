@@ -1,47 +1,61 @@
 /* ==========================================================================
-   DOMINIO DE EQUIPAMIENTO - PLANIFICADOR INTELIGENTE DE MOCHILA
+   DOMINIO DE EQUIPAMIENTO - PLANIFICADOR DINÁMICO
    ========================================================================== */
+import { appState } from '../config/state.js';
 
-export function initGearChecklist() {
-    const checkboxes = document.querySelectorAll('.gear-checkbox');
-    
-    checkboxes.forEach(box => {
-        box.addEventListener('change', () => {
-            // Animación suave de tachado al contenedor visual
-            const itemElement = box.closest('.gear-item');
-            if (box.checked) {
+// Escuchamos el evento de datos listos
+window.addEventListener('app:data-ready', () => {
+    console.log("[Checklist] Renderizando checklist dinámico...");
+    renderGearChecklist();
+});
+
+export function renderGearChecklist() {
+    const container = document.getElementById('checklist-container');
+    if (!container) return;
+
+    // 1. Renderizado basado en el estado (appState.inventory)
+    // Asumimos que quieres mostrar todos los items del inventario en el checklist
+    container.innerHTML = appState.inventory.map(item => `
+        <div class="gear-item">
+            <input type="checkbox" class="gear-checkbox" id="gear-${item.id}">
+            <label for="gear-${item.id}">${item.name}</label>
+        </div>
+    `).join('');
+
+    // 2. Delegación de eventos (¡Clave para arquitectura profesional!)
+    // En lugar de añadir listeners a cada caja, lo ponemos en el padre
+    container.addEventListener('change', (e) => {
+        if (e.target.classList.contains('gear-checkbox')) {
+            const itemElement = e.target.closest('.gear-item');
+            if (e.target.checked) {
                 itemElement?.classList.add('checked-item');
             } else {
                 itemElement?.classList.remove('checked-item');
             }
             updateChecklistProgress();
-        });
+        }
     });
 
-    // Ejecución inicial para calcular estado base
+    // Ejecución inicial de la barra de progreso
     updateChecklistProgress();
 }
 
 function updateChecklistProgress() {
     const totalItems = document.querySelectorAll('.gear-checkbox').length;
     const checkedItems = document.querySelectorAll('.gear-checkbox:checked').length;
-    
+
     const pct = totalItems > 0 ? Math.round((checkedItems / totalItems) * 100) : 0;
-    
+
     const bar = document.getElementById('checklist-progress-bar');
     const label = document.getElementById('checklist-progress-text');
 
-    if (bar) bar.style.width = `${pct}%`;
-    if (label) label.textContent = `${pct}% de tu equipo obligatorio listo`;
-
-    // Cambio de colores dinámicos de la barra según nivel de preparación térmica y de seguridad
     if (bar) {
-        if (pct < 40) {
-            bar.style.backgroundColor = '#ef4444'; // Alerta / Insuficiente
-        } else if (pct < 85) {
-            bar.style.backgroundColor = '#f59e0b'; // Advertencia / En Progreso
-        } else {
-            bar.style.backgroundColor = '#10b981'; // Listo para ascenso seguro
-        }
+        bar.style.width = `${pct}%`;
+        // Cambio de colores dinámicos
+        if (pct < 40) bar.style.backgroundColor = '#ef4444';
+        else if (pct < 85) bar.style.backgroundColor = '#f59e0b';
+        else bar.style.backgroundColor = '#10b981';
     }
+
+    if (label) label.textContent = `${pct}% de tu equipo obligatorio listo`;
 }
