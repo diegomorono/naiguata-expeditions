@@ -3,7 +3,7 @@ import { resolveBcvRate, loadSystemSettings } from './modules/bcv.js';
 import { initElevationStepper, renderRouteGraphic } from './modules/route.js';
 import { initGearChecklist } from './modules/checklist.js';
 import { initBookingForm, restoreFormDraft } from './modules/booking.js';
-import { initPaymentInstructions } from './modules/payments.js';
+import { initPaymentInstructions } from './modules/payment.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     // 1. Inicializar UI inmediata (lo que el usuario ve al cargar)
