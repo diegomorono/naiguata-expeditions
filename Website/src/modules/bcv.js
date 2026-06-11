@@ -9,7 +9,7 @@ export async function resolveBcvRate() {
     try {
         console.log("[Naiguatá API] Consultando tasa cambiaria oficial en base de datos...");
         const supabase = await getSupabaseClient();
-        
+
         const { data, error } = await supabase
             .from('system_settings')
             .select('value')
@@ -32,26 +32,26 @@ export async function resolveBcvRate() {
 export async function loadSystemSettings() {
     try {
         const supabase = await getSupabaseClient();
-        
-        // Peticiones paralelas de catálogos obligatorios para reducir latencia de red
+
+        // Consultas ajustadas a los nombres reales de tus tablas
         const [invRes, servRes, catRes] = await Promise.all([
-            supabase.from('inventory_catalog').select('*').eq('available', true),
+            supabase.from('inventory_stock').select('*').eq('available', true),
             supabase.from('logistic_services').select('*'),
-            supabase.from('catering_catalog').select('*')
+            supabase.from('catering_inventory').select('*')
         ]);
 
         if (invRes.data) appState.inventory = invRes.data;
         if (servRes.data) appState.logisticServices = servRes.data;
         if (catRes.data) appState.cateringCatalog = catRes.data;
 
-        console.log("[Naiguatá API] Catálogos y almacenes cargados de forma modular.");
-        
-        // Disparar evento para recalcular costos si el formulario ya está renderizado
+        console.log("[Naiguatá API] Catálogos sincronizados con éxito.");
+
+        // Disparar evento de actualización
         const triggerElement = document.getElementById('hiker-date');
         if (triggerElement) {
             triggerElement.dispatchEvent(new Event('change'));
         }
     } catch (error) {
-        console.error("[Naiguatá API Error] Falla crítica descargando catálogos del ecosistema:", error);
+        console.error("[Naiguatá API] Error cargando catálogos:", error);
     }
 }
