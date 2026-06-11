@@ -8,7 +8,7 @@ export function initPaymentInstructions() {
 
     selector.addEventListener('change', () => {
         const selectedMethod = selector.value;
-        
+
         // Ocultar preventivamente todos los bloques de cuentas bancarias
         document.querySelectorAll('.payment-instruction-block').forEach(block => {
             block.style.display = 'none';
@@ -17,13 +17,13 @@ export function initPaymentInstructions() {
         // Revelar condicionalmente la cuenta destino seleccionada
         if (selectedMethod === 'pagomovil') {
             const nodePM = document.getElementById('instruction-pagomovil');
-            if (nodePM) nodePM.style.style.display = 'block';
+            if (nodePM) nodePM.style.display = 'block'; // Eliminado el segundo .style
         } else if (selectedMethod === 'binance') {
             const nodeBin = document.getElementById('instruction-binance');
-            if (nodeBin) nodeBin.style.style.display = 'block';
+            if (nodeBin) nodeBin.style.display = 'block';
         } else if (selectedMethod === 'efectivo') {
             const nodeEf = document.getElementById('instruction-efectivo');
-            if (nodeEf) nodeEf.style.style.display = 'block';
+            if (nodeEf) nodeEf.style.display = 'block';
         }
     });
 }

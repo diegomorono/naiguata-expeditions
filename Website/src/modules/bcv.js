@@ -33,25 +33,34 @@ export async function loadSystemSettings() {
     try {
         const supabase = await getSupabaseClient();
 
-        // Consultas ajustadas a los nombres reales de tus tablas
-        const [invRes, servRes, catRes] = await Promise.all([
-            supabase.from('inventory_stock').select('*').eq('available', true),
+        console.log("[Naiguatá API] Iniciando carga de catálogos...");
+
+        // Usamos allSettled para que si un fallo no bloquee los otros
+        const [invRes, servRes, catRes] = await Promise.allSettled([
+            supabase.from('inventory_stock').select('*'), // QUITAMOS EL FILTRO POR AHORA para probar
             supabase.from('logistic_services').select('*'),
             supabase.from('catering_inventory').select('*')
         ]);
 
-        if (invRes.data) appState.inventory = invRes.data;
-        if (servRes.data) appState.logisticServices = servRes.data;
-        if (catRes.data) appState.cateringCatalog = catRes.data;
-
-        console.log("[Naiguatá API] Catálogos sincronizados con éxito.");
-
-        // Disparar evento de actualización
-        const triggerElement = document.getElementById('hiker-date');
-        if (triggerElement) {
-            triggerElement.dispatchEvent(new Event('change'));
+        // Procesamiento seguro de resultados
+        if (invRes.status === 'fulfilled' && invRes.value.data) {
+            appState.inventory = invRes.value.data;
+        } else {
+            console.error("Fallo en inventory_stock:", invRes.reason || invRes.value?.error);
         }
+
+        if (servRes.status === 'fulfilled' && servRes.value.data) {
+            appState.logisticServices = servRes.value.data;
+        }
+
+        if (catRes.status === 'fulfilled' && catRes.value.data) {
+            appState.cateringCatalog = catRes.value.data;
+        }
+
+        // Renderizar componentes una vez cargados los datos
+        // Asegúrate de disparar eventos de refresco aquí si es necesario
+        console.log("[Naiguatá API] Catálogos sincronizados.");
     } catch (error) {
-        console.error("[Naiguatá API] Error cargando catálogos:", error);
+        console.error("[Naiguatá API] Error crítico:", error);
     }
 }
