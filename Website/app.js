@@ -978,11 +978,6 @@ async function handleFormSubmission(e) {
 }
 
 function enviarEmailNotificacion(booking) {
-    if (typeof emailjs === 'undefined') {
-        console.warn("EmailJS no está cargado en el index.html");
-        return;
-    }
-
     const templateParams = {
         admin_email: "diego.morono03@gmail.com",
         pass_id: booking.id,
@@ -995,19 +990,30 @@ function enviarEmailNotificacion(booking) {
         payment_method: booking.payment_method,
         reference_number: booking.reference_number,
         total_usd: `${booking.total_usd.toFixed(2)} USD`,
-
-        // NUEVOS CAMPOS AGREGADOS:
         hiker_gender: booking.gender,
         hiker_tent_preference: booking.tent_preference,
         group_code: booking.group_code
     };
 
-    emailjs.send('service_f8qzcms', 'template_r1l52td', templateParams)
-        .then(() => {
-            console.log('✉️ Notificación enviada exitosamente por correo electrónico.');
+    // Enviamos los datos ordenados a nuestra propia API Serverless
+    fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(templateParams)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error en el servidor: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then((data) => {
+            console.log('✉️ Notificación enviada exitosamente de forma segura a través del servidor.');
         })
         .catch((error) => {
-            console.error('Fallo crítico al despachar correo de notificación:', error);
+            console.error('Fallo crítico al despachar correo de notificación mediante el backend:', error);
         });
 }
 
