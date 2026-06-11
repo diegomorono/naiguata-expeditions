@@ -96,17 +96,18 @@ async function handleFormSubmission(e) {
         // Recopilación de datos
         const formData = new FormData(form);
         const registrationPayload = {
+            id: crypto.randomUUID(), // Genera un identificador único automático para cumplir la regla de la tabla
             name: sanearTexto(formData.get('name')),
             email: sanearTexto(formData.get('email')),
             whatsapp: sanearTexto(formData.get('whatsapp')),
             date: formData.get('date'),
             gender: formData.get('gender'),
             tent_preference: formData.get('tent_preference'),
+            diet: sanearTexto(formData.get('diet') || 'Estándar'), // Captura la dieta del formulario web de forma obligatoria
             medical: sanearTexto(formData.get('medical')),
             allergies: sanearTexto(formData.get('allergies')),
             payment_method: formData.get('payment_method'),
             reference_number: sanearTexto(formData.get('reference_number')),
-            // Aquí capturamos los precios dinámicos calculados
             total_usd: parseFloat(document.getElementById('summary-total-usd')?.textContent.replace(/[^0-9.]/g, '') || 0),
             status: '🟡 Pendiente por Verificar'
         };
