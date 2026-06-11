@@ -263,27 +263,29 @@ async function initializeAdminDashboard() {
     /* ==========================================================================
        DATA LOADER & UPDATE CORE
        ========================================================================== */
-
     async function updateDashboardData() {
         const selectedDate = adminState.selectedDate;
         if (!selectedDate) return;
 
-        // 1. Fetch Registrations for Selected Date
-        const { data: regData } = await supabaseClient
-            .from('registrations')
-            .select('*')
-            .eq('date', selectedDate);
+        // 1. Fetch Registrations for Selected Date via Edge Function (Seguro)
+        const { data: regData, error: regError } = await supabaseClient.functions.invoke('tu-edge-function-admin', {
+            body: { action: 'get_registrations', date: selectedDate }
+        });
+
+        if (regError) {
+            console.error('Error invocando Edge Function para registros:', regError);
+        }
 
         adminState.bookings = regData || [];
 
-        // 2. Fetch Financials for Selected Date
+        // 2. Fetch Financials for Selected Date (Se mantiene igual)
         const { data: finData } = await supabaseClient
             .from('financial_transactions')
             .select('*');
 
         adminState.financials = finData || [];
 
-        // 3. Fetch Checklists
+        // 3. Fetch Checklists (Se mantiene igual)
         const { data: checkData } = await supabaseClient
             .from('checklist_salidas')
             .select('*')
@@ -1361,7 +1363,7 @@ Para ${N} senderistas:
             whatsapp: "+584120000000",
             date: adminState.selectedDate,
             status: '🟡 Pendiente por Verificar',
-            total_usd: 0.00,
+            total_usd: 50.00,
             gender: 'M',
             tent_preference: 'shared'
         };
