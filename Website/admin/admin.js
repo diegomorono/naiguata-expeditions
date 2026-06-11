@@ -361,30 +361,88 @@ async function initializeAdminDashboard() {
                 statusBadge = `<span class="badge badge-secondary">Cancelado</span>`;
             }
 
-            let actionButton = '';
+            // Celda 1: Nombre y Email (Separados de forma segura con textContent)
+            const tdName = document.createElement('td');
+            tdName.style.padding = '10px';
+            const strongName = document.createElement('strong');
+            strongName.textContent = booking.name;
+            tdName.appendChild(strongName);
+            tdName.appendChild(document.createElement('br'));
+            const spanEmail = document.createElement('span');
+            spanEmail.style.fontSize = '0.75rem';
+            spanEmail.style.color = 'var(--text-muted)';
+            spanEmail.textContent = booking.email;
+            tdName.appendChild(spanEmail);
+            tr.appendChild(tdName);
+
+            // Celda 2: WhatsApp Link (El atributo href se asigna directamente y el texto se protege)
+            const tdWa = document.createElement('td');
+            tdWa.style.padding = '10px';
+            const aWa = document.createElement('a');
+            aWa.href = waUrl;
+            aWa.target = '_blank';
+            aWa.className = 'roster-whatsapp-link';
+            aWa.textContent = booking.whatsapp;
+            tdWa.appendChild(aWa);
+            tr.appendChild(tdWa);
+
+            // Celda 3: Código de Grupo
+            const tdGroup = document.createElement('td');
+            tdGroup.style.padding = '10px';
+            const spanGroup = document.createElement('span');
+            spanGroup.className = 'occupant-group-tag';
+            spanGroup.textContent = booking.group_code || '-';
+            tdGroup.appendChild(spanGroup);
+            tr.appendChild(tdGroup);
+
+            // Celda 4: Género
+            const tdGender = document.createElement('td');
+            tdGender.style.padding = '10px';
+            tdGender.textContent = booking.gender;
+            tr.appendChild(tdGender);
+
+            // Celda 5: Preferencia de Carpa
+            const tdTent = document.createElement('td');
+            tdTent.style.padding = '10px';
+            tdTent.textContent = booking.tent_preference === 'couple' ? 'Privada (Pareja)' : 'Compartida';
+            tr.appendChild(tdTent);
+
+            // Celda 6: Datos Médicos y Alergias (Previene la inyección en el title y en el texto visible)
+            const tdMedical = document.createElement('td');
+            tdMedical.style.padding = '10px';
+            tdMedical.style.color = hasMedicalAlert ? 'var(--error)' : 'var(--text-muted)';
+            tdMedical.style.fontWeight = hasMedicalAlert ? '600' : '400';
+            tdMedical.title = booking.medical || '';
+            tdMedical.textContent = hasMedicalAlert ? '🔴 ' + booking.medical : 'Ninguna';
+            tr.appendChild(tdMedical);
+
+            // Celda 7: Estado y Pago (statusBadge es seguro porque lo generas tú internamente mediante condicionales controlados)
+            const tdStatus = document.createElement('td');
+            tdStatus.style.padding = '10px';
+            tdStatus.innerHTML = `${statusBadge}<br><span style="font-size:0.8rem; font-weight:600;">$${booking.total_usd} USD</span>`;
+            tr.appendChild(tdStatus);
+
+            // Celda 8: Acciones (Se eliminan los strings ejecutables inline 'onclick' y se usan addEventListeners directos)
+            const tdActions = document.createElement('td');
+            tdActions.style.padding = '10px';
+            tdActions.style.textAlign = 'center';
+            tdActions.style.display = 'flex';
+            tdActions.style.gap = '5px';
+            tdActions.style.justifyContent = 'center';
+            tdActions.style.alignItems = 'center';
+
+            const btnAction = document.createElement('button');
+            btnAction.className = booking.status === '🟡 Pendiente por Verificar' ? 'btn-primary btn-small' : 'btn-danger btn-small';
+            btnAction.textContent = booking.status === '🟡 Pendiente por Verificar' ? 'Validar Pago' : 'Eliminar';
+
             if (booking.status === '🟡 Pendiente por Verificar') {
-                actionButton = `<button class="btn-primary btn-small" onclick="openAuditModal('${booking.id}')">Validar Pago</button>`;
+                btnAction.addEventListener('click', () => openAuditModal(booking.id));
             } else {
-                actionButton = `<button class="btn-danger btn-small" onclick="cancelRegistration('${booking.id}')">Eliminar</button>`;
+                btnAction.addEventListener('click', () => cancelRegistration(booking.id));
             }
+            tdActions.appendChild(btnAction);
+            tr.appendChild(tdActions);
 
-            const rentalLabels = booking.rentals.length > 0 ? booking.rentals.join(', ') : 'Ninguno';
-
-            tr.innerHTML = `
-            <td style="padding:10px;">
-                <strong>${booking.name}</strong><br>
-                <span style="font-size:0.75rem; color:var(--text-muted);">${booking.email}</span>
-            </td>
-            <td style="padding:10px;"><a href="${waUrl}" target="_blank" class="roster-whatsapp-link">${booking.whatsapp}</a></td>
-            <td style="padding:10px;"><span class="occupant-group-tag">${booking.group_code || '-'}</span></td>
-            <td style="padding:10px;">${booking.gender}</td>
-            <td style="padding:10px;">${booking.tent_preference === 'couple' ? 'Privada (Pareja)' : 'Compartida'}</td>
-            <td style="padding:10px; color: ${hasMedicalAlert ? 'var(--error)' : 'var(--text-muted)'}; font-weight:${hasMedicalAlert ? '600' : '400'};" title="${booking.medical}">${hasMedicalAlert ? '🔴 ' + booking.medical : 'Ninguna'}</td>
-            <td style="padding:10px;">${statusBadge}<br><span style="font-size:0.8rem; font-weight:600;">$${booking.total_usd} USD</span></td>
-            <td style="padding:10px; text-align:center; display:flex; gap:5px; justify-content:center; align-items:center;">
-                ${actionButton}
-            </td>
-        `;
             tbody.appendChild(tr);
         });
     }
@@ -491,11 +549,26 @@ async function initializeAdminDashboard() {
                 div.style.padding = '12px';
                 div.style.borderRadius = '8px';
                 div.style.marginBottom = '10px';
-                div.innerHTML = `
-                <strong>⚠️ ALERTA DE ALERGIA CRÍTICA: Frutos Secos</strong><br>
-                El excursionista <strong>${h.name}</strong> (${h.whatsapp}) es alérgico a los frutos secos.<br>
-                <em>Acción:</em> Sustituir su mix por galletas libres de trazas y barra comercial certificada.
-            `;
+                // Inyección segura mezclando HTML estático controlado y nodos de texto aislados para las variables
+                const titleStrong = document.createElement('strong');
+                titleStrong.innerHTML = `⚠️ ALERTA DE ALERGIA CRÍTICA: Frutos Secos<br>`;
+                div.appendChild(titleStrong);
+
+                const textIntro = document.createTextNode("El excursionista ");
+                div.appendChild(textIntro);
+
+                const nameStrong = document.createElement('strong');
+                nameStrong.textContent = h.name; // Protegido contra XSS con textContent
+                div.appendChild(nameStrong);
+
+                const whatsappSpan = document.createElement('span');
+                whatsappSpan.textContent = ` (${h.whatsapp}) `; // Protegido contra XSS con textContent
+                div.appendChild(whatsappSpan);
+
+                const actionDetails = document.createElement('span');
+                actionDetails.innerHTML = `es alérgico a los frutos secos.<br><em>Acción:</em> Sustituir su mix por galletas libres de trazas y barra comercial certificada.`;
+                div.appendChild(actionDetails);
+
                 alertsBox.appendChild(div);
             });
         }
