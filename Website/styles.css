@@ -50,7 +50,7 @@ body {
 .content-centered {
     max-width: 1100px;
     margin: 0 auto;
-    text-align: center;
+    /* text-align: center;*/
     /* ESTO CENTRA TODOS LOS TEXTOS */
     padding: 60px 20px;
 }
@@ -315,9 +315,9 @@ h6 {
     cursor: pointer;
 }
 
-.text-center {
+/*.text-center {
     text-align: center;
-}
+}*/
 
 /* ==========================================================================
    HEADER NAVIGATION

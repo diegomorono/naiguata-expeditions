@@ -29,6 +29,11 @@ export function setupAdminAuth(onSuccess) {
             // Guardamos el token real (JWT) devuelto por la Edge Function
             sessionStorage.setItem('admin_token', token);
 
+            // Vinculamos el token al cliente global de Supabase en el navegador antes de continuar
+            if (window.supabase?.rest?.headers) {
+                window.supabase.rest.headers['Authorization'] = `Bearer ${token}`;
+            }
+
             onSuccess();
 
         } catch (error) {
