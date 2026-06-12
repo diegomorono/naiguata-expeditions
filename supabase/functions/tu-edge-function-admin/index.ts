@@ -1,8 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
+// 1. Leemos el origen permitido desde el entorno local, o usamos el de producción por defecto
+const allowedOrigin = Deno.env.get('ALLOWED_ORIGIN') || 'https://naiguata-expeditions.vercel.app'
+
+// 2. Asignamos la variable dinámica al Access-Control-Allow-Origin
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': allowedOrigin,
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apiKey, content-type',
 }
 
