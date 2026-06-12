@@ -92,31 +92,42 @@ async function handleFormSubmission(e) {
 
     try {
         const supabase = await getSupabaseClient();
-
-        // Recopilación de datos
         const formData = new FormData(form);
-        const registrationPayload = {
-            id: crypto.randomUUID(), // Genera un identificador único automático para cumplir la regla de la tabla
-            name: sanearTexto(formData.get('name')),
-            email: sanearTexto(formData.get('email')),
-            whatsapp: sanearTexto(formData.get('whatsapp')),
-            date: formData.get('date'),
-            gender: formData.get('gender'),
-            tent_preference: formData.get('tent_preference'),
-            diet: sanearTexto(formData.get('diet') || 'Estándar'), // Captura la dieta del formulario web de forma obligatoria
-            medical: sanearTexto(formData.get('medical')),
-            allergies: sanearTexto(formData.get('allergies')),
-            payment_method: formData.get('payment_method'),
-            reference_number: sanearTexto(formData.get('reference_number')),
-            total_usd: parseFloat(document.getElementById('summary-total-usd')?.textContent.replace(/[^0-9.]/g, '') || 0),
-            status: '🟡 Pendiente por Verificar'
-        };
 
-        // --- CORRECCIÓN CRÍTICA DE SINTAXIS ---
-        // Asegúrate de usar 'const { error }' y no asignar variables dentro del if
-        const { error } = await supabase.from('registrations').insert([registrationPayload]);
+        // Extraer los arreglos de equipamiento y catering seleccionados (igual que en los cálculos)
+        const selectedRentals = Array.from(document.querySelectorAll('.rental-checkbox:checked')).map(box => box.value);
+        const selectedCatering = Array.from(document.querySelectorAll('.catering-radio:checked')).map(radio => radio.value);
+        const porterService = document.getElementById('hiker-porter')?.value || 'No';
+        const groupCode = formData.get('group_code') || 'INDIVIDUAL';
+
+        // LLAMADO AL RPC: Ejecuta la función de control atómico de cupos
+        const { data, error } = await supabase.rpc('registrar_excursionista', {
+            p_id: crypto.randomUUID(),
+            p_date: formData.get('date'),
+            p_name: sanearTexto(formData.get('name')),
+            p_email: sanearTexto(formData.get('email')),
+            p_whatsapp: sanearTexto(formData.get('whatsapp')),
+            p_group_code: groupCode,
+            p_gender: formData.get('gender'),
+            p_tent_preference: formData.get('tent_preference'),
+            p_allergies: sanearTexto(formData.get('allergies') || 'Ninguna.'),
+            p_diet: sanearTexto(formData.get('diet') || 'Estándar'),
+            p_medical: sanearTexto(formData.get('medical') || 'Ninguna.'),
+            p_rentals: JSON.stringify(selectedRentals),     // Enviado como texto serializado para el cast ::jsonb del RPC
+            p_catering: JSON.stringify(selectedCatering),   // Enviado como texto serializado para el cast ::jsonb del RPC
+            p_porter_service: porterService,
+            p_total_usd: parseFloat(document.getElementById('summary-total-usd')?.textContent.replace(/[^0-9.]/g, '') || 0),
+            p_payment_method: formData.get('payment_method'),
+            p_reference_number: sanearTexto(formData.get('reference_number') || 'N/A')
+        });
 
         if (error) throw error;
+
+        // Validar si la base de datos rebotó la inscripción por falta de cupos
+        if (data && !data.success) {
+            alert(data.message); // Muestra: "Cupos completamente agotados para este sábado."
+            return;
+        }
 
         alert("¡Inscripción exitosa! Nos vemos en el Ávila.");
         localStorage.removeItem('naiguata_form_draft');
