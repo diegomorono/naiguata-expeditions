@@ -26,9 +26,8 @@ export function setupAdminAuth(onSuccess) {
 
             const { token } = await res.json();
 
-            // Guardamos el token real y la sesión
+            // Guardamos el token real (JWT) devuelto por la Edge Function
             sessionStorage.setItem('admin_token', token);
-            localStorage.setItem('naiguata_admin_session', 'active');
 
             onSuccess();
 

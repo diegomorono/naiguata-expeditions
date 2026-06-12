@@ -2,10 +2,15 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('node:crypto');
 
-// 1. Aquí Node.js sí lee tus variables de entorno o usa los fallbacks reales
-const supabaseUrl = process.env.SUPABASE_URL || 'https://cnoeumcshfrfrzyvbxcn.supabase.co';
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || 'sb_publishable_qF2ETcffYEwh0nz27uV1rQ_JSxp7mA6';
-const adminPassword = process.env.ADMIN_PASSWORD || 'Dmc-45142238T';
+// 1. Aquí Node.js lee tus variables de entorno estrictamente
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+const adminPassword = process.env.ADMIN_PASSWORD;
+
+if (!supabaseUrl || !supabaseAnonKey || !adminPassword) {
+  throw new Error('Faltan variables de entorno requeridas: SUPABASE_URL, SUPABASE_ANON_KEY o ADMIN_PASSWORD. Revisa tu configuración.');
+}
+
 const adminPasswordHash = crypto.createHash('sha256').update(adminPassword).digest('hex');
 
 // 2. Función que pisa el archivo de la web con datos reales

@@ -24,8 +24,8 @@ async function initAdmin() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Verificación de sesión persistente
-    if (localStorage.getItem('naiguata_admin_session') === 'active') {
+    // Verificación de sesión basada estrictamente en el token JWT
+    if (sessionStorage.getItem('admin_token')) {
         initAdmin();
     } else {
         setupAdminAuth(initAdmin); // Pasamos la función como callback

@@ -22,7 +22,14 @@ export function getSupabaseClient() {
         const check = () => {
             // Verifica si la librería global cargada desde el CDN ya está disponible en el objeto window
             if (window.supabase && typeof window.supabase.createClient === 'function') {
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                const token = sessionStorage.getItem('admin_token');
+                const options = {};
+                if (token) {
+                    options.global = {
+                        headers: { Authorization: `Bearer ${token}` }
+                    };
+                }
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, options);
                 console.log("[Naiguatá Infra] Supabase inicializado correctamente desde módulo central.");
                 return resolve(supabaseClient);
             }

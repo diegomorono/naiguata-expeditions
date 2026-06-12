@@ -13,9 +13,9 @@ El Agente debe configurar la lógica del backend utilizando las siguientes herra
 - **Base de Datos:** Configurar la persistencia de datos de los inscritos (contacto, salud, grupo, fecha seleccionada) utilizando el plan gratuito de Supabase.
 - **Notificación Directa por WhatsApp:** Generar un mensaje al administrador al número `+34673375681` y correo `diego.morono03@gmail.com` con el resumen estructurado y limpio del registro del usuario, actuando como la alerta principal de nueva inscripción en tiempo real para el guía, al cliente finalizar el formulario.
 - **Notificación por Email (EmailJS):** Implementar envío automático simultáneo mediante la librería de EmailJS.
-  - **Service ID:** `service_f8qzcms`
-  - **Template ID:** `template_b2ncvpr`
-  - **Public Key:** `9XBQKLOu-wgK2SGug`
+  - **Service ID:**
+  - **Template ID:**
+  - **Public Key:**
   - **Acción:** El Agente debe crear un template HTML profesional y configurar la función de envío en `app.js` utilizando variables dinámicas (`{{nombre}}`, `{{fecha}}`, `{{alquileres}}`, etc.). El código debe ser limpio, funcional y autónomo.
 
 ## Seguridad y Gestión de Credenciales (Protección de API Keys)
@@ -23,7 +23,7 @@ El Agente debe configurar la lógica del backend utilizando las siguientes herra
 ### 1. Ofuscación de Entorno y Variables Privadas
 Queda estrictamente prohibido escribir de forma explícita contraseñas, llaves maestras o contraseñas de administración (como la clave del panel `/admin` o el token de Supabase) directamente en el código fuente de los archivos `app.js` o `index.html`. El sistema debe procesar las credenciales utilizando la arquitectura de variables de entorno del hosting.
 - **Inyección en Vercel:** Durante el despliegue, el Agente debe programar el script para que consuma las credenciales desde `process.env.SUPABASE_ANON_KEY` y `process.env.ADMIN_PASSWORD`.
-- **Mecanismo de Respaldo Local:** Para flujos de desarrollo local en entorno cliente, el script de autenticación del panel de administración (`/admin`) debe comparar el hash de la contraseña ingresada mediante funciones nativas de encriptación ligera (`crypto.subtle` o hashing básico) en lugar de una comparación de texto plano como `if (password === 'Dmc-45142238T')`. Esto evita que la clave sea visible al inspeccionar el código fuente del navegador.
+- **Mecanismo de Respaldo Local:** Para flujos de desarrollo local en entorno cliente, el script de autenticación del panel de administración (`/admin`) debe comparar el hash de la contraseña ingresada mediante funciones nativas de encriptación ligera (`crypto.subtle` o hashing básico) en lugar de una comparación de texto plano como. Esto evita que la clave sea visible al inspeccionar el código fuente del navegador.
 
 ### 2. Restricción de Acceso a Tablas Críticas
 - **Políticas de Seguridad de Supabase (RLS):** La tabla `registrations` debe configurar políticas de seguridad de nivel de fila (Row Level Security). Los usuarios anónimos desde el formulario público únicamente tienen permisos exclusivos de escritura (`INSERT`). Los permisos de lectura (`SELECT`), edición (`UPDATE`) y borrado (`DELETE`) quedan restringidos únicamente para el rol autenticado del administrador del tour.
@@ -523,9 +523,7 @@ Para garantizar un rendimiento libre de fallos cuando múltiples usuarios intent
 
 ### 🛣️ ENRUTAMIENTO Y SEGURIDAD DE ACCESO (LOGIN EXPLICITO)
 - **Subdirectorio de Administración:** Configurar el despliegue para gestionar rutas internas en el mismo dominio de Vercel. La landing page pública para clientes residirá en la raíz del proyecto, mientras que la Consola Privada del Guía se alojará de forma exclusiva en la ruta hija: `https://naiguata-expeditions.vercel.app/admin`
-- **Barrera de Autenticación Hardcoded:** El acceso al subdirectorio `/admin` debe ser bloqueado por un componente UI de Login antes de cargar los datos de la consola. El sistema debe validar de forma estricta e intransigente las siguientes credenciales para conceder acceso a los paneles lógicos:
-  - **Usuario:** `diegomorono`
-  - **Contraseña:** `Dmc-45142238T`
+- **Barrera de Autenticación Hardcoded:** El acceso al subdirectorio `/admin` debe ser bloqueado por un componente UI de Login antes de cargar los datos de la consola.
   No permitir saltarse este paso ni mediante la inspección del almacenamiento local de sesión si las credenciales no han sido validadas primero.
 
 ### ✉️ INTEGRACIONES NATIVAS SIN APIS CORPORATIVAS
