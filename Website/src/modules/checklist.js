@@ -1,10 +1,10 @@
 /* ==========================================================================
    DOMINIO DE EQUIPAMIENTO - PLANIFICADOR DINÁMICO
    ========================================================================== */
-import { appState } from '../config/state.js';
+import { appStore } from '../config/state.js';
 
-// Escuchamos el evento de datos listos
-window.addEventListener('app:data-ready', () => {
+// Escuchamos de manera reactiva el almacén global de datos
+appStore.subscribe(() => {
     console.log("[Checklist] Renderizando checklist dinámico...");
     renderGearChecklist();
 });
@@ -13,9 +13,9 @@ export function renderGearChecklist() {
     const container = document.getElementById('checklist-container');
     if (!container) return;
 
-    // 1. Renderizado basado en el estado (appState.inventory)
-    // Asumimos que quieres mostrar todos los items del inventario en el checklist
-    container.innerHTML = appState.inventory.map(item => `
+    // 1. Renderizado basado en el estado (appStore.get().inventory)
+    // Consumimos los datos de forma inmutable a través de la interfaz pública .get()
+    container.innerHTML = appStore.get().inventory.map(item => `
         <div class="gear-item">
             <input type="checkbox" class="gear-checkbox" id="gear-${item.id}">
             <label for="gear-${item.id}">${item.name}</label>

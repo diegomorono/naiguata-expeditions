@@ -1,9 +1,10 @@
 import { getSupabaseClient } from '../config/supabase.js';
-import { adminState } from '../config/state.js';
+import { adminStore } from '../config/state.js';
 
 export function renderStats() {
-    // Calcula el total neto sumando los montos (puedes adaptarlo según uses total_neto_usd si cambia la estructura de adminState.financials)
-    const totalUSD = adminState.financials.reduce((acc, curr) => acc + (curr.total_neto_usd || curr.amount || 0), 0);
+    // Calcula el total neto sumando los montos consumiendo el estado de forma inmutable con .get()
+    const financials = adminStore.get().financials || [];
+    const totalUSD = financials.reduce((acc, curr) => acc + (curr.total_neto_usd || curr.amount || 0), 0);
     document.getElementById('stat-total-usd').textContent = `$${totalUSD}`;
 }
 

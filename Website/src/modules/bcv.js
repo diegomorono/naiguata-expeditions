@@ -3,7 +3,7 @@
    ========================================================================== */
 
 import { getSupabaseClient } from '../config/supabase.js';
-import { appState } from '../config/state.js';
+import { appStore } from '../config/state.js';
 
 export async function resolveBcvRate() {
     try {
@@ -19,9 +19,11 @@ export async function resolveBcvRate() {
         if (error) throw error;
 
         if (data && data.value) {
-            appState.bcvRate = parseFloat(data.value);
-            appState.bcvSource = 'supabase_live';
-            console.log(`[Naiguatá API] Tasa BCV sincronizada exitosamente: B$. ${appState.bcvRate}`);
+            appStore.set({
+                bcvRate: parseFloat(data.value),
+                bcvSource: 'supabase_live'
+            });
+            console.log(`[Naiguatá API] Tasa BCV sincronizada exitosamente: B$. ${appStore.get().bcvRate}`);
         }
     } catch (err) {
         console.warn("[Naiguatá Fallback] Error resolviendo tasa BCV remota. Manteniendo respaldo por defecto:", err);
@@ -40,29 +42,42 @@ export async function loadSystemSettings() {
             supabase.from('catering_inventory').select('*')
         ]);
 
-        // Procesamiento seguro
+        // 1. Definimos contenedores locales temporales
+        let inventory = [];
+        let logisticServices = [];
+        let cateringCatalog = [];
+
+        // 2. Procesamiento seguro asignando a las variables locales
         if (invRes.status === 'fulfilled' && invRes.value.data) {
-            appState.inventory = invRes.value.data;
+            inventory = invRes.value.data;
         } else {
             console.error("Error en inventory_stock:", invRes.reason || invRes.value?.error);
         }
 
         if (servRes.status === 'fulfilled' && servRes.value.data) {
-            appState.logisticServices = servRes.value.data;
+            logisticServices = servRes.value.data;
         }
 
         if (catRes.status === 'fulfilled' && catRes.value.data) {
-            appState.cateringCatalog = catRes.value.data;
+            cateringCatalog = catRes.value.data;
         }
 
-        // --- ARQUITECTURA DE DATOS LISTOS ---
-        console.log("[Naiguatá API] Catálogos cargados. Total items:", {
-            inventory: appState.inventory?.length || 0,
-            catering: appState.cateringCatalog?.length || 0
+        // 3. Modificamos el estado global de forma atómica e inmutable
+        appStore.set({
+            inventory,
+            logisticServices,
+            cateringCatalog
         });
 
-        // DISPARADOR GLOBAL: Avisamos a los módulos que los datos existen
-        window.dispatchEvent(new CustomEvent('app:data-ready'));
+        // --- ARQUITECTURA DE DATOS LISTOS ---
+        // Leemos con .get() de forma segura para verificar la carga en la consola
+        console.log("[Naiguatá API] Catálogos cargados. Total items:", {
+            inventory: appStore.get().inventory?.length || 0,
+            catering: appStore.get().cateringCatalog?.length || 0
+        });
+
+        // El CustomEvent 'app:data-ready' ha sido eliminado. 
+        // La reactividad ahora se maneja automáticamente a través de las suscripciones al Store.
 
     } catch (error) {
         console.error("[Naiguatá API] Error crítico en red:", error);

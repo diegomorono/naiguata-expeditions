@@ -1,4 +1,4 @@
-import { adminState } from '../config/state.js';
+import { adminStore } from '../config/state.js';
 
 export function renderRoster() {
     const container = document.getElementById('roster-container');
@@ -7,8 +7,11 @@ export function renderRoster() {
     // Limpiamos el contenedor de forma segura antes de renderizar
     container.innerHTML = '';
 
+    // Extraemos las inscripciones de forma inmutable desde el Store administrativo
+    const registrations = adminStore.get().registrations || [];
+
     // Iteramos y creamos los nodos de forma segura usando textContent
-    adminState.registrations.forEach(r => {
+    registrations.forEach(r => {
         const row = document.createElement('div');
         // CORRECCIÓN: Ahora evalúa la columna correcta 'medical' de tu base de datos
         row.className = `hiker-row ${r.medical ? 'has-alert' : ''}`;

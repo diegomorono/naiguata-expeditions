@@ -3,7 +3,7 @@
    ========================================================================== */
 
 import { getSupabaseClient } from '../config/supabase.js';
-import { appState } from '../config/state.js';
+import { appStore } from '../config/state.js';
 
 export function initBookingForm() {
     const form = document.getElementById('booking-form');
@@ -20,10 +20,10 @@ export function initBookingForm() {
     form.addEventListener('submit', handleFormSubmission);
 }
 
-// --- NUEVA FUNCIÓN DE RENDERIZADO DINÁMICO ---
-// Esta función escucha al evento global de datos
-window.addEventListener('app:data-ready', () => {
-    console.log("[Booking] Datos recibidos. Renderizando opciones...");
+// --- CONFIGURACIÓN DE SUSCRIPCIÓN REACTIVA GLOBAL ---
+// Reemplazamos la escucha del CustomEvent del navegador por una suscripción directa al Store
+appStore.subscribe(() => {
+    console.log("[Booking] Datos recibidos en el Store. Renderizando opciones...");
     renderBookingOptions();
 });
 
@@ -31,9 +31,9 @@ function renderBookingOptions() {
     const cateringContainer = document.getElementById('catering-options-container');
     const rentalContainer = document.getElementById('rental-options-container');
 
-    // 1. Render Catering
-    if (cateringContainer && appState.cateringCatalog) {
-        cateringContainer.innerHTML = appState.cateringCatalog.map(item => `
+    // 1. Render Catering usando .get() de forma inmutable
+    if (cateringContainer && appStore.get().cateringCatalog) {
+        cateringContainer.innerHTML = appStore.get().cateringCatalog.map(item => `
             <label class="option-item">
                 <input type="radio" name="catering" class="catering-radio" value="${item.name}" data-price="${item.price}">
                 ${item.name} - $${item.price}
@@ -41,9 +41,9 @@ function renderBookingOptions() {
         `).join('');
     }
 
-    // 2. Render Equipamiento (Inventory)
-    if (rentalContainer && appState.inventory) {
-        rentalContainer.innerHTML = appState.inventory.map(item => `
+    // 2. Render Equipamiento (Inventory) usando .get() de forma inmutable
+    if (rentalContainer && appStore.get().inventory) {
+        rentalContainer.innerHTML = appStore.get().inventory.map(item => `
             <label class="option-item">
                 <input type="checkbox" class="rental-checkbox" value="${item.name}" data-price="${item.price}">
                 ${item.name} - $${item.price}
@@ -73,7 +73,8 @@ function calculateFormCosts() {
     if (porterService === 'shared') extraCosts += 20.00;
 
     const totalUSD = basePrice + extraCosts;
-    const totalVES = totalUSD * (appState.bcvRate || 1); // Fallback por seguridad
+    // Extraemos la tasa cambiaria de forma segura consumiendo el contenedor protegido
+    const totalVES = totalUSD * (appStore.get().bcvRate || 1);
 
     // ... (resto de tu lógica de formateo y actualización de nodos) ...
     document.getElementById('summary-total-usd')?.textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(totalUSD);
@@ -162,7 +163,7 @@ function saveFormDraft() {
     localStorage.setItem('naiguata_form_draft', JSON.stringify(obj));
 }
 
-function restoreFormDraft() {
+export function restoreFormDraft() {
     const saved = localStorage.getItem('naiguata_form_draft');
     if (!saved) return;
     const data = JSON.parse(saved);

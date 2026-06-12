@@ -1,4 +1,5 @@
 import { getSupabaseClient } from './config/supabase.js';
+import { appStore } from './config/state.js';
 import { resolveBcvRate, loadSystemSettings } from './modules/bcv.js';
 import { initElevationStepper, renderRouteGraphic } from './modules/route.js';
 import { initGearChecklist } from './modules/checklist.js';
@@ -15,15 +16,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     initBookingForm();
     initPaymentInstructions();
 
-    // 2. CONFIGURACIÓN DEL EVENTO DE DATOS
-    // Aquí es donde la "magia" sucede: esperamos a que bcv.js avise que tiene datos.
-    window.addEventListener('app:data-ready', () => {
-        console.log("[Main] Datos recibidos. Renderizando componentes...");
+    // 2. CONFIGURACIÓN DE SUSCRIPCIÓN REACTIVA GLOBAL
+    // Aquí es donde la reactividad sucede de manera interna y atómica: 
+    // Cuando el Store cambie tras cargarse bcv.js, renderizamos los componentes visuales restantes.
+    appStore.subscribe(() => {
+        console.log("[Main] Datos recibidos en el Store. Renderizando componentes remanentes...");
 
-        // Ahora sí, llamamos a lo que necesita datos reales para pintarse
+        // Ahora sí, llamamos a lo que necesita datos reales para pintarse o restaurarse
         restoreFormDraft();
         renderRouteGraphic();
-        // Nota: Asegúrate de que tus funciones init... tengan lógica para actualizar el DOM
     });
 
     // 3. FLUJO DE CARGA
@@ -33,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Ejecutamos en paralelo para ganar velocidad
         await Promise.all([
             resolveBcvRate(),
-            loadSystemSettings() // ESTA FUNCIÓN DEBE DISPARAR EL EVENTO 'app:data-ready'
+            loadSystemSettings() // Al actualizar el Store con appStore.set(), se disparará automáticamente la suscripción de arriba
         ]);
 
     } catch (e) {
