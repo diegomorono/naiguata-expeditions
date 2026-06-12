@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('node:crypto');
 
-// 1. Aquí Node.js lee tus variables de entorno estrictamente
+// 1. Leer las variables de entorno de forma estricta
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 const adminPassword = process.env.ADMIN_PASSWORD;
@@ -13,7 +13,7 @@ if (!supabaseUrl || !supabaseAnonKey || !adminPassword) {
 
 const adminPasswordHash = crypto.createHash('sha256').update(adminPassword).digest('hex');
 
-// 2. Función que pisa el archivo de la web con datos reales
+// 2. Función que pisa el archivo de configuración con datos reales
 function replaceInFile(filePath) {
   if (!fs.existsSync(filePath)) {
     console.error(`Error: No se encontró el archivo en ${filePath}`);
@@ -30,12 +30,10 @@ function replaceInFile(filePath) {
   console.log(`Procesado con éxito: ${filePath}`);
 }
 
-// 3. Apuntar directamente a los archivos que requieren la inyección de variables
-const distFile = path.join(__dirname, 'Website', 'app.js');
-const supabaseFile = path.join(__dirname, 'Website', 'src', 'config', 'supabase.js');
+// 3. Apuntar ÚNICAMENTE al archivo consolidado de configuración env.js
+const envFile = path.join(__dirname, 'Website', 'src', 'config', 'env.js');
 
-// Ejecutar el reemplazo en cadena para asegurar que ambos archivos se actualicen
-replaceInFile(distFile);
-replaceInFile(supabaseFile);
+// Ejecutar el reemplazo unificado
+replaceInFile(envFile);
 
 console.log('Build completado de forma segura.');

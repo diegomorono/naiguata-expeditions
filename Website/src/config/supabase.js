@@ -2,8 +2,7 @@
    INFRAESTRUCTURA DE DATOS - CONFIGURACIÓN DE SUPABASE
    ========================================================================== */
 
-const SUPABASE_URL = '__SUPABASE_URL__';
-const SUPABASE_ANON_KEY = '__SUPABASE_ANON_KEY__';
+import { ENV } from './env.js';
 
 let supabaseClient = null;
 let _initPromise = null;
@@ -29,7 +28,8 @@ export function getSupabaseClient() {
                         headers: { Authorization: `Bearer ${token}` }
                     };
                 }
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, options);
+                // Usamos los datos inyectados de forma segura a través del módulo ENV
+                supabaseClient = window.supabase.createClient(ENV.SUPABASE_URL, ENV.SUPABASE_ANON_KEY, options);
                 console.log("[Naiguatá Infra] Supabase inicializado correctamente desde módulo central.");
                 return resolve(supabaseClient);
             }
