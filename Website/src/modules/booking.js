@@ -132,8 +132,15 @@ async function handleFormSubmission(e) {
 
 function sanearTexto(texto) {
     if (!texto) return '';
-    // Elimina caracteres peligrosos para evitar inyecciones XSS básicas
-    return texto.toString().replace(/[<>]/g, '');
+    // Escapa caracteres peligrosos transformándolos en entidades HTML seguras
+    return texto.toString().replace(/[<>"'`\\]/g, c => ({
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+        '`': '&#x60;',
+        '\\': '&#x5C;'
+    })[c]);
 }
 
 function saveFormDraft() {
