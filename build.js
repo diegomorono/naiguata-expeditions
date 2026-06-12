@@ -30,8 +30,12 @@ function replaceInFile(filePath) {
   console.log(`Procesado con éxito: ${filePath}`);
 }
 
-// 3. Apuntar directamente a la carpeta del servidor local
+// 3. Apuntar directamente a los archivos que requieren la inyección de variables
 const distFile = path.join(__dirname, 'Website', 'app.js');
+const supabaseFile = path.join(__dirname, 'Website', 'src', 'config', 'supabase.js');
+
+// Ejecutar el reemplazo en cadena para asegurar que ambos archivos se actualicen
 replaceInFile(distFile);
+replaceInFile(supabaseFile);
 
 console.log('Build completado de forma segura.');

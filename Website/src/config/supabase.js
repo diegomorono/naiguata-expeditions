@@ -2,8 +2,8 @@
    INFRAESTRUCTURA DE DATOS - CONFIGURACIÓN DE SUPABASE
    ========================================================================== */
 
-const SUPABASE_URL = 'https://cnoeumcshfrfrzyvbxcn.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_qF2ETcffYEwh0nz27uV1rQ_JSxp7mA6';
+const SUPABASE_URL = '__SUPABASE_URL__';
+const SUPABASE_ANON_KEY = '__SUPABASE_ANON_KEY__';
 
 let supabaseClient = null;
 let _initPromise = null;
