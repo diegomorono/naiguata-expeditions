@@ -58,3 +58,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 });
+
+function showErrorBanner(message) {
+    // 1. Crear el contenedor del banner
+    const banner = document.createElement('div');
+
+    // 2. Estilizarlo directamente con JS (o puedes usar una clase CSS de tu proyecto)
+    banner.style.position = 'fixed';
+    banner.style.top = '20px';
+    banner.style.right = '20px';
+    banner.style.backgroundColor = '#ef4444'; // Rojo alerta
+    banner.style.color = '#ffffff';
+    banner.style.padding = '16px 24px';
+    banner.style.borderRadius = '8px';
+    banner.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    banner.style.zIndex = '9999';
+    banner.style.fontFamily = 'sans-serif';
+    banner.style.fontSize = '14px';
+
+    // 3. Inyectar el texto del error
+    banner.innerText = message;
+
+    // 4. Añadirlo a la pantalla
+    document.body.appendChild(banner);
+
+    // 5. Hacer que desaparezca solo a los 5 segundos
+    setTimeout(() => {
+        banner.remove();
+    }, 5000);
+}
