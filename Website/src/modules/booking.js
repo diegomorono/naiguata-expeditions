@@ -155,7 +155,7 @@ function sanearTexto(texto) {
     })[c]);
 }
 
-function saveFormDraft() {
+export function saveFormDraft() {
     const form = document.getElementById('booking-form');
     if (!form) return;
     const data = new FormData(form);
