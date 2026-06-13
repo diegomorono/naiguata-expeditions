@@ -286,28 +286,33 @@
         </div>
 
         <!-- Metrics Row -->
-        <div class="financial-grid">
-            <div class="fin-card glass-panel">
-                <span class="badge">Registrados</span>
-                <div class="fin-value" id="stat-hikers-count">0</div>
-                <span class="input-tip" id="stat-hikers-confirmed">0 Confirmados</span>
-            </div>
-            <div class="fin-card glass-panel">
-                <span class="badge">Grupos</span>
-                <div class="fin-value" id="stat-groups-count">0</div>
-                <span class="input-tip">Coordinación de aforo</span>
-            </div>
-            <div class="fin-card glass-panel">
-                <span class="badge">Carpas en Uso</span>
-                <div class="fin-value" id="stat-tents-in-use">0</div>
-                <span class="input-tip" id="stat-tents-capacity">Stock Propio + Consignación</span>
-            </div>
-            <div class="fin-card glass-panel highlight-border">
-                <span class="badge badge-green">Recaudación Neta</span>
-                <div class="fin-value font-green" id="stat-revenue">$0.00 USD</div>
-                <span class="input-tip-success" id="stat-revenue-ves">Bs. 0.00 BCV</span>
-            </div>
+       <div class="financial-grid">
+    <div class="fin-card glass-panel">
+        <span class="badge">Registrados</span>
+        <div class="fin-value">
+            <span id="stat-hikers-count">0</span><span style="font-size: 1.2rem; opacity: 0.5; font-weight: 300;"> / <span class="max-capacity-display">--</span></span>
         </div>
+        <span class="input-tip" id="stat-hikers-confirmed">0 Confirmados</span>
+    </div>
+
+    <div class="fin-card glass-panel">
+        <span class="badge">Grupos</span>
+        <div class="fin-value" id="stat-groups-count">0</div>
+        <span class="input-tip">Coordinación de aforo (Máx: <span class="max-capacity-display">--</span> pp)</span>
+    </div>
+
+    <div class="fin-card glass-panel">
+        <span class="badge">Carpas en Uso</span>
+        <div class="fin-value" id="stat-tents-in-use">0</div>
+        <span class="input-tip" id="stat-tents-capacity">Stock Propio + Consignación</span>
+    </div>
+
+    <div class="fin-card glass-panel highlight-border">
+        <span class="badge badge-green">Recaudación Neta</span>
+        <div class="fin-value font-green" id="stat-revenue">$0.00 USD</div>
+        <span class="input-tip-success" id="stat-revenue-ves">Bs. 0.00 BCV</span>
+    </div>
+</div>
 
         <!-- Main Column Layout -->
         <div class="admin-layout-columns">

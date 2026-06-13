@@ -59,3 +59,29 @@ export function handleUpdateBCV(supabaseClient) {
             else alert("Tasa actualizada exitosamente.");
         });
 }
+
+export function handleUpdateTourPrice(supabaseClient) {
+    const newPrice = prompt("Ingrese el nuevo precio base del tour ($ USD):");
+    if (!newPrice || isNaN(newPrice)) return;
+
+    supabaseClient.from('system_settings')
+        .update({ value: parseFloat(newPrice).toString() })
+        .eq('key', 'tour_base_price')
+        .then(({ error }) => {
+            if (error) alert("Error al actualizar el precio base: " + error.message);
+            else alert("Precio base actualizado exitosamente en todo el sistema.");
+        });
+}
+
+export function handleUpdateMaxCapacity(supabaseClient) {
+    const newCapacity = prompt("Ingrese el nuevo límite estricto de capacidad:");
+    if (!newCapacity || isNaN(newCapacity)) return;
+
+    supabaseClient.from('system_settings')
+        .update({ value: parseInt(newCapacity, 10).toString() })
+        .eq('key', 'max_capacity') // <-- CORREGIDO: Ahora coincide con bcv.js
+        .then(({ error }) => {
+            if (error) alert("Error al actualizar la capacidad: " + error.message);
+            else alert("Capacidad máxima del sistema actualizada con éxito.");
+        });
+}

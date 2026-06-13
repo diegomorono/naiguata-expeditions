@@ -7,26 +7,34 @@ import { appStore } from '../config/state.js';
 
 export async function resolveBcvRate() {
     try {
-        console.log("[Naiguatá API] Consultando tasa cambiaria oficial en base de datos...");
+        console.log("[Naiguatá API] Consultando configuraciones globales en base de datos...");
         const supabase = await getSupabaseClient();
 
+        // En lugar de pedir una sola fila, traemos todas las configuraciones del sistema
         const { data, error } = await supabase
             .from('system_settings')
-            .select('value')
-            .eq('key', 'last_valid_bcv')
-            .single();
+            .select('key, value');
 
         if (error) throw error;
 
-        if (data && data.value) {
+        if (data) {
+            const settings = {};
+            data.forEach(item => {
+                if (item.key === 'last_valid_bcv') settings.bcvRate = parseFloat(item.value);
+                if (item.key === 'tour_base_price') settings.tourBasePrice = parseFloat(item.value);
+                if (item.key === 'max_capacity') settings.maxCapacity = parseInt(item.value, 10);
+            });
+
+            // Guardamos todo de forma segura en el store global
             appStore.set({
-                bcvRate: parseFloat(data.value),
+                ...appStore.get(),
+                ...settings,
                 bcvSource: 'supabase_live'
             });
-            console.log(`[Naiguatá API] Tasa BCV sincronizada exitosamente: B$. ${appStore.get().bcvRate}`);
+            console.log("[Naiguatá API] Configuraciones globales sincronizadas con éxito:", settings);
         }
     } catch (err) {
-        console.warn("[Naiguatá Fallback] Error resolviendo tasa BCV remota. Manteniendo respaldo por defecto:", err);
+        console.warn("[Naiguatá Fallback] Error resolviendo configuraciones remotas. Manteniendo respaldos:", err);
     }
 }
 

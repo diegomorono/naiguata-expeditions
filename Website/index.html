@@ -59,7 +59,7 @@
                             <div class="price-header">
                                 <span class="price-title">EXPEDICIÓN TODO INCLUIDO</span>
                                 <div class="price-value-container">
-                                    <span class="price-usd">$50</span>
+                                    <span class="price-usd">$<span class="tour-base-price-display">--</span></span>
                                     <span class="price-unit">USD / persona</span>
                                 </div>
                                 <div class="price-bcv" id="bcv-price-display">
@@ -536,7 +536,7 @@
                                             data-name="Portador Carpa 4P">
                                             <span class="carrier-title">Servicio de Portador - Carpa de 4
                                                 personas</span>
-                                            <span class="carrier-price">+$50 USD</span>
+                                            <span class="carrier-price">+$<span class="tour-base-price-display">--</span> USD</span>
                                         </button>
 
                                     </div>
@@ -580,7 +580,7 @@
                         <div class="form-summary-card">
                             <div class="summary-line">
                                 <span>Costo Base del Tour:</span>
-                                <span>$50.00 USD</span>
+                                <span>$<span class="tour-base-price-display">--</span> USD</span>
                             </div>
                             <div id="rental-summary-row" class="summary-line hidden">
                                 <span>Adicionales (Alquileres/Snacks/Portador):</span>
@@ -590,7 +590,7 @@
                             <div class="summary-line total-line">
                                 <span>Total a Pagar:</span>
                                 <div class="total-values">
-                                    <span class="total-usd" id="form-total-usd">$50.00 USD</span>
+                                    <span class="total-usd" id="form-total-usd">--</span>
                                     <span class="total-ves" id="form-total-ves">Bs. 0.00</span>
                                 </div>
                             </div>
@@ -663,6 +663,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Core App Logic -->
     <script type="module" src="./src/main.js"></script>
+
 </body>
 
 </html>

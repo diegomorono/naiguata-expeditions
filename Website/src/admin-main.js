@@ -7,15 +7,36 @@ import { updateDashboardData } from './admin/core.js';
 import { renderRoster } from './admin/roster.js';
 import { renderStats, setupExpenseForm } from './admin/finance.js';
 
-// NOTA: Asegúrate de que 'showErrorBanner' esté disponible globalmente 
-// o impórtala aquí si pertenece a un módulo de UI/utilidades.
+// NUEVA FUNCIÓN: Consulta el límite de aforo y actualiza los placeholders del HTML
+async function renderAdminCapacitySettings(supabase) {
+    try {
+        console.log("[Naiguatá Admin] Cargando configuraciones de aforo desde Supabase...");
+        const { data, error } = await supabase
+            .from('system_settings')
+            .select('value')
+            .eq('key', 'max_capacity') // Asegúrate de que 'max_capacity' coincida con la key de tu BD
+            .single();
+
+        if (error) throw error;
+
+        if (data && data.value) {
+            // Inyectamos el valor en todas las etiquetas que usen esta clase en el panel
+            document.querySelectorAll('.max-capacity-display').forEach(el => {
+                el.textContent = data.value;
+            });
+            console.log(`[Naiguatá Admin] Capacidad máxima sincronizada: ${data.value} personas.`);
+        }
+    } catch (err) {
+        console.warn("[Naiguatá Admin Fallback] No se pudo procesar el límite de aforo remoto:", err);
+    }
+}
 
 // Nombre consistente: initAdmin
 async function initAdmin() {
     console.log("[Naiguatá Admin] Inicializando consola...");
 
-    // 1. Asegurar conexión a Supabase
-    await getSupabaseClient();
+    // 1. Asegurar conexión a Supabase y capturar el cliente
+    const supabase = await getSupabaseClient();
 
     // VINCULACIÓN DE SEGURIDAD PARA LA RECARGA DE PÁGINA
     const tokenGuardado = sessionStorage.getItem('admin_token');
@@ -34,11 +55,13 @@ async function initAdmin() {
     // INICIALIZACIÓN DE TU PANEL FINANCIERO
     renderStats();        // Pinta el total acumulado en USD en tu indicador principal
     setupExpenseForm();   // Activa el "escuchador" de tu formulario seguro de egresos
+
+    // NUEVO: Ejecuta la renderización del aforo máximo una vez autenticado
+    await renderAdminCapacitySettings(supabase);
 }
 
 // 1. Transformamos el callback del listener en una función async
 document.addEventListener('DOMContentLoaded', async () => {
-
     // Verificación de sesión basada estrictamente en el token JWT
     if (sessionStorage.getItem('admin_token')) {
         // 2. Bloque seguro para carga con token existente
@@ -58,6 +81,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 });
+
+// (Mantén tu función showErrorBanner abajo intacta sin modificaciones)
 
 function showErrorBanner(message) {
     // 1. Crear el contenedor del banner

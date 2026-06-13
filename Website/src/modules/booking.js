@@ -25,6 +25,7 @@ export function initBookingForm() {
 appStore.subscribe(() => {
     console.log("[Booking] Datos recibidos en el Store. Renderizando opciones...");
     renderBookingOptions();
+    calculateFormCosts(); // <-- ESTA ES LA LÍNEA QUE DEBES AGREGAR
 });
 
 function renderBookingOptions() {
@@ -55,11 +56,11 @@ function renderBookingOptions() {
 // --- RESTO DE TU LÓGICA (CALCULOS Y ENVÍO) ---
 
 function calculateFormCosts() {
-    // Nota: Esta función ya funcionará porque el DOM habrá sido poblado 
-    // antes de que el usuario interactúe.
-    let basePrice = 50.00;
+    // 1. OBTENER EL PRECIO BASE DINÁMICO AL INICIO
+    const basePrice = appStore.get().tourBasePrice || 50;
     let extraCosts = 0.00;
 
+    // 2. SUMAR COSTOS ADICIONALES (EQUIPO RENTADO Y CATERING)
     document.querySelectorAll('.rental-checkbox:checked').forEach(box => {
         extraCosts += parseFloat(box.getAttribute('data-price') || '0');
     });
@@ -68,15 +69,16 @@ function calculateFormCosts() {
         extraCosts += parseFloat(radio.getAttribute('data-price') || '0');
     });
 
+    // 3. CALCULAR SERVICIO DE PORTEO
     const porterService = document.getElementById('hiker-porter')?.value;
     if (porterService === 'full') extraCosts += 35.00;
     if (porterService === 'shared') extraCosts += 20.00;
 
+    // 4. OPERACIONES FINALES USANDO LOS VALORES DINÁMICOS
     const totalUSD = basePrice + extraCosts;
-    // Extraemos la tasa cambiaria de forma segura consumiendo el contenedor protegido
     const totalVES = totalUSD * (appStore.get().bcvRate || 1);
 
-    // ... (resto de tu lógica de formateo y actualización de nodos) ...
+    // 5. ACTUALIZACIÓN DINÁMICA DE NODOS EN LA INTERFAZ
     document.getElementById('summary-total-usd')?.textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(totalUSD);
     document.getElementById('summary-total-ves')?.textContent = new Intl.NumberFormat('es-VE', { style: 'currency', currency: 'VES' }).format(totalVES);
 }

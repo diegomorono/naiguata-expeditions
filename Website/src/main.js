@@ -29,6 +29,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Ejecutamos únicamente la consulta de la tasa BCV al iniciar la carga de la página
         await resolveBcvRate();
 
+        renderDynamicSystemValues();
+
     } catch (e) {
         console.error("Error crítico en la inicialización:", e);
     }
@@ -70,4 +72,19 @@ function setupLazyLoading() {
 
         observer.observe(bookingForm);
     }
+}
+
+function renderDynamicSystemValues() {
+    const currentPrice = appStore.get().tourBasePrice;
+    const currentCapacity = appStore.get().maxCapacityPerDate;
+
+    // Buscamos e inyectamos el precio en todos los elementos que lo muestren
+    document.querySelectorAll('.tour-base-price-display').forEach(el => {
+        el.textContent = currentPrice;
+    });
+
+    // Buscamos e inyectamos la capacidad máxima en la UI
+    document.querySelectorAll('.max-capacity-display').forEach(el => {
+        el.textContent = currentCapacity;
+    });
 }
