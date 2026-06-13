@@ -617,94 +617,29 @@
             </section>
 
             <!--PASE DE EXPEDICIÓN-->
-            <section id="success-view" class="view-section" data-tags="checkout success pass confirmation static-view">
-                <div class="success-container glass-panel content-centered">
+            <section id="success-view" class="view-section hidden">
+                <div class="content-wrapper">
+                    <div class="success-container">
+                        <div class="success-icon-wrapper">
+                            <svg class="success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg>
+                        </div>
 
-                    <div class="success-actions">
-                        <button id="btn-print-pass" class="btn-primary">
-                            🖫 Guardar Pase
-                        </button>
-                        <button id="btn-share-adventure" class="btn-outline">
-                            🔗 Compartir en WhatsApp
-                        </button>
-                        <button id="btn-return-home" class="btn-secondary">Volver al Inicio</button>
-                    </div>
+                        <h2 class="section-title text-center">¡Registro Completado con Éxito!</h2>
+                        <p class="section-subtitle text-center">Tu lugar en la próxima expedición a Pico Naiguatá ha
+                            sido reservado. Se ha generado tu pase oficial de abordaje.</p>
 
-                    <div class="success-header">
-                        <div class="success-icon-badge">✓</div>
-                        <h2>¡Registro de Expedición Exitoso!</h2>
-                        <p>Tu cupo ha sido registrado con éxito. Por favor, imprime o guarda digitalmente tu
-                            <strong>Pase de Expedición</strong> para presentarlo el día de la salida.
-                        </p>
-                    </div>
-
-                    <div class="printable-pass-wrapper" id="printable-pass-card">
-                        <div class="pass-card">
-                            <div class="pass-brand">
-                                <div class="pass-brand-logo">
-                                    ⛰️ EXPEDICIONES NAIGUATÁ
-                                </div>
-                                <div class="pass-brand-badge">PASE DE CUMBRE</div>
-                            </div>
-
-                            <div class="pass-body">
-                                <div class="pass-main-info">
-                                    <div class="pass-info-block" style="grid-column: span 2;">
-                                        <span class="pass-label">HIKER / SENDERISTA</span>
-                                        <span class="pass-value" id="pass-hiker-name">Cargando...</span>
-                                    </div>
-                                </div>
-
-                                <div class="pass-grid">
-                                    <div class="pass-grid-item">
-                                        <span class="pass-label">FECHA DE SALIDA</span>
-                                        <span class="pass-value" id="pass-date">Cargando...</span>
-                                    </div>
-                                    <div class="pass-grid-item">
-                                        <span class="pass-label">RUTA</span>
-                                        <span class="pass-value">La Julia ➔ Pico Naiguatá</span>
-                                    </div>
-                                    <div class="pass-grid-item">
-                                        <span class="pass-label">CAMPAMENTO</span>
-                                        <span class="pass-value">El Anfiteatro (Pernocta)</span>
-                                    </div>
-                                    <div class="pass-grid-item">
-                                        <span class="pass-label">GRUPO</span>
-                                        <span class="pass-value" id="pass-group">NINGUNO</span>
-                                    </div>
-                                    <div class="pass-grid-item">
-                                        <span class="pass-label">DIETA / ALERGIAS</span>
-                                        <span class="pass-value" id="pass-diet">Estándar / Ninguna</span>
-                                    </div>
-                                    <div class="pass-grid-item">
-                                        <span class="pass-label">CARPA ASIGNADA</span>
-                                        <span class="pass-value" id="pass-tent">Por asignar</span>
-                                    </div>
-                                    <div class="pass-grid-item">
-                                        <span class="pass-label">REFERENCIA</span>
-                                        <span class="pass-value" id="pass-reference-display">N/A</span>
-                                    </div>
-                                    <div class="pass-grid-item" style="grid-column: span 2;">
-                                        <span class="pass-label">MONTO TOTAL PAGADO</span>
-                                        <span class="pass-value" id="pass-total-amount">0.00 USD</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="pass-divider"></div>
-
-                            <div class="pass-footer">
-                                <div class="pass-rules">
-                                    <strong>INSTRUCCIONES CLAVE:</strong>
-                                    <ul>
-                                        <li>Punto de encuentro: PGP La Julia, El Marqués, Caracas (7:00 AM).</li>
-                                        <li>Lleva obligatoriamente 4L de agua y ropa térmica de abrigo (10°C o menos
-                                            en la noche).</li>
-                                        <li>Prohibido el ingreso de bebidas alcohólicas o armas al Parque Nacional.
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
+                        <div class="success-actions"
+                            style="display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: 30px auto 0 auto;">
+                            <button id="btn-open-dedicated-pass" class="btn-primary">
+                                🎫 Ver e Imprimir Pase de Expedición
+                            </button>
+                            <button id="btn-success-home" class="btn-secondary">
+                                Volver al Inicio
+                            </button>
                         </div>
                     </div>
                 </div>

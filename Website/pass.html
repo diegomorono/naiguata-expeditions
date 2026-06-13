@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pase de Expedición | Naiguatá Expeditions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="./styles.css">
+
+    <style>
+        /* Estilos dedicados para la página del pase aislado en pantalla */
+        body {
+            background-color: var(--background, #080b0f);
+            color: var(--text, #f3f4f6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .dedicated-pass-container {
+            max-width: 650px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .pass-utility-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--panel-bg, rgba(15, 22, 30, 0.75));
+            border: 1px solid var(--panel-border, rgba(255, 255, 255, 0.08));
+            padding: 12px 20px;
+            border-radius: 12px;
+        }
+
+        .pass-utility-bar span {
+            font-size: 0.9rem;
+            color: var(--text-muted, #9ca3af);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .utility-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-utility {
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .btn-print {
+            background-color: var(--primary, #10b981);
+            color: #ffffff;
+            border: none;
+        }
+
+        .btn-print:hover {
+            background-color: var(--primary-hover, #059669);
+        }
+
+        .btn-copy {
+            background-color: transparent;
+            color: var(--text, #f3f4f6);
+            border: 1px solid var(--panel-border, rgba(255, 255, 255, 0.08));
+        }
+
+        .btn-copy:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        /* --- CONTROL ESTRICTO DE IMPRESIÓN --- */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                padding: 0;
+            }
+
+            .pass-utility-bar {
+                display: none !important;
+                /* Oculta botones y textos web */
+            }
+
+            .printable-pass-wrapper {
+                margin: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dedicated-pass-container">
+        <div class="pass-utility-bar">
+            <span id="pass-display-id">Cargando identificador...</span>
+            <div class="utility-buttons">
+                <button class="btn-utility btn-copy" id="btn-copy-link">🔗 Copiar Enlace</button>
+                <button class="btn-utility btn-print" onclick="window.print()">🖨️ Imprimir Pase</button>
+            </div>
+        </div>
+
+        <div class="printable-pass-wrapper">
+            <div class="pass-card">
+                <div class="pass-header">
+                    <div class="pass-title-group">
+                        <span class="pass-badge">PASAPORTE DE EXPEDICIÓN</span>
+                        <h3 class="pass-main-title">PICO NAIGUATÁ</h3>
+                    </div>
+                    <div class="pass-serial-box">
+                        <span class="serial-label">PASE ID</span>
+                        <span class="serial-value" id="pass-card-id">NG-XXXXX</span>
+                    </div>
+                </div>
+
+                <div class="pass-body">
+                    <div class="pass-meta-grid">
+                        <div class="meta-item">
+                            <span class="meta-label">SENDERISTA / EXPLORADOR</span>
+                            <span class="meta-value" id="pass-card-name">Cargando...</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">CÉDULA / PASAPORTE</span>
+                            <span class="meta-value" id="pass-card-doc">Cargando...</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">FECHA DE ASCENSO</span>
+                            <span class="meta-value" id="pass-card-date">Cargando...</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">RUTA AUTORIZADA</span>
+                            <span class="meta-value">La Julia - Topo Dos Banderas - Pico Naiguatá</span>
+                        </div>
+                    </div>
+
+                    <div class="pass-validation-zone">
+                        <div class="qr-placeholder">
+                            <div class="qr-mock-code"
+                                style="width: 110px; height: 110px; background: #000; margin: 0 auto; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; font-weight: bold; border-radius: 6px;">
+                                QR VERIFIED
+                            </div>
+                        </div>
+                        <div class="instructions-box">
+                            <strong>INSTRUCCIONES CLAVE:</strong>
+                            <ul>
+                                <li>Punto de encuentro: PGP La Julia, El Marqués, Caracas (7:00 AM).</li>
+                                <li>Lleva obligatoriamente 4L de agua y ropa térmica de abrigo (10°C o menos en la
+                                    noche).</li>
+                                <li>Prohibido el ingreso de bebidas alcohólicas o armas al Parque Nacional.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Importamos la configuración centralizada de tu app para tener acceso a Supabase
+        // Ajusta esta ruta relativa de acuerdo a dónde guardas la inicialización de Supabase
+        import { supabase } from './src/supabaseClient.js';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const idParam = params.get('id');
+
+            if (!idParam) {
+                alert('ID de pase inválido o inexistente.');
+                window.location.href = '/';
+                return;
+            }
+
+            // Mostrar el ID en la interfaz
+            document.getElementById('pass-display-id').innerText = `Pase Oficial: ${idParam}`;
+            document.getElementById('pass-card-id').innerText = idParam;
+
+            // Funcionalidad para copiar enlace
+            document.getElementById('btn-copy-link').addEventListener('click', () => {
+                navigator.clipboard.writeText(window.location.href);
+                alert('¡Enlace de pase copiado al portapapeles!');
+            });
+
+            try {
+                // Buscamos los datos exactos del senderista en Supabase usando el registration_id / ticket_id
+                const { data, error } = await supabase
+                    .from('registrations') // Ajusta al nombre exacto de tu tabla
+                    .select('full_name, id_number, expedition_date')
+                    .eq('registration_id', idParam) // Ajusta a tu columna llave primaria visual
+                    .single();
+
+                if (error || !data) throw new Error('No se encontró el registro asociado.');
+
+                // Asignación de datos al DOM del pase
+                document.getElementById('pass-card-name').innerText = data.full_name.toUpperCase();
+                document.getElementById('pass-card-doc').innerText = data.id_number;
+                document.getElementById('pass-card-date').innerText = new Date(data.expedition_date).toLocaleDateString('es-VE', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                });
+
+            } catch (err) {
+                console.error(err);
+                alert('Error al cargar la información del pase desde el servidor.');
+            }
+        });
+    </script>
+</body>
+
+</html>

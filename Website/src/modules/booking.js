@@ -95,13 +95,13 @@ async function handleFormSubmission(e) {
         const supabase = await getSupabaseClient();
         const formData = new FormData(form);
 
-        // Extraer los arreglos de equipamiento y catering seleccionados (igual que en los cálculos)
+        // Extraer los arreglos de equipamiento y catering seleccionados
         const selectedRentals = Array.from(document.querySelectorAll('.rental-checkbox:checked')).map(box => box.value);
         const selectedCatering = Array.from(document.querySelectorAll('.catering-radio:checked')).map(radio => radio.value);
         const porterService = document.getElementById('hiker-porter')?.value || 'No';
         const groupCode = formData.get('group_code') || 'INDIVIDUAL';
 
-        // LLAMADO AL RPC: Ejecuta la función de control atómico de cupos
+        // LLAMADO AL RPC
         const { data, error } = await supabase.rpc('registrar_excursionista', {
             p_id: crypto.randomUUID(),
             p_date: formData.get('date'),
@@ -114,8 +114,8 @@ async function handleFormSubmission(e) {
             p_allergies: sanearTexto(formData.get('allergies') || 'Ninguna.'),
             p_diet: sanearTexto(formData.get('diet') || 'Estándar'),
             p_medical: sanearTexto(formData.get('medical') || 'Ninguna.'),
-            p_rentals: JSON.stringify(selectedRentals),     // Enviado como texto serializado para el cast ::jsonb del RPC
-            p_catering: JSON.stringify(selectedCatering),   // Enviado como texto serializado para el cast ::jsonb del RPC
+            p_rentals: JSON.stringify(selectedRentals),
+            p_catering: JSON.stringify(selectedCatering),
             p_porter_service: porterService,
             p_total_usd: parseFloat(document.getElementById('summary-total-usd')?.textContent.replace(/[^0-9.]/g, '') || 0),
             p_payment_method: formData.get('payment_method'),
@@ -124,15 +124,24 @@ async function handleFormSubmission(e) {
 
         if (error) throw error;
 
-        // Validar si la base de datos rebotó la inscripción por falta de cupos
+        // Validar si la base de datos rebotó la inscripción
         if (data && !data.success) {
-            alert(data.message); // Muestra: "Cupos completamente agotados para este sábado."
+            alert(data.message);
             return;
         }
 
-        alert("¡Inscripción exitosa! Nos vemos en el Ávila.");
+        // --- CAMBIO AQUÍ: Redirigir al pase en lugar de solo mostrar alerta ---
+
+        // 1. Obtenemos el ID del registro (Asumiendo que tu RPC retorna el ID en data.id o data.registration_id)
+        // Ajusta 'registration_id' si tu RPC devuelve el nombre de columna diferente
+        const generatedId = data.registration_id || data.id;
+
+        // 2. Limpiamos formulario y draft
         localStorage.removeItem('naiguata_form_draft');
         form.reset();
+
+        // 3. Abrimos el pase en una pestaña nueva
+        window.open(`/pass.html?id=${generatedId}`, '_blank');
 
     } catch (err) {
         console.error("Error al enviar:", err);

@@ -3140,6 +3140,184 @@ section::after {
     width: 100%;
 }
 
+/* ==========================================================================
+   DESACOPLAMIENTO Y COMPONENTES DEL PASE DEDICADO (PASO 3)
+   ========================================================================== */
+
+/* Contenedor general del Pase cuando se ve en la web pass.html */
+.printable-pass-wrapper {
+    width: 100%;
+    background-color: #0b0f14;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    border: 2px dashed rgba(255, 255, 255, 0.15);
+    position: relative;
+}
+
+/* Tarjeta física interna (Diseño estilo Ticket) */
+.pass-card {
+    padding: 30px;
+    color: #000000;
+    background: #ffffff;
+    /* Fondo blanco para contraste perfecto al imprimir */
+    font-family: 'Inter', sans-serif;
+    border-radius: 14px;
+}
+
+/* Encabezado del Ticket */
+.pass-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #000000;
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+}
+
+.pass-badge {
+    background-color: #000000;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+}
+
+.pass-main-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #000000;
+    margin-top: 4px;
+}
+
+.pass-serial-box {
+    text-align: right;
+    border-left: 2px dashed #cccccc;
+    padding-left: 20px;
+}
+
+.serial-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #6b7280;
+    display: block;
+}
+
+.serial-value {
+    font-family: monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #000000;
+}
+
+/* Grid de datos del Senderista */
+.pass-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.meta-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #4b5563;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+}
+
+.meta-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #000000;
+}
+
+/* Zona de Validación Inferior */
+.pass-validation-zone {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    border-top: 1px dashed #cccccc;
+    padding-top: 20px;
+}
+
+.instructions-box {
+    font-size: 0.8rem;
+    color: #374151;
+    flex: 1;
+}
+
+.instructions-box strong {
+    color: #000000;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.instructions-box ul {
+    padding-left: 16px;
+}
+
+.instructions-box li {
+    margin-bottom: 4px;
+}
+
+/* ==========================================================================
+   REGLAS STRICT_PRINT RECOMENDADAS POR CLAUDE
+   ========================================================================== */
+@media print {
+
+    /* 1. Forzar que el fondo del documento de impresión sea blanco puro y texto negro */
+    html,
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* 2. Ocultar de manera definitiva componentes web que no pertenecen al papel */
+    header,
+    footer,
+    nav,
+    button,
+    .app-header,
+    .app-footer,
+    .pass-utility-bar,
+    .glow-orb {
+        display: none !important;
+    }
+
+    /* 3. Ajustar el envoltorio del pase para eliminar sombras y bordes de interfaz web */
+    .printable-pass-wrapper {
+        background: #ffffff !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* 4. Forzar que la tarjeta mantenga un borde estético de recorte en papel */
+    .pass-card {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 2px dashed #000000 !important;
+        box-shadow: none !important;
+        padding: 30px !important;
+    }
+}
+
 /* 2. Aseguramos que todas las secciones tengan el mismo fondo */
 section {
     background-color: var(--background);
