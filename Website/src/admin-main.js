@@ -5,7 +5,10 @@ import { getSupabaseClient } from './config/supabase.js';
 import { setupAdminAuth } from './admin/auth.js';
 import { updateDashboardData } from './admin/core.js';
 import { renderRoster } from './admin/roster.js';
-import { renderStats, setupExpenseForm } from './admin/finance.js'; // ← IMPORTAMOS TU MÓDULO FINANCIERO
+import { renderStats, setupExpenseForm } from './admin/finance.js';
+
+// NOTA: Asegúrate de que 'showErrorBanner' esté disponible globalmente 
+// o impórtala aquí si pertenece a un módulo de UI/utilidades.
 
 // Nombre consistente: initAdmin
 async function initAdmin() {
@@ -33,11 +36,25 @@ async function initAdmin() {
     setupExpenseForm();   // Activa el "escuchador" de tu formulario seguro de egresos
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+// 1. Transformamos el callback del listener en una función async
+document.addEventListener('DOMContentLoaded', async () => {
+
     // Verificación de sesión basada estrictamente en el token JWT
     if (sessionStorage.getItem('admin_token')) {
-        initAdmin();
+        // 2. Bloque seguro para carga con token existente
+        try {
+            await initAdmin();
+        } catch (e) {
+            showErrorBanner('No se pudo cargar el panel: ' + e.message);
+        }
     } else {
-        setupAdminAuth(initAdmin); // Pasamos la función como callback
+        // 3. Modificamos el callback del flujo de autenticación para que también capture errores post-login
+        setupAdminAuth(async () => {
+            try {
+                await initAdmin();
+            } catch (e) {
+                showErrorBanner('No se pudo cargar el panel: ' + e.message);
+            }
+        });
     }
 });
