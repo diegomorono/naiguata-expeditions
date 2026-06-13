@@ -27,14 +27,23 @@ export async function resolveBcvRate() {
         }
     } catch (err) {
         console.warn("[Naiguatá Fallback] Error resolviendo tasa BCV remota. Manteniendo respaldo por defecto:", err);
-        // Preserva de manera segura el valor inicializado en state.js sin romper la ejecución
     }
 }
 
-export async function loadSystemSettings() {
+/**
+ * CARGA DIFERIDA (LAZY LOADING)
+ * Se ejecuta únicamente cuando el usuario interactúa con la sección del formulario.
+ */
+export async function loadFormCatalogs() {
+    // Control de seguridad: si el inventario ya tiene datos, cancelamos para evitar queries duplicadas
+    const currentState = appStore.get();
+    if (currentState.inventory && currentState.inventory.length > 0) {
+        return;
+    }
+
     try {
         const supabase = await getSupabaseClient();
-        console.log("[Naiguatá API] Iniciando carga de catálogos...");
+        console.log("[Naiguatá API] [Lazy Load] Detectada proximidad al formulario. Descargando catálogos...");
 
         const [invRes, servRes, catRes] = await Promise.allSettled([
             supabase.from('inventory_stock').select('*'),
@@ -42,12 +51,10 @@ export async function loadSystemSettings() {
             supabase.from('catering_inventory').select('*')
         ]);
 
-        // 1. Definimos contenedores locales temporales
         let inventory = [];
         let logisticServices = [];
         let cateringCatalog = [];
 
-        // 2. Procesamiento seguro asignando a las variables locales
         if (invRes.status === 'fulfilled' && invRes.value.data) {
             inventory = invRes.value.data;
         } else {
@@ -62,24 +69,19 @@ export async function loadSystemSettings() {
             cateringCatalog = catRes.value.data;
         }
 
-        // 3. Modificamos el estado global de forma atómica e inmutable
+        // Modificación del estado global de forma atómica
         appStore.set({
             inventory,
             logisticServices,
             cateringCatalog
         });
 
-        // --- ARQUITECTURA DE DATOS LISTOS ---
-        // Leemos con .get() de forma segura para verificar la carga en la consola
-        console.log("[Naiguatá API] Catálogos cargados. Total items:", {
+        console.log("[Naiguatá API] [Lazy Load] Catálogos cargados diferidamente. Total items:", {
             inventory: appStore.get().inventory?.length || 0,
             catering: appStore.get().cateringCatalog?.length || 0
         });
 
-        // El CustomEvent 'app:data-ready' ha sido eliminado. 
-        // La reactividad ahora se maneja automáticamente a través de las suscripciones al Store.
-
     } catch (error) {
-        console.error("[Naiguatá API] Error crítico en red:", error);
+        console.error("[Naiguatá API] Error crítico en red durante Lazy Load:", error);
     }
 }
