@@ -6,7 +6,8 @@ import { getSupabaseClient } from '../config/supabase.js';
 import { appStore } from '../config/state.js';
 
 export function initBookingForm() {
-    const form = document.getElementById('booking-form');
+    // Se cambia 'booking-form' por 'expedition-form'
+    const form = document.getElementById('expedition-form');
     if (!form) return;
 
     // Escuchas reactivos para auto-guardado
@@ -60,27 +61,46 @@ function calculateFormCosts() {
     const basePrice = appStore.get().tourBasePrice || 50;
     let extraCosts = 0.00;
 
-    // 2. SUMAR COSTOS ADICIONALES (EQUIPO RENTADO Y CATERING)
-    document.querySelectorAll('.rental-checkbox:checked').forEach(box => {
-        extraCosts += parseFloat(box.getAttribute('data-price') || '0');
+    // 2. SUMAR COSTOS MULTIPLICADOS DE EQUIPOS (STEPPERS NUMÉRICOS)
+    document.querySelectorAll('.equipment-input').forEach(input => {
+        const qty = parseInt(input.value || '0');
+        const price = parseFloat(input.getAttribute('data-price') || '0');
+        extraCosts += qty * price;
     });
 
-    document.querySelectorAll('.catering-radio:checked').forEach(radio => {
-        extraCosts += parseFloat(radio.getAttribute('data-price') || '0');
+    // 3. SUMAR COSTOS MULTIPLICADOS DE CATERING (STEPPERS NUMÉRICOS)
+    document.querySelectorAll('.catering-input').forEach(input => {
+        const qty = parseInt(input.value || '0');
+        const price = parseFloat(input.getAttribute('data-price') || '0');
+        extraCosts += qty * price;
     });
 
-    // 3. CALCULAR SERVICIO DE PORTEO
-    const porterService = document.getElementById('hiker-porter')?.value;
-    if (porterService === 'full') extraCosts += 35.00;
-    if (porterService === 'shared') extraCosts += 20.00;
+    // 4. CALCULAR SERVICIO DE PORTEO (Usando el valor numérico del input oculto)
+    const porterValue = parseFloat(document.getElementById('logistic-carrier-select')?.value || '0');
+    extraCosts += porterValue;
 
-    // 4. OPERACIONES FINALES USANDO LOS VALORES DINÁMICOS
+    // 5. MOSTRAR U OCULTAR EL RESUMEN DE ADICIONALES EN LA INTERFAZ
+    const rentalSummaryRow = document.getElementById('rental-summary-row');
+    const rentalCostDisplay = document.getElementById('rental-cost-display');
+    if (rentalSummaryRow && rentalCostDisplay) {
+        if (extraCosts > 0) {
+            rentalSummaryRow.classList.remove('hidden');
+            rentalCostDisplay.textContent = `+$${extraCosts.toFixed(2)} USD`;
+        } else {
+            rentalSummaryRow.classList.add('hidden');
+        }
+    }
+
+    // 6. OPERACIONES FINALES
     const totalUSD = basePrice + extraCosts;
     const totalVES = totalUSD * (appStore.get().bcvRate || 1);
 
-    // 5. ACTUALIZACIÓN DINÁMICA DE NODOS EN LA INTERFAZ
-    document.getElementById('summary-total-usd')?.textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(totalUSD);
-    document.getElementById('summary-total-ves')?.textContent = new Intl.NumberFormat('es-VE', { style: 'currency', currency: 'VES' }).format(totalVES);
+    // 7. ACTUALIZACIÓN DINÁMICA DE NODOS REALES EN TU HTML
+    const totalUsdEl = document.getElementById('form-total-usd');
+    const totalVesEl = document.getElementById('form-total-ves');
+    
+    if (totalUsdEl) totalUsdEl.textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(totalUSD);
+    if (totalVesEl) totalVesEl.textContent = new Intl.NumberFormat('es-VE', { style: 'currency', currency: 'VES' }).format(totalVES);
 }
 
 // --- LÓGICA DE PERSISTENCIA Y ENVÍO ---
@@ -90,20 +110,27 @@ async function handleFormSubmission(e) {
     const form = e.target;
     const btnSubmit = document.getElementById('btn-submit-booking');
 
-    // Desactivar botón para evitar envíos duplicados
     if (btnSubmit) btnSubmit.disabled = true;
 
     try {
         const supabase = await getSupabaseClient();
         const formData = new FormData(form);
 
-        // Extraer los arreglos de equipamiento y catering seleccionados
-        const selectedRentals = Array.from(document.querySelectorAll('.rental-checkbox:checked')).map(box => box.value);
-        const selectedCatering = Array.from(document.querySelectorAll('.catering-radio:checked')).map(radio => radio.value);
-        const porterService = document.getElementById('hiker-porter')?.value || 'No';
+        // Extraer equipos y snacks con cantidades mayores a cero
+        const selectedRentals = Array.from(document.querySelectorAll('.equipment-input'))
+            .filter(input => parseInt(input.value || '0') > 0)
+            .map(input => `${input.id} (x${input.value})`);
+
+        const selectedCatering = Array.from(document.querySelectorAll('.catering-input'))
+            .filter(input => parseInt(input.value || '0') > 0)
+            .map(input => `${input.id} (x${input.value})`);
+
+        // Leer estado del portador
+        const porterSelect = document.getElementById('logistic-carrier-select');
+        const porterService = porterSelect && porterSelect.value !== "0" ? `Asignado ($${porterSelect.value} USD)` : 'No';
         const groupCode = formData.get('group_code') || 'INDIVIDUAL';
 
-        // LLAMADO AL RPC
+        // LLAMADO AL RPC CON LOS ATRIBUTOS NAME EXTRAÍDOS EXACTAMENTE DEL FORMULARIO
         const { data, error } = await supabase.rpc('registrar_excursionista', {
             p_id: crypto.randomUUID(),
             p_date: formData.get('date'),
@@ -114,35 +141,27 @@ async function handleFormSubmission(e) {
             p_gender: formData.get('gender'),
             p_tent_preference: formData.get('tent_preference'),
             p_allergies: sanearTexto(formData.get('allergies') || 'Ninguna.'),
-            p_diet: sanearTexto(formData.get('diet') || 'Estándar'),
+            p_diet: 'Estándar', 
             p_medical: sanearTexto(formData.get('medical') || 'Ninguna.'),
             p_rentals: JSON.stringify(selectedRentals),
             p_catering: JSON.stringify(selectedCatering),
             p_porter_service: porterService,
-            p_total_usd: parseFloat(document.getElementById('summary-total-usd')?.textContent.replace(/[^0-9.]/g, '') || 0),
+            p_total_usd: parseFloat(document.getElementById('form-total-usd')?.textContent.replace(/[^0-9.]/g, '') || 0),
             p_payment_method: formData.get('payment_method'),
             p_reference_number: sanearTexto(formData.get('reference_number') || 'N/A')
         });
 
         if (error) throw error;
 
-        // Validar si la base de datos rebotó la inscripción
         if (data && !data.success) {
             alert(data.message);
             return;
         }
 
-        // --- CAMBIO AQUÍ: Redirigir al pase en lugar de solo mostrar alerta ---
-
-        // 1. Obtenemos el ID del registro (Asumiendo que tu RPC retorna el ID en data.id o data.registration_id)
-        // Ajusta 'registration_id' si tu RPC devuelve el nombre de columna diferente
         const generatedId = data.registration_id || data.id;
-
-        // 2. Limpiamos formulario y draft
         localStorage.removeItem('naiguata_form_draft');
         form.reset();
 
-        // 3. Abrimos el pase en una pestaña nueva
         window.open(`/pass.html?id=${generatedId}`, '_blank');
 
     } catch (err) {
@@ -167,7 +186,8 @@ function sanearTexto(texto) {
 }
 
 export function saveFormDraft() {
-    const form = document.getElementById('booking-form');
+    // Se cambia 'booking-form' por 'expedition-form'
+    const form = document.getElementById('expedition-form');
     if (!form) return;
     const data = new FormData(form);
     const obj = Object.fromEntries(data.entries());
