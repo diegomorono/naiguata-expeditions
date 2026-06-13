@@ -12,10 +12,20 @@ export const routeSteps = [
     { name: "Pico Naiguatá", alt: 2765, dist: "8.5 km", desc: "La Cumbre Máxima de la Cordillera de la Costa. El icónico hito de la Cruz. Descenso de temperatura por debajo de 10°C.", icon: "✝️" }
 ];
 
+// Variable global de módulo para almacenar la capa estática en memoria
+let staticCacheCanvas = null;
+
 // Escuchamos el evento de datos listos para inicializar la UI
 window.addEventListener('app:data-ready', () => {
     initElevationStepper();
-    renderRouteGraphic(); // Dibujamos el gráfico una vez la UI esté lista
+    renderStaticGraphic();  // Genera la capa estática una sola vez al montar
+    renderDynamicGraphic(); // Dibuja la capa dinámica inicial
+});
+
+// ¡AÑADE ESTO! Re-calcula y re-dibuja ambas capas si la pantalla cambia de tamaño o se gira el móvil
+window.addEventListener('resize', () => {
+    renderStaticGraphic();
+    renderDynamicGraphic();
 });
 
 export function initElevationStepper() {
@@ -38,7 +48,7 @@ function showRouteDetails(index) {
     appState.activeStepIndex = index;
     const step = routeSteps[index];
 
-    // Actualización de clases (usando delegación también aquí sería ideal, pero esto es correcto)
+    // Actualización de clases
     document.querySelectorAll('.step-card').forEach((card, idx) => {
         card.classList.toggle('active', idx === index);
     });
@@ -56,50 +66,84 @@ function showRouteDetails(index) {
     if (nodeDist) nodeDist.textContent = step.dist;
     if (nodeDesc) nodeDesc.textContent = step.desc;
 
-    renderRouteGraphic();
+    // Ejecuta únicamente el renderizado de la capa dinámica (Punto activo)
+    renderDynamicGraphic();
 }
 
-export function renderRouteGraphic() {
+/**
+ * CAPA ESTÁTICA: Renderiza el gradiente y el path de elevación en un canvas oculto en memoria.
+ */
+export function renderStaticGraphic() {
     const canvas = document.getElementById('elevation-canvas');
     if (!canvas) return;
 
-    // Configuración de resolución (si el elemento no tiene tamaño, no renderiza)
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
     const W = canvas.clientWidth;
     const H = canvas.clientHeight;
-    if (W === 0 || H === 0) return; // Protección si el elemento está oculto
+    if (W === 0 || H === 0) return;
 
+    // Sincronizamos la resolución del elemento real
     canvas.width = W;
     canvas.height = H;
 
-    ctx.clearRect(0, 0, W, H);
-    // ... (El resto de tu lógica de canvas se mantiene igual)
-    const gridGrad = ctx.createLinearGradient(0, 0, 0, H);
+    // Inicializamos el canvas en memoria
+    staticCacheCanvas = document.createElement('canvas');
+    staticCacheCanvas.width = W;
+    staticCacheCanvas.height = H;
+
+    const sCtx = staticCacheCanvas.getContext('2d');
+    if (!sCtx) return;
+
+    // Lógica del renderizado estático del perfil de montaña
+    const gridGrad = sCtx.createLinearGradient(0, 0, 0, H);
     gridGrad.addColorStop(0, 'rgba(16, 185, 129, 0.25)');
     gridGrad.addColorStop(1, 'rgba(8, 11, 15, 0.9)');
 
-    ctx.fillStyle = gridGrad;
-    ctx.strokeStyle = '#10b981';
-    ctx.lineWidth = 3;
+    sCtx.fillStyle = gridGrad;
+    sCtx.strokeStyle = '#10b981';
+    sCtx.lineWidth = 3;
 
-    ctx.beginPath();
-    ctx.moveTo(0, H);
+    sCtx.beginPath();
+    sCtx.moveTo(0, H);
     const stepX = W / (routeSteps.length - 1);
     const maxAlt = 3000;
 
     routeSteps.forEach((s, idx) => {
         const x = idx * stepX;
         const y = H - (s.alt / maxAlt) * (H - 40);
-        ctx.lineTo(x, y);
+        sCtx.lineTo(x, y);
     });
 
-    ctx.lineTo(W, H);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
+    sCtx.lineTo(W, H);
+    sCtx.closePath();
+    sCtx.fill();
+    sCtx.stroke();
+}
 
+/**
+ * CAPA DINÁMICA: Limpia el lienzo principal, estampa el fondo guardado en caché y dibuja el hito activo.
+ */
+export function renderDynamicGraphic() {
+    const canvas = document.getElementById('elevation-canvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const W = canvas.width;
+    const H = canvas.height;
+    if (W === 0 || H === 0) return;
+
+    // Limpieza total del canvas visible
+    ctx.clearRect(0, 0, W, H);
+
+    // Estampado directo de la capa estática pre-renderizada desde memoria (Costo de CPU mínimo)
+    if (staticCacheCanvas) {
+        ctx.drawImage(staticCacheCanvas, 0, 0);
+    }
+
+    // Dibujo exclusivo de la capa dinámica (Punto naranja)
+    const stepX = W / (routeSteps.length - 1);
+    const maxAlt = 3000;
     const activeIdx = appState.activeStepIndex || 0;
     const actX = activeIdx * stepX;
     const actY = H - (routeSteps[activeIdx].alt / maxAlt) * (H - 40);
@@ -110,5 +154,5 @@ export function renderRouteGraphic() {
     ctx.beginPath();
     ctx.arc(actX, actY, 8, 0, Math.PI * 2);
     ctx.fill();
-    ctx.shadowBlur = 0;
+    ctx.shadowBlur = 0; // Reseteo inmediato de la sombra para optimizar rendering subsiguiente
 }
