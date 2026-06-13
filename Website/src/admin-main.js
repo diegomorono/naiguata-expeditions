@@ -3,7 +3,13 @@
    ========================================================================== */
 import { getSupabaseClient } from './config/supabase.js';
 import { setupAdminAuth } from './admin/auth.js';
-import { updateDashboardData } from './admin/core.js';
+// MODIFICACIÓN: Importamos las funciones controladoras premium desde core.js
+import { 
+    updateDashboardData, 
+    handleUpdateBCV, 
+    handleUpdateTourPrice, 
+    handleUpdateMaxCapacity 
+} from './admin/core.js';
 import { renderRoster } from './admin/roster.js';
 import { renderStats, setupExpenseForm } from './admin/finance.js';
 
@@ -58,6 +64,11 @@ async function initAdmin() {
 
     // NUEVO: Ejecuta la renderización del aforo máximo una vez autenticado
     await renderAdminCapacitySettings(supabase);
+
+    // MODIFICACIÓN: Conectamos los botones de actualización remota con sus funciones en core.js
+    document.getElementById('btn-update-bcv')?.addEventListener('click', () => handleUpdateBCV(supabase));
+    document.getElementById('btn-update-price')?.addEventListener('click', () => handleUpdateTourPrice(supabase));
+    document.getElementById('btn-update-capacity')?.addEventListener('click', () => handleUpdateMaxCapacity(supabase));
 }
 
 // 1. Transformamos el callback del listener en una función async

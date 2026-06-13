@@ -48,8 +48,19 @@ export async function updateDashboardData() {
 }
 
 export function handleUpdateBCV(supabaseClient) {
-    const newRate = prompt("Ingrese la nueva tasa oficial BCV:");
-    if (!newRate || isNaN(newRate)) return;
+    // CORRECCIÓN: Seleccionamos el input premium ya estructurado en el HTML
+    const bcvInput = document.querySelector('#admin-bcv-rate');
+    
+    if (!bcvInput) {
+        console.error("Error: No se encontró el input #admin-bcv-rate en el DOM.");
+        return;
+    }
+
+    const newRate = bcvInput.value.trim();
+    if (!newRate || isNaN(newRate)) {
+        alert("Por favor, ingrese una tasa BCV válida en el panel administrativo.");
+        return;
+    }
 
     supabaseClient.from('system_settings')
         .update({ value: parseFloat(newRate) })
@@ -61,8 +72,19 @@ export function handleUpdateBCV(supabaseClient) {
 }
 
 export function handleUpdateTourPrice(supabaseClient) {
-    const newPrice = prompt("Ingrese el nuevo precio base del tour ($ USD):");
-    if (!newPrice || isNaN(newPrice)) return;
+    // CORRECCIÓN: Aplicamos la misma lógica para evitar prompt() en el precio base
+    const priceInput = document.querySelector('#admin-tour-price');
+    
+    if (!priceInput) {
+        console.error("Error: No se encontró el input #admin-tour-price en el DOM.");
+        return;
+    }
+
+    const newPrice = priceInput.value.trim();
+    if (!newPrice || isNaN(newPrice)) {
+        alert("Por favor, ingrese un precio base válido en el panel.");
+        return;
+    }
 
     supabaseClient.from('system_settings')
         .update({ value: parseFloat(newPrice).toString() })
@@ -74,12 +96,23 @@ export function handleUpdateTourPrice(supabaseClient) {
 }
 
 export function handleUpdateMaxCapacity(supabaseClient) {
-    const newCapacity = prompt("Ingrese el nuevo límite estricto de capacidad:");
-    if (!newCapacity || isNaN(newCapacity)) return;
+    // CORRECCIÓN: Aplicamos la misma lógica para evitar prompt() en la capacidad máxima
+    const capacityInput = document.querySelector('#admin-max-capacity');
+    
+    if (!capacityInput) {
+        console.error("Error: No se encontró el input #admin-max-capacity en el DOM.");
+        return;
+    }
+
+    const newCapacity = capacityInput.value.trim();
+    if (!newCapacity || isNaN(newCapacity)) {
+        alert("Por favor, ingrese un límite estricto de capacidad numérico.");
+        return;
+    }
 
     supabaseClient.from('system_settings')
         .update({ value: parseInt(newCapacity, 10).toString() })
-        .eq('key', 'max_capacity') // <-- CORREGIDO: Ahora coincide con bcv.js
+        .eq('key', 'max_capacity') 
         .then(({ error }) => {
             if (error) alert("Error al actualizar la capacidad: " + error.message);
             else alert("Capacidad máxima del sistema actualizada con éxito.");

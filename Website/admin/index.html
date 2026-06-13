@@ -28,12 +28,12 @@
 
         <form id="admin-login-form">
             <div class="form-input-wrapper" style="margin-bottom: 20px;">
-                <label for="login-username">Usuario administrador</label>
-                <input type="text" id="login-username" required placeholder="Usuario">
+                <label for="admin-user">Usuario administrador</label>
+                <input type="text" id="admin-user" required placeholder="Usuario">
             </div>
             <div class="form-input-wrapper" style="margin-bottom: 30px;">
-                <label for="login-password">Contraseña</label>
-                <input type="password" id="login-password" required placeholder="••••••••••••">
+                <label for="admin-password">Contraseña</label>
+                <input type="password" id="admin-password" required placeholder="••••••••••••">
             </div>
             <button type="submit" id="btn-login-submit" class="btn-primary btn-large btn-full-width">
                 Iniciar Sesión
@@ -192,21 +192,34 @@
 
                 <!-- Panel de Control Financiero (Edición de Ajustes) -->
                 <div class="glass-panel" style="padding: 20px;">
-                    <h4 style="margin-top: 0; margin-bottom: 15px; font-family: 'Outfit', sans-serif;">Ajustes
-                        Financieros</h4>
+    <h4 style="margin-top: 0; margin-bottom: 15px; font-family: 'Outfit', sans-serif;">Ajustes Remotos de Sistema</h4>
 
-                    <div class="form-group-compact" style="margin-bottom: 15px;">
-                        <label for="admin-bcv-rate">Tasa de Cambio BCV (VES/USD)</label>
-                        <div class="input-with-action">
-                            <input type="number" step="0.01" id="admin-bcv-rate" value="40.00" style="padding: 6px;">
-                            <button id="btn-update-bcv" class="btn-small-primary"
-                                style="padding: 6px 12px;">Forzar</button>
-                        </div>
-                        <span class="input-tip-success" id="admin-bcv-status" style="font-size: 0.75rem;">Sincronizado
-                            vía base de datos Supabase.</span>
-                    </div>
+    <div class="form-group-compact" style="margin-bottom: 15px;">
+        <label for="admin-bcv-rate">Tasa de Cambio BCV (VES/USD)</label>
+        <div class="input-with-action">
+            <input type="number" step="0.01" id="admin-bcv-rate" value="40.00" style="padding: 6px;">
+            <button id="btn-update-bcv" class="btn-small-primary" style="padding: 6px 12px;">Forzar</button>
+        </div>
+        <span class="input-tip-success" id="admin-bcv-status" style="font-size: 0.75rem;">Sincronizado vía base de datos Supabase.</span>
+    </div>
 
-                    <hr class="panel-divider" style="margin: 15px 0;">
+    <div class="form-group-compact" style="margin-bottom: 15px;">
+        <label for="admin-tour-price">Precio Base del Tour ($ USD)</label>
+        <div class="input-with-action">
+            <input type="number" step="0.01" id="admin-tour-price" placeholder="Ej: 50.00" style="padding: 6px;">
+            <button id="btn-update-price" class="btn-small-primary" style="padding: 6px 12px;">Definir</button>
+        </div>
+    </div>
+
+    <div class="form-group-compact" style="margin-bottom: 15px;">
+        <label for="admin-max-capacity">Aforo Máximo Remoto (Límite)</label>
+        <div class="input-with-action">
+            <input type="number" id="admin-max-capacity" placeholder="Ej: 20" style="padding: 6px;">
+            <button id="btn-update-capacity" class="btn-small-primary" style="padding: 6px 12px;">Ajustar</button>
+        </div>
+    </div>
+
+    <hr class="panel-divider" style="margin: 15px 0;">
 
                     <h5 style="margin-top: 0; margin-bottom: 8px;">Inventario Total Carpas</h5>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
