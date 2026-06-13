@@ -550,18 +550,44 @@
                         </div>
 
                         <div class="form-group-title">Módulo de Pago</div>
-                        <div class="form-row">
-                            <div class="form-input-wrapper full-width">
-                                <label for="payment-method-select">Método de Pago *</label>
-                                <select id="payment-method-select" required>
-                                    <option value="" disabled selected>Selecciona tu forma de pago</option>
-                                    <option value="pagomovil">Pago Móvil (VES al cambio BCV)</option>
-                                    <option value="binance">Binance Pay (USDT)</option>
-                                    <option value="zelle">Zelle (USD)</option>
-                                    <option value="efectivo">Efectivo el día del tour (USD)</option>
-                                </select>
-                            </div>
-                        </div>
+<div class="form-row">
+    <div class="form-input-wrapper full-width">
+        <label for="payment-method-select">Método de Pago *</label>
+        <select id="payment-method-select" required>
+            <option value="" disabled selected>Selecciona tu forma de pago</option>
+            <option value="pagomovil">Pago Móvil (VES al cambio BCV)</option>
+            <option value="binance">Binance Pay (USDT)</option>
+            <option value="zelle">Zelle (USD)</option>
+            <option value="efectivo">Efectivo el día del tour (USD)</option>
+        </select>
+    </div>
+</div>
+
+<div id="payment-instructions-box" style="margin-top: 15px; display: none; padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+    
+    <div id="info-pagomovil" class="payment-method-info" style="display: none;">
+        <h4 style="margin-top: 0; margin-bottom: 10px; color: #ff9800;">Datos para Pago Móvil:</h4>
+        <p style="margin: 5px 0;"><strong>Banco:</strong> <span id="pm-banco">Cargando...</span></p>
+        <p style="margin: 5px 0;"><strong>Teléfono:</strong> <span id="pm-telefono">Cargando...</span></p>
+        <p style="margin: 5px 0;"><strong>Cédula:</strong> <span id="pm-cedula">Cargando...</span></p>
+    </div>
+
+    <div id="info-binance" class="payment-method-info" style="display: none;">
+        <h4 style="margin-top: 0; margin-bottom: 10px; color: #ff9800;">Datos para Binance Pay:</h4>
+        <p style="margin: 5px 0;"><strong>Email de Cuenta:</strong> <span id="binance-account">Cargando...</span></p>
+    </div>
+
+    <div id="info-zelle" class="payment-method-info" style="display: none;">
+        <h4 style="margin-top: 0; margin-bottom: 10px; color: #ff9800;">Datos para Zelle:</h4>
+        <p style="margin: 5px 0;"><strong>Titular:</strong> <span id="zelle-titular">Cargando...</span></p>
+        <p style="margin: 5px 0;"><strong>Email:</strong> <span id="zelle-account">Cargando...</span></p>
+    </div>
+
+    <div id="info-efectivo" class="payment-method-info" style="display: none;">
+        <h4 style="margin-top: 0; margin-bottom: 10px; color: #ff9800;">Pago en Efectivo:</h4>
+        <p style="margin: 5px 0;">Por favor, recuerda coordinar con el guía y traer el monto exacto en divisa física el día de la excursión.</p>
+    </div>
+
 
                         <div id="payment-instructions-box"
                             style="margin-top: 12px; margin-bottom: 12px; display: none;"></div>

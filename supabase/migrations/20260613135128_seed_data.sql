@@ -33,3 +33,16 @@ ON CONFLICT (service_id) DO UPDATE SET price_usd = EXCLUDED.price_usd;
 INSERT INTO system_settings (key, value) VALUES
 ('tour_base_price', '50'),
 ('max_capacity_per_date', '12');
+
+-- Ejecuta este comando para insertar o actualizar tus datos financieros en la tabla
+INSERT INTO system_settings (key, value)
+VALUES ('payment_info', '{
+  "pagomovil_banco": "Banesco",
+  "pagomovil_telefono": "04262062588",
+  "pagomovil_cedula": "V-24.218.655",
+  "binance_email": "thecardanomerch@gmail.com",
+  "zelle_titular": "Diego Moroño",
+  "zelle_correo": "diego.morono03@gmail.com"
+}'::jsonb)
+ON CONFLICT (key) 
+DO UPDATE SET value = EXCLUDED.value;

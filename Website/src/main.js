@@ -4,7 +4,7 @@ import { resolveBcvRate, loadFormCatalogs } from './modules/bcv.js';
 import { initElevationStepper, renderRouteGraphic } from './modules/route.js';
 import { initGearChecklist } from './modules/checklist.js';
 import { initBookingForm, restoreFormDraft } from './modules/booking.js';
-import { initPaymentInstructions } from './modules/payment.js';
+import { initPaymentInstructions, loadPaymentData } from './modules/payment.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("[Main] Montando la estructura de la aplicación...");
@@ -28,6 +28,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Ejecutamos únicamente la consulta de la tasa BCV al iniciar la carga de la página
         await resolveBcvRate();
+
+        // Carga de forma segura los datos financieros desde la columna JSONB de Supabase
+        await loadPaymentData();
 
         renderDynamicSystemValues();
 

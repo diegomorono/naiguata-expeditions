@@ -175,18 +175,15 @@ A diferencia de los sistemas con aprobaciones bloqueantes, este software prioriz
     5. **Módulo de Pagos Simplificado (Flujo Rápido sin APIs Externas):**
         - *Lógica de Operación:* Para evitar dependencias, burocracia o aprobaciones institucionales con plataformas de pago, el sistema operará mediante verificación de datos y referencias manuales/asistidas, agilizando el despliegue del software.
         - *Pago Móvil (VES):* El formulario desplegará de forma dinámica los datos fijos de recepción del administrador:
-            - **Banco:** Banesco
-            - **Celular:** 04262062588
-            - **Cédula de Identidad:** V-24.218.655
             El sistema calculará automáticamente el monto en Bolívares usando la tasa BCV del día reflejada en el Hero. El cliente completará la transferencia desde su banco e ingresará obligatoriamente el "Número de Referencia" de la transacción para procesar su registro.
         - *Cripto (USDT con Binance Pay):* El sistema mostrará en pantalla las credenciales directas de la cuenta:
-            - **Email:** thecardanomerch@gmail.com
             - **Diseño de Interfaz (UI):** El Agente debe maquetar un contenedor centrado para un código QR de pago. Por ahora, se dejará un placeholder visual limpio o un icono de QR estilizado, permitiendo que la imagen final del QR (`diegomorono`) se vincule localmente más adelante.
             El cliente realizará la transferencia directa de app a app e ingresará su ID de usuario o número de comprobante de Binance como campo de validación.
         - *Dólares Manuales (Zelle / Efectivo):* 
             - Si selecciona "Zelle", emergerá un cuadro visual con los datos (Titular: Diego Moroño | Correo: diego.morono03@gmail.com) y un input obligatorio para el "Número de Referencia".
             - Si selecciona "Efectivo", el sistema le indicará que el pago se entregará en persona el día de la salida y dejará el registro completado.
         - *Estado en Base de Datos:* Toda transacción procesada por estos métodos ingresará a la tabla `financial_transactions` con el estatus `🟡 Pendiente por Verificar`. Al administrador le aparecerá una alerta visual en su Consola Privada donde, con un solo botón de **[Aprobar Pago]**, cambiará el estatus a `🟢 Confirmado`, actualizando automáticamente las métricas y los saldos de caja del tour.
+        "Queda prohibido hardcodear datos financieros del guía. El sistema debe realizar una petición asíncrona a la tabla system_settings de Supabase al cargar la aplicación y poblar dinámicamente los campos de Pago Móvil, Binance Pay y Zelle en la interfaz del cliente".
 - **Persistencia:** Conexión directa vía HTTP a Supabase usando la `Anon Key`.
 
 ### 🔍 Módulo de Sanitización, Normalización de Texto y Máscaras de Entrada
