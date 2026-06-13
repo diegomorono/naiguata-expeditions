@@ -3,6 +3,9 @@
    ========================================================================== */
 import { getSupabaseClient } from '../config/supabase.js';
 import { adminStore } from '../config/state.js';
+// CORRECCIÓN: Importamos los módulos de renderizado para poder actualizar la interfaz
+import { renderStats } from './finance.js';
+import { renderRoster } from './roster.js';
 
 export async function updateDashboardData() {
     try {
@@ -11,20 +14,34 @@ export async function updateDashboardData() {
         // Extraemos la fecha seleccionada de forma segura usando .get()
         const selectedDate = adminStore.get().selectedDate;
 
-        const { data, error } = await supabase
-            .from('registrations')
-            .select('*')
-            .eq('date', selectedDate);
+        // CORRECCIÓN: Cargamos en paralelo tanto 'registrations' como 'financials' filtrados por la fecha seleccionada
+        const [registrationsResponse, financialsResponse] = await Promise.all([
+            supabase
+                .from('registrations')
+                .select('*')
+                .eq('date', selectedDate),
+            supabase
+                .from('financials') // Asegúrate de que este sea el nombre exacto de tu tabla de gastos/ingresos
+                .select('*')
+                .eq('date', selectedDate) // Si deseas que las finanzas se muestren globales y no por día, remueve esta línea
+        ]);
 
-        if (error) throw error;
+        if (registrationsResponse.error) throw registrationsResponse.error;
+        if (financialsResponse.error) throw financialsResponse.error;
 
         // Modificamos el estado administrativo de forma atómica e inmutable
+        // CORRECCIÓN: Usamos el spread operador para no borrar 'selectedDate' u otras propiedades del store
         adminStore.set({
-            registrations: data
+            ...adminStore.get(),
+            registrations: registrationsResponse.data || [],
+            financials: financialsResponse.data || []
         });
 
-        // Aquí llamarías a renderRoster() y renderStats() de los otros módulos
-        console.log("[Admin Core] Datos actualizados para:", selectedDate);
+        // CORRECCIÓN: Invocamos de forma reactiva los renders con los datos nuevos del store
+        renderRoster();
+        renderStats();
+
+        console.log("[Admin Core] Datos y vistas actualizados para:", selectedDate);
     } catch (err) {
         console.error("Error actualizando dashboard:", err);
     }

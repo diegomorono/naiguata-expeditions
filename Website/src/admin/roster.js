@@ -1,7 +1,9 @@
 import { adminStore } from '../config/state.js';
+import { DOM_IDS } from '../config/dom-ids.js';
 
 export function renderRoster() {
-    const container = document.getElementById('roster-container');
+    // Vinculado al ID correcto del contrato para corregir el desfase con el HTML
+    const container = document.getElementById(DOM_IDS.roster.container);
     if (!container) return;
 
     // Limpiamos el contenedor de forma segura antes de renderizar
@@ -13,7 +15,7 @@ export function renderRoster() {
     // Iteramos y creamos los nodos de forma segura usando textContent
     registrations.forEach(r => {
         const row = document.createElement('div');
-        // CORRECCIÓN: Ahora evalúa la columna correcta 'medical' de tu base de datos
+        // Evalúa la columna correcta 'medical' de la base de datos
         row.className = `hiker-row ${r.medical ? 'has-alert' : ''}`;
 
         const nameSpan = document.createElement('span');
@@ -30,7 +32,7 @@ export function renderRoster() {
         row.appendChild(whatsappSpan);
         row.appendChild(statusSpan);
 
-        // Inyectamos la fila segura en el contenedor principal
+        // Inyectamos la fila segura en el contenedor principal corregido
         container.appendChild(row);
     });
 }

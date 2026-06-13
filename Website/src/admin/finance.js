@@ -1,15 +1,16 @@
 import { getSupabaseClient } from '../config/supabase.js';
 import { adminStore } from '../config/state.js';
+import { DOM_IDS } from '../config/dom-ids.js';
 
 export function renderStats() {
     // Calcula el total neto sumando los montos consumiendo el estado de forma inmutable con .get()
     const financials = adminStore.get().financials || [];
     const totalUSD = financials.reduce((acc, curr) => acc + (curr.total_neto_usd || curr.amount || 0), 0);
-    document.getElementById('stat-total-usd').textContent = `$${totalUSD}`;
+    document.getElementById(DOM_IDS.finance.statTotalUsd).textContent = `$${totalUSD}`;
 }
 
 export function setupExpenseForm() {
-    const expenseForm = document.getElementById('expense-form');
+    const expenseForm = document.getElementById(DOM_IDS.finance.expenseForm);
     if (!expenseForm) return;
 
     expenseForm.addEventListener('submit', async (e) => {
@@ -18,17 +19,16 @@ export function setupExpenseForm() {
         // 1. Obtener la instancia del cliente de Supabase
         const supabase = await getSupabaseClient();
 
-        // 2. Extraer los datos directamente de los inputs de tu formulario HTML
-        const date = document.getElementById('expense-date')?.value;              // Formato 'YYYY-MM-DD'
-        const concept = document.getElementById('expense-concept')?.value;        // Texto descriptivo
-        const category = document.getElementById('expense-category')?.value;      // Debe coincidir con tus restricciones (ej: 'Catering/Alimentos')
-        const account = document.getElementById('expense-account')?.value;        // 'Efectivo', 'Binance', 'Zelle' o 'Banco Bs'
-        const currency = document.getElementById('expense-currency')?.value;      // 'USD' o 'VES'
-        const amountOriginal = parseFloat(document.getElementById('expense-amount')?.value || 0);
-        const exchangeRate = parseFloat(document.getElementById('expense-rate')?.value || 1);
+        // 2. Extraer los datos directamente de los inputs usando el contrato de IDs
+        const date = document.getElementById(DOM_IDS.finance.expenseDate)?.value;
+        const concept = document.getElementById(DOM_IDS.finance.expenseConcept)?.value;
+        const category = document.getElementById(DOM_IDS.finance.expenseCategory)?.value;
+        const account = document.getElementById(DOM_IDS.finance.expenseAccount)?.value;
+        const currency = document.getElementById(DOM_IDS.finance.expenseCurrency)?.value;
+        const amountOriginal = parseFloat(document.getElementById(DOM_IDS.finance.expenseAmount)?.value || 0);
+        const exchangeRate = parseFloat(document.getElementById(DOM_IDS.finance.expenseRate)?.value || 1);
 
-        // El registration_id suele ser opcional (null) para gastos generales, o puedes capturarlo si el gasto se asocia a un cliente
-        const registrationId = document.getElementById('expense-registration-id')?.value || null;
+        const registrationId = document.getElementById(DOM_IDS.finance.expenseRegistrationId)?.value || null;
 
         // 3. Calcular automáticamente el total neto en USD si la moneda es Bolívares (VES)
         let totalNetoUsd = amountOriginal;
@@ -37,11 +37,11 @@ export function setupExpenseForm() {
         }
 
         try {
-            // 4. Ejecutar el llamado seguro a través del RPC (Evita el bloqueo de la RLS)
+            // 4. Ejecutar el llamado seguro a través del RPC
             const { error } = await supabase.rpc('registrar_transaccion_segura', {
                 p_registration_id: registrationId,
                 p_date: date,
-                p_type: 'Egreso', // Al ser un formulario de gastos, se guarda estrictamente como 'Egreso'
+                p_type: 'Egreso',
                 p_concept: concept,
                 p_category: category,
                 p_account: account,
@@ -55,9 +55,6 @@ export function setupExpenseForm() {
 
             alert("¡Gasto registrado exitosamente de forma segura!");
             expenseForm.reset();
-
-            // Opcional: Aquí puedes volver a llamar a las funciones que recarguen visualmente tus tablas/gráficos en el dashboard
-            // await updateDashboardData(); 
 
         } catch (error) {
             console.error("Error al registrar la transacción financiera:", error);
