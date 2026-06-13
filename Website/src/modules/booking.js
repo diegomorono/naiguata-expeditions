@@ -116,21 +116,32 @@ async function handleFormSubmission(e) {
         const supabase = await getSupabaseClient();
         const formData = new FormData(form);
 
-        // Extraer equipos y snacks con cantidades mayores a cero
-        const selectedRentals = Array.from(document.querySelectorAll('.equipment-input'))
-            .filter(input => parseInt(input.value || '0') > 0)
-            .map(input => `${input.id} (x${input.value})`);
+        // 1. Extraemos los equipos estructurados como pares ID -> CANTIDAD
+        const selectedRentals = {};
+        document.querySelectorAll('.equipment-input').forEach(input => {
+            const qty = parseInt(input.value || '0');
+            if (qty > 0) {
+                // Usamos el ID del input (o el atributo de base de datos) y su cantidad numérica
+                selectedRentals[input.id] = qty;
+            }
+        });
 
-        const selectedCatering = Array.from(document.querySelectorAll('.catering-input'))
-            .filter(input => parseInt(input.value || '0') > 0)
-            .map(input => `${input.id} (x${input.value})`);
+        // 2. Extraemos el catering estructurado como pares ID -> CANTIDAD
+        const selectedCatering = {};
+        document.querySelectorAll('.catering-input').forEach(input => {
+            const qty = parseInt(input.value || '0');
+            if (qty > 0) {
+                selectedCatering[input.id] = qty;
+            }
+        });
 
-        // Leer estado del portador
+        // 3. Leer estado del portador (enviamos solo un booleano para validar del lado del servidor si aplica costo)
         const porterSelect = document.getElementById('logistic-carrier-select');
-        const porterService = porterSelect && porterSelect.value !== "0" ? `Asignado ($${porterSelect.value} USD)` : 'No';
+        const wantsPorter = porterSelect && porterSelect.value !== "0";
+        
         const groupCode = formData.get('group_code') || 'INDIVIDUAL';
 
-        // LLAMADO AL RPC CON LOS ATRIBUTOS NAME EXTRAÍDOS EXACTAMENTE DEL FORMULARIO
+        // LLAMADO AL RPC ALTERADO: Ya no enviamos p_total_usd ni textos planos legibles
         const { data, error } = await supabase.rpc('registrar_excursionista', {
             p_id: crypto.randomUUID(),
             p_date: formData.get('date'),
@@ -143,10 +154,12 @@ async function handleFormSubmission(e) {
             p_allergies: sanearTexto(formData.get('allergies') || 'Ninguna.'),
             p_diet: 'Estándar', 
             p_medical: sanearTexto(formData.get('medical') || 'Ninguna.'),
-            p_rentals: JSON.stringify(selectedRentals),
-            p_catering: JSON.stringify(selectedCatering),
-            p_porter_service: porterService,
-            p_total_usd: parseFloat(document.getElementById('form-total-usd')?.textContent.replace(/[^0-9.]/g, '') || 0),
+            
+            // Enviamos los objetos JSON puros a la base de datos
+            p_rentals: selectedRentals, 
+            p_catering: selectedCatering,
+            p_wants_porter: wantsPorter, 
+            
             p_payment_method: formData.get('payment_method'),
             p_reference_number: sanearTexto(formData.get('reference_number') || 'N/A')
         });
