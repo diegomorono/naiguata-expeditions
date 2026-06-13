@@ -35,6 +35,8 @@
 
     --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --primary-bright: #00e676;
+    --select-option-bg: #151a17;
 }
 
 /* 1. Fondo uniforme para toda la página */
@@ -1911,7 +1913,6 @@ textarea:focus {
     grid-template-columns: 1fr;
     gap: 20px;
 }
-}
 
 @media (max-width: 600px) {
     .hero-title {
@@ -2075,29 +2076,29 @@ select {
 
 /* Contenedor del gráfico en Computadoras */
 .elevation-profile-container {
-    background: linear-gradient(145deg, #07120e, #030605) !important;
-    border: 1px solid rgba(0, 230, 118, 0.12) !important;
-    border-radius: 12px !important;
-    padding: 20px 10px !important;
+    background: linear-gradient(145deg, #07120e, #030605);
+    border: 1px solid rgba(0, 230, 118, 0.12);
+    border-radius: 12px;
+    padding: 20px 10px;
 }
 
 /* Ajuste milimétrico de los puntos interactivos para la escala 0 a 100 */
 .map-dot {
-    fill: #040806 !important;
-    stroke: var(--primary) !important;
-    stroke-width: 0.4px !important;
+    fill: #040806;
+    stroke: var(--primary);
+    stroke-width: 0.4px;
     /* Grosor fino para que no tape la línea */
-    cursor: pointer !important;
-    transition: all 0.2s ease !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .map-dot:hover,
 .map-dot.active {
-    fill: var(--primary) !important;
-    stroke-width: 0.6px !important;
-    r: 2px !important;
+    fill: var(--primary);
+    stroke-width: 0.6px;
+    r: 2px;
     /* Radio adaptado a la nueva escala interna */
-    filter: drop-shadow(0 0 3px var(--primary)) !important;
+    filter: drop-shadow(0 0 3px var(--primary));
 }
 
 /* ==========================================================================
@@ -2162,29 +2163,25 @@ select {
    FIX DE COLOR PARA MENÚS DESPLEGABLES (DROP_DOWNS)
    ========================================================================== */
 
-/* Forzar el fondo oscuro en el select y en su lista desplegable nativa */
+/* Forzar el fondo oscuro en el select y en su lista desplegable nativa usando variables del sistema */
 select,
 #booking-date,
 .form-input-wrapper select {
-    background-color: #1e2622 !important;
-    /* Gris verdoso oscuro que combina con tu UI */
-    color: #e0e6e3 !important;
-    /* Texto claro suave */
-    border: 1px solid rgba(0, 230, 118, 0.2) !important;
+    background-color: var(--background-alt);
+    color: var(--text);
+    border: 1px solid rgba(0, 230, 118, 0.2);
 }
 
-/* Apuntar directamente a las opciones internas para destruir el fondo blanco del navegador */
+/* Apuntar directamente a las opciones internas para usar el color optimizado de la lista */
 select option {
-    background-color: #151a17 !important;
-    /* Fondo ultra oscuro para la lista cuando se abre */
-    color: #e0e6e3 !important;
-    /* Texto claro */
-    padding: 10px !important;
+    background-color: var(--select-option-bg);
+    color: var(--text);
+    padding: 10px;
 }
 
-/* Evitar que las opciones deshabilitadas (como 'Selecciona un sábado') se vean mal */
+/* Evitar que las opciones deshabilitadas se vean ilegibles, permitiendo un flujo de cascada limpio */
 select option:disabled {
-    color: rgba(255, 255, 255, 0.3) !important;
+    color: rgba(255, 255, 255, 0.3);
 }
 
 /* ==========================================================================
@@ -2619,11 +2616,11 @@ select {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(255, 255, 255, 0.04) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 10px !important;
-    padding: 14px 16px !important;
-    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: #ffffff;
     font-family: 'Inter', sans-serif;
     font-size: 0.95rem;
     text-align: left;
@@ -2633,26 +2630,26 @@ select {
 }
 
 .carrier-btn:hover {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Cuando el cliente selecciona una opción, brilla en verde esmeralda */
 .carrier-btn.active {
-    background: rgba(16, 185, 129, 0.12) !important;
-    border-color: #10b981 !important;
+    background: rgba(16, 185, 129, 0.12);
+    border-color: #10b981;
     /* Mismo --primary de Naiguatá Expeditions */
     box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);
 }
 
 .carrier-title {
     font-weight: 500;
-    color: #ffffff !important;
+    color: #ffffff;
 }
 
 .carrier-price {
     font-weight: 700;
-    color: #10b981 !important;
+    color: #10b981;
     background: rgba(16, 185, 129, 0.15);
     padding: 4px 10px;
     border-radius: 6px;
@@ -2661,15 +2658,15 @@ select {
 
 /* El badge del precio se vuelve sólido al estar seleccionado */
 .carrier-btn.active .carrier-price {
-    background: #10b981 !important;
-    color: #080b0f !important;
+    background: #10b981;
+    color: #080b0f;
     /* Fondo oscuro interno */
 }
 
 /* Unificación estética para las tarjetas del formulario */
 .step-card {
-    background: var(--panel-bg) !important;
-    border: 1px solid var(--panel-border) !important;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
     border-radius: 16px;
     padding: 24px;
     margin-bottom: 20px;
@@ -2679,15 +2676,15 @@ select {
 
 /* Efecto hover interactivo idéntico al resto de opciones */
 .step-card:hover {
-    border-color: var(--panel-border-hover) !important;
+    border-color: var(--panel-border-hover);
 }
 
 /* Estilo unificado para las cajas de selección desplegables */
 .custom-select {
     width: 100%;
-    background-color: rgba(255, 255, 255, 0.03) !important;
-    border: 1px solid var(--panel-border) !important;
-    color: var(--text) !important;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--panel-border);
+    color: var(--text);
     border-radius: 8px;
     padding: 12px;
     font-family: inherit;
@@ -2705,53 +2702,42 @@ select {
 
 /* Iluminación de foco al hacer click en el select */
 .custom-select:focus {
-    border-color: var(--primary) !important;
+    border-color: var(--primary);
 }
 
 /* Estilo para las opciones del desplegable en el sistema */
 .custom-select option {
-    background-color: var(--background-alt) !important;
-    color: var(--text) !important;
+    background-color: var(--background-alt);
+    color: var(--text);
 }
 
 /* ==========================================================================
    CORRECCIÓN DEFINITIVA: ELIMINAR BORDES Y FONDOS VERDES
    ========================================================================== */
 
-/* 1. Forzar que el selector de Género tenga exactamente el mismo borde sutil que el de Alojamiento */
-#hiker-gender,
-#hiker-gender:focus,
-select#hiker-gender {
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    background-color: rgba(15, 22, 30, 0.4) !important;
-    box-shadow: none !important;
-}
-
-/* 2. Quitar el recuadro o fondo verde de la tarjeta contenedor de Alergias Alimentarias */
+/* 1. Tarjetas contenedor de Alergias Alimentarias y Salud alineadas al diseño base sin sobreescrituras forzadas */
 .step-card,
 div[class*="health"],
 div[class*="alergia"] {
-    background: rgba(15, 22, 30, 0.75) !important;
+    background: rgba(15, 22, 30, 0.75);
     /* Mismo fondo oscuro de Datos del Participante */
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     /* Mismo borde gris sutil */
-    box-shadow: none !important;
+    box-shadow: none;
 }
 
-/* 3. Asegurar que los selectores internos de Alergias sigan la misma estética gris/oscura */
-#hiker-allergies,
-select {
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    background-color: rgba(255, 255, 255, 0.03) !important;
-    color: var(--text) !important;
+/* 2. Asegurar que el campo específico de alergias mantenga la estética oscura del formulario */
+#hiker-allergies {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.03);
+    color: var(--text);
 }
 
-/* 4. Efecto hover unificado para todos (Gris claro al pasar el mouse, NO verde) */
-#hiker-gender:hover,
-#hiker-tent-preference:hover,
-#hiker-allergies:hover,
-.step-card:hover {
-    border-color: rgba(255, 255, 255, 0.2) !important;
+/* 3. Efecto hover unificado para las tarjetas de salud y campo de alergias (Gris claro al pasar el mouse, NO verde) */
+div[class*="health"]:hover,
+div[class*="alergia"]:hover,
+#hiker-allergies:hover {
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 /* ==========================================================================
@@ -2777,80 +2763,54 @@ div[class*="catering"] .price {
 }
 
 /* ==========================================================================
-   UNIFICACIÓN ESTRICTA DE SELECTORES (GÉNERO Y ALOJAMIENTO)
+   UNIFICACIÓN ESTRICTA DE SELECTORES (GÉNERO, ALOJAMIENTO Y PAGO)
    ========================================================================== */
 
-/* Forzar que todos los selects del formulario tengan el mismo tamaño, tipografía y comportamiento */
+/* Regla maestra unificada para todos los menús desplegables del formulario */
 #hiker-gender,
 #hiker-tent-preference,
+#payment-method-select,
 .form-input-wrapper select {
-    width: 100% !important;
-    height: 48px !important;
-    /* Forzamos una altura fija idéntica */
-    padding: 10px 16px !important;
-    /* Ajuste interno para centrar el texto */
-    background-color: rgba(255, 255, 255, 0.03) !important;
-    /* Fondo oscuro idéntico */
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    /* Mismo borde sutil */
-    color: #ffffff !important;
-    border-radius: 8px !important;
-    font-family: inherit !important;
-    font-size: 0.95rem !important;
-    /* Mismo tamaño de letra */
-    line-height: 1.5 !important;
-    outline: none !important;
-    cursor: pointer !important;
-    -webkit-appearance: none !important;
-    /* Elimina estilos rebeldes de navegadores */
-    -moz-appearance: none !important;
-    appearance: none !important;
+    width: 100%;
+    height: 48px;
+    padding: 10px 16px;
+    padding-right: 40px;
+    /* Espacio reservado para la flecha SVG */
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    outline: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 
-    /* Mantenemos la flechita clásica del select a la derecha de forma limpia */
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
-    background-repeat: no-repeat !important;
-    background-position: right 12px center !important;
-    background-size: 16px !important;
-    padding-right: 40px !important;
+    /* Flecha minimalista SVG común para mantener consistencia visual */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
 }
 
-/* Evitar que cambien de tamaño o color al pasar el mouse (Hover unificado) */
+/* Estado Hover unificado (Efecto sutil al pasar el cursor) */
 #hiker-gender:hover,
-#hiker-tent-preference:hover {
-    border-color: rgba(255, 255, 255, 0.2) !important;
-    background-color: rgba(255, 255, 255, 0.05) !important;
+#hiker-tent-preference:hover,
+#payment-method-select:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* Evitar variaciones cuando el elemento está enfocado */
+/* Estado Focus y Activo unificado (Iluminación esmeralda al hacer clic) */
 #hiker-gender:focus,
-#hiker-tent-preference:focus {
-    border-color: var(--primary, #10b981) !important;
-    /* O el color de enfoque de tu sistema */
-}
-
-/* Unificación total del Selector de Métodos de Pago */
-#payment-method-select {
-    width: 100% !important;
-    height: 48px !important;
-    padding: 10px 16px !important;
-    background-color: rgba(255, 255, 255, 0.03) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #ffffff !important;
-    border-radius: 8px !important;
-    font-size: 0.95rem !important;
-    outline: none !important;
-    -webkit-appearance: none !important;
-    appearance: none !important;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
-    background-repeat: no-repeat !important;
-    background-position: right 12px center !important;
-    background-size: 16px !important;
-}
-
+#hiker-tent-preference:focus,
 #payment-method-select:focus,
 #payment-method-select:active {
-    border-color: rgba(255, 255, 255, 0.2) !important;
-    box-shadow: none !important;
+    border-color: var(--primary, #10b981);
+    box-shadow: none;
 }
 
 /* ==========================================================================
