@@ -350,7 +350,7 @@ h6 {
 }
 
 .header-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 16px 24px;
   display: flex;
@@ -1889,7 +1889,7 @@ textarea:focus {
 }
 
 .footer-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -2880,7 +2880,7 @@ section::after {
   /* Texto ocupa el resto, tarjeta fija a 450px */
   gap: 60px;
   align-items: center;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 0 20px;
 }
@@ -2977,7 +2977,7 @@ section::after {
 
 /* 2. Wrapper central: EL QUE REALMENTE CENTRA TODO */
 .section-wrapper {
-  max-width: 1100px;
+  max-width: 1400px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
