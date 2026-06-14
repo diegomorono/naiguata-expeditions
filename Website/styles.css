@@ -2755,7 +2755,7 @@ section:not(:first-of-type),
 .route-section,
 .booking-section,
 #form-step-container {
-  background-color: #11171e !important;
+  background-color: transparent !important;
 
   /* Un tono sutilmente más claro y limpio */
   transition: background-color 0.3s ease;
