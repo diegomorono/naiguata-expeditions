@@ -3419,10 +3419,10 @@ section::after {
 }
 
 /* ==========================================================================
-   REDISEÑO SECCIÓN ACAMPADA (CORREGIDO: ALINEACIÓN Y COLORES REALES)
+   REDISEÑO SECCIÓN ACAMPADA (SOLUCIÓN DEFINITIVA DE ALINEACIÓN Y DOBLE CAPA)
    ========================================================================== */
 
-/* 1. Estructura de dos columnas usando las clases reales de tu HTML */
+/* 1. Estructura de dos columnas */
 .hero-layout {
   display: flex;
   gap: 50px;
@@ -3432,39 +3432,67 @@ section::after {
   padding: 60px 20px;
 }
 
-/* 2. Columna Izquierda: Forzar alineación completa a la izquierda y limpiar herencias */
+/* 2. Columna Izquierda: Forzar alineación matemática a la izquierda y romper herencias centradoras */
 .hero-layout .hero-content {
   flex: 1;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  text-align: left !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
   gap: 15px;
 }
 
-/* Evitar que selectores globales centren el badge o el título */
+/* Anular márgenes automáticos globales que centran los elementos */
 .hero-layout .hero-content .badge {
-  margin: 0;
+  margin: 0 !important;
 }
 
 .hero-layout .hero-content .hero-title {
   font-family: 'Outfit', sans-serif;
   font-size: 2.5rem;
   font-weight: 700;
-  margin-bottom: 20px;
+  margin: 0 0 20px 0 !important;
   color: var(--text);
-  text-align: left;
+  text-align: left !important;
 }
 
-/* 3. Columna Derecha: Tarjeta de precio */
+.hero-layout .hero-content .hero-description {
+  text-align: left !important;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+}
+
+/* Forzar que el contenedor de botones se alinee a la izquierda */
+.hero-layout .hero-content .hero-ctas {
+  display: flex !important;
+  justify-content: flex-start !important;
+  gap: 15px;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  width: 100%;
+}
+
+/* 3. Columna Derecha: Contenedor puramente estructural (transparente, evita la doble sección) */
 .pricing-card-wrapper {
   flex: 0 0 380px;
+  width: 380px;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* Aplicar el diseño visual únicamente a la tarjeta interna real */
+.pricing-card-wrapper .pricing-card {
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
   border-radius: 16px;
   padding: 32px;
   backdrop-filter: blur(8px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .price-box,
@@ -3487,6 +3515,22 @@ section::after {
     gap: 35px;
   }
 
+  .hero-layout .hero-content {
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .hero-layout .hero-content .hero-title,
+  .hero-layout .hero-content .hero-description {
+    text-align: center !important;
+    margin: 0 auto !important;
+  }
+
+  .hero-layout .hero-content .hero-ctas {
+    justify-content: center !important;
+    margin: 0 auto !important;
+  }
+
   .pricing-card-wrapper {
     width: 100%;
     flex: none;
@@ -3494,10 +3538,10 @@ section::after {
 }
 
 /* ==========================================================================
-   ICONOS VERDES Y DETALLES EN CHECKLIST CORREGIDOS
+   ICONOS VERDES Y DETALLES EN CHECKLIST
    ========================================================================== */
 
-/* Forzamos el color verde esmeralda usando la clase .check-icon real del HTML */
+/* Mantiene tus checklists en el color verde esmeralda correcto sin alteraciones */
 .pricing-card-wrapper .check-icon {
   width: 18px;
   height: 18px;
@@ -3506,7 +3550,6 @@ section::after {
   margin-top: 2px;
 }
 
-/* Asegurar el correcto espaciado de los bloques de características */
 .price-features {
   display: flex;
   flex-direction: column;
@@ -3521,4 +3564,5 @@ section::after {
   font-size: 0.95rem;
   color: var(--text);
   line-height: 1.4;
+  text-align: left;
 }
