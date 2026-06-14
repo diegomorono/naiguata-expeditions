@@ -3419,10 +3419,11 @@ section::after {
 }
 
 /* ==========================================================================
-   REDISEÑO SECCIÓN ACAMPADA (DOS COLUMNAS)
+   REDISEÑO SECCIÓN ACAMPADA (CORREGIDO: ALINEACIÓN Y COLORES REALES)
    ========================================================================== */
 
-.camp-container {
+/* 1. Estructura de dos columnas usando las clases reales de tu HTML */
+.hero-layout {
   display: flex;
   gap: 50px;
   align-items: flex-start;
@@ -3431,20 +3432,32 @@ section::after {
   padding: 60px 20px;
 }
 
-.camp-content-left {
+/* 2. Columna Izquierda: Forzar alineación completa a la izquierda y limpiar herencias */
+.hero-layout .hero-content {
   flex: 1;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px;
 }
 
-.camp-content-left h2 {
+/* Evitar que selectores globales centren el badge o el título */
+.hero-layout .hero-content .badge {
+  margin: 0;
+}
+
+.hero-layout .hero-content .hero-title {
   font-family: 'Outfit', sans-serif;
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 20px;
   color: var(--text);
+  text-align: left;
 }
 
-/* Tarjeta de precio a la derecha */
-.camp-card-right {
+/* 3. Columna Derecha: Tarjeta de precio */
+.pricing-card-wrapper {
   flex: 0 0 380px;
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
@@ -3454,12 +3467,14 @@ section::after {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
 }
 
-.price-box {
+.price-box,
+.price-header {
   text-align: center;
   margin-bottom: 20px;
 }
 
-.card-divider {
+.card-divider,
+.pricing-card-wrapper hr {
   border: 0;
   border-top: 1px solid var(--panel-border);
   margin: 20px 0;
@@ -3467,44 +3482,43 @@ section::after {
 
 /* Ajuste Responsivo para Tablets y Teléfonos */
 @media (max-width: 992px) {
-  .camp-container {
+  .hero-layout {
     flex-direction: column;
     gap: 35px;
   }
 
-  .camp-card-right {
+  .pricing-card-wrapper {
     width: 100%;
     flex: none;
   }
 }
 
 /* ==========================================================================
-   ICONOS VERDES Y DETALLES EN CHECKLIST
+   ICONOS VERDES Y DETALLES EN CHECKLIST CORREGIDOS
    ========================================================================== */
 
-.gear-checklist {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+/* Forzamos el color verde esmeralda usando la clase .check-icon real del HTML */
+.pricing-card-wrapper .check-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--primary) !important;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Asegurar el correcto espaciado de los bloques de características */
+.price-features {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin-top: 20px;
 }
 
-.gear-checklist li {
+.feature-tag {
   display: flex;
   align-items: flex-start;
   gap: 12px;
   font-size: 0.95rem;
   color: var(--text);
   line-height: 1.4;
-}
-
-/* Color verde esmeralda directo del Design System para los iconos */
-.checklist-icon {
-  width: 18px;
-  height: 18px;
-  color: var(--primary);
-  flex-shrink: 0;
-  margin-top: 2px;
 }
