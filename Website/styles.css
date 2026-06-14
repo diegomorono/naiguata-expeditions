@@ -78,9 +78,12 @@ select {
 /* Asegurar que las secciones principales no tengan paddings forzados */
 section {
   width: 100%;
-  background-color: transparent !important; /* Trasladado aquí para respetar la cascada */
-  background-image: none !important;        /* Trasladado aquí para respetar la cascada */
-  border: none !important;                  /* Trasladado aquí para respetar la cascada */
+  background-color: transparent !important;
+  /* Trasladado aquí para respetar la cascada */
+  background-image: none !important;
+  /* Trasladado aquí para respetar la cascada */
+  border: none !important;
+  /* Trasladado aquí para respetar la cascada */
 }
 
 /* Selector avanzado separado para mantener la jerarquía estricta de la cascada */
@@ -121,11 +124,9 @@ h6 {
 .orb-2 {
   width: 600px;
   height: 600px;
-  background: radial-gradient(
-    circle,
-    var(--secondary-glow) 0%,
-    rgb(0 0 0 / 0%) 70%
-  );
+  background: radial-gradient(circle,
+      var(--secondary-glow) 0%,
+      rgb(0 0 0 / 0%) 70%);
   top: 40%;
   right: -15%;
   animation-delay: -4s;
@@ -134,11 +135,9 @@ h6 {
 .orb-3 {
   width: 350px;
   height: 350px;
-  background: radial-gradient(
-    circle,
-    var(--primary-glow) 0%,
-    rgb(0 0 0 / 0%) 70%
-  );
+  background: radial-gradient(circle,
+      var(--primary-glow) 0%,
+      rgb(0 0 0 / 0%) 70%);
   bottom: 10%;
   left: 20%;
   animation-delay: -8s;
@@ -487,7 +486,8 @@ select option:disabled {
   margin-bottom: 6px;
   cursor: pointer;
   transition: border-color 0.2s ease;
-  appearance: none; /* Elimina estilos nativos de plataformas */
+  appearance: none;
+  /* Elimina estilos nativos de plataformas */
 }
 
 /* ==========================================================================
@@ -998,10 +998,7 @@ select option:disabled {
   font-weight: 600;
 }
 
-.gear-item-checkbox
-  input[type="checkbox"]:checked
-  + .gear-item-details
-  .gear-item-name {
+.gear-item-checkbox input[type="checkbox"]:checked+.gear-item-details .gear-item-name {
   text-decoration: line-through;
   color: var(--text-muted);
 }
@@ -1914,7 +1911,7 @@ textarea:focus {
    ========================================================================== */
 
 /* Ajustes adaptativos para Tablets y pantallas medianas (768px o menos) */
-@media (width <= 768px) {
+@media (width <=768px) {
   .pricing-card-wrapper {
     justify-content: center;
   }
@@ -1938,7 +1935,7 @@ textarea:focus {
 }
 
 /* Ajustes adaptativos para Teléfonos y pantallas pequeñas (600px o menos) */
-@media (width <= 600px) {
+@media (width <=600px) {
   .hero-title {
     font-size: 2.3rem;
   }
@@ -2091,7 +2088,8 @@ textarea:focus {
 /* ==========================================================================
    ADAPTACIÓN PROFESIONAL PARA CELULARES
    ========================================================================== */
-@media (width <= 768px) {
+@media (width <=768px) {
+
   /* Ocultar la caja horizontal en teléfonos */
   .elevation-profile-container {
     display: none !important;
@@ -2113,11 +2111,9 @@ textarea:focus {
     top: 20px !important;
     bottom: 220px !important;
     width: 2px !important;
-    background: linear-gradient(
-      to bottom,
-      var(--primary),
-      rgb(0 230 118 / 2%)
-    ) !important;
+    background: linear-gradient(to bottom,
+        var(--primary),
+        rgb(0 230 118 / 2%)) !important;
     z-index: 1 !important;
   }
 
@@ -2221,7 +2217,7 @@ select,
 }
 
 /* Efecto cuando el checkbox está seleccionado */
-.provision-checkbox-wrapper input:checked ~ .custom-checkbox {
+.provision-checkbox-wrapper input:checked~.custom-checkbox {
   background-color: var(--primary, #00e676);
   border-color: var(--primary, #00e676);
   box-shadow: 0 0 8px rgb(0 230 118 / 40%);
@@ -2241,7 +2237,7 @@ select,
   transform: rotate(45deg);
 }
 
-.provision-checkbox-wrapper input:checked ~ .custom-checkbox::after {
+.provision-checkbox-wrapper input:checked~.custom-checkbox::after {
   display: block;
 }
 
@@ -2638,13 +2634,16 @@ code {
 
 /* Unificación estética para las tarjetas del formulario */
 .step-card {
-  background: rgb(15 22 30 / 75%); /* Actualizado al fondo unificado */
-  border: 1px solid rgb(255 255 255 / 8%); /* Actualizado al borde gris sutil unificado */
+  background: rgb(15 22 30 / 75%);
+  /* Actualizado al fondo unificado */
+  border: 1px solid rgb(255 255 255 / 8%);
+  /* Actualizado al borde gris sutil unificado */
   border-radius: 16px;
   padding: 24px;
   margin-bottom: 20px;
   backdrop-filter: blur(8px);
-  box-shadow: none; /* Actualizado al box-shadow unificado */
+  box-shadow: none;
+  /* Actualizado al box-shadow unificado */
   transition:
     border-color 0.3s ease,
     box-shadow 0.3s ease;
@@ -2662,14 +2661,16 @@ code {
 /* Cuando el cliente selecciona una opción, brilla en verde esmeralda */
 .carrier-btn.active {
   background: rgb(16 185 129 / 12%);
-  border-color: #10b981; /* Mismo --primary de Naiguatá Expeditions */
+  border-color: #10b981;
+  /* Mismo --primary de Naiguatá Expeditions */
   box-shadow: 0 0 14px rgb(16 185 129 / 25%);
 }
 
 /* El badge del precio se vuelve sólido al estar seleccionado */
 .carrier-btn.active .carrier-price {
   background: #10b981;
-  color: #080b0f; /* Fondo oscuro interno */
+  color: #080b0f;
+  /* Fondo oscuro interno */
 }
 
 /* Efecto hover interactivo idéntico al resto de opciones */
@@ -2743,7 +2744,8 @@ div[class*="catering"] .price {
 header,
 .nav-container,
 #hero {
-  background-color: #0b0f14 !important; /* El color oscuro original de la marca */
+  background-color: #0b0f14 !important;
+  /* El color oscuro original de la marca */
 }
 
 /* 2. Todo el contenido/core que viene después del Hero se aclara muy ligeramente */
@@ -2775,6 +2777,7 @@ section:not(:first-of-type),
 }
 
 @media print {
+
   /* Ocultamos botones y cosas innecesarias */
   .success-actions,
   .app-footer,
@@ -2883,7 +2886,7 @@ section::after {
 }
 
 /* Ajuste para móviles (que todo se apile) */
-@media (width <= 992px) {
+@media (width <=992px) {
   .hero-layout {
     grid-template-columns: 1fr;
     text-align: center;
@@ -2981,7 +2984,7 @@ section::after {
 }
 
 /* 3. Ajuste Responsivo: Para que en móviles se apile */
-@media (width <= 950px) {
+@media (width <=950px) {
   .hero-layout {
     grid-template-columns: 1fr;
     text-align: center;
@@ -3048,7 +3051,8 @@ section::after {
 .pass-card {
   padding: 30px;
   color: #000;
-  background: #fff; /* Fondo blanco para contraste perfecto al imprimir */
+  background: #fff;
+  /* Fondo blanco para contraste perfecto al imprimir */
   font-family: Inter, sans-serif;
   border-radius: 14px;
 }
@@ -3164,6 +3168,7 @@ section::after {
    REGLAS STRICT_PRINT RECOMENDADAS - COMPORTAMIENTO EN PAPEL
    ========================================================================== */
 @media print {
+
   /* 1. Forzar que el fondo del documento de impresión sea blanco puro y texto negro */
   html,
   body {
@@ -3279,7 +3284,7 @@ section::after {
   gap: 25px;
 }
 
-@media (width <= 1024px) {
+@media (width <=1024px) {
   .admin-layout-columns {
     grid-template-columns: 1fr;
   }
@@ -3385,29 +3390,121 @@ section::after {
    MOUNTAIN SVG INTERACTIVE DOTS
    ========================================================================== */
 .mountain-path-dot .dot-inner {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    transform-origin: center;
-    transform-box: fill-box;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+  transform-box: fill-box;
 }
 
 .mountain-path-dot:hover .dot-inner {
-    fill: #E74C3C !important;
-    stroke: #ffffff !important;
-    transform: scale(1.3);
+  fill: #E74C3C !important;
+  stroke: #ffffff !important;
+  transform: scale(1.3);
 }
 
 .mountain-path-dot.active .dot-inner {
-    fill: #E74C3C !important;
-    stroke: #10b981 !important; /* Resalta en verde */
-    stroke-width: 6px !important;
-    filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.8));
-    transform: scale(1.5);
+  fill: #E74C3C !important;
+  stroke: #10b981 !important;
+  /* Resalta en verde */
+  stroke-width: 6px !important;
+  filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.8));
+  transform: scale(1.5);
 }
 
 .mountain-svg {
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .mountain-svg:hover {
-    transform: scale(1.02);
+  transform: scale(1.02);
+}
+
+/* ==========================================================================
+   REDISEÑO SECCIÓN ACAMPADA (DOS COLUMNAS)
+   ========================================================================== */
+
+.camp-container {
+  display: flex;
+  gap: 50px;
+  align-items: flex-start;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
+
+.camp-content-left {
+  flex: 1;
+}
+
+.camp-content-left h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+
+/* Tarjeta de precio a la derecha */
+.camp-card-right {
+  flex: 0 0 380px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  padding: 32px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.price-box {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.card-divider {
+  border: 0;
+  border-top: 1px solid var(--panel-border);
+  margin: 20px 0;
+}
+
+/* Ajuste Responsivo para Tablets y Teléfonos */
+@media (max-width: 992px) {
+  .camp-container {
+    flex-direction: column;
+    gap: 35px;
+  }
+
+  .camp-card-right {
+    width: 100%;
+    flex: none;
+  }
+}
+
+/* ==========================================================================
+   ICONOS VERDES Y DETALLES EN CHECKLIST
+   ========================================================================== */
+
+.gear-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.gear-checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.95rem;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+/* Color verde esmeralda directo del Design System para los iconos */
+.checklist-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--primary);
+  flex-shrink: 0;
+  margin-top: 2px;
 }

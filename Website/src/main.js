@@ -96,9 +96,20 @@ function renderDynamicSystemValues() {
     // Inyectar el precio en Bolívares y Tasa oficial
     const bcvDisplay = document.getElementById('bcv-price-display');
     if (bcvDisplay) {
-        bcvDisplay.innerHTML = `Ref: Bs. ${(currentPrice * bcvRate).toFixed(2)} <small>(Tasa BCV: ${bcvRate})</small>`;
-        bcvDisplay.style.color = '#10b981';
-        bcvDisplay.style.fontWeight = '500';
+        const totalBs = currentPrice * bcvRate;
+
+        // Formateo geolocalizado para Venezuela (Separadores de miles: . y decimales: ,)
+        const formattedBs = totalBs.toLocaleString('es-VE', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+        // Estructura con el monto envuelto en la variable naranja de tu marca (--secondary)
+        bcvDisplay.innerHTML = `<span style="color: var(--secondary); font-weight: 700;">Bs. ${formattedBs}</span> al cambio BCV`;
+
+        // Limpiamos los estilos inline anteriores para que no interfieran con el nuevo diseño
+        bcvDisplay.style.color = '';
+        bcvDisplay.style.fontWeight = '';
     }
 
     const bcvRateInfo = document.getElementById('bcv-rate-info');
