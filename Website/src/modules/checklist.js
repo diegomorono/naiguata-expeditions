@@ -31,7 +31,10 @@ export function renderGearChecklist() {
             <input type="checkbox" class="gear-checkbox" id="gear-${item.item_id}" style="width: 22px; height: 22px; accent-color: #10b981; cursor: pointer;">
             <div class="gear-text" style="flex: 1;">
                 <label for="gear-${item.item_id}" style="cursor: pointer; display: block; font-weight: 600; color: #f3f4f6;">${item.item_name}</label>
-                <span style="font-size: 0.85rem; color: #9ca3af;">Si no lo tienes, alquílalo por $${item.price_usd}</span>
+                ${item.price_usd && item.price_usd > 0
+            ? `<span style="font-size: 0.85rem; color: #9ca3af;">Si no lo tienes, alquílalo por $${item.price_usd}</span>`
+            : `<span style="font-size: 0.85rem; color: #f4a261; font-style: italic;">Indispensable – Traer obligatoriamente</span>`
+        }
             </div>
         </li>
     `).join('');

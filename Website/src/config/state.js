@@ -34,7 +34,15 @@ const initialAppState = {
     bcvRate: 600.00,
     bcvSource: 'default',
     activeStepIndex: 0,
-    inventory: [],
+    inventory: [
+        { item_id: 'sleeping_bag', item_name: 'Saco de Dormir (Sleeping Bag) - 1 kg', price_usd: 10 },
+        { item_id: 'sleeping_pad', item_name: 'Aislante Térmico (Sleeping Pad) - 0.4 kg', price_usd: 5 },
+        { item_id: 'thermal_clothing', item_name: 'Ropa de Abrigo Térmica (Suéter + Mono) - 0.8 kg', price_usd: 0 },
+        { item_id: 'water_4l', item_name: '4 Litros de Agua (Mínimo) - 4 kg', price_usd: 0 },
+        { item_id: 'headlamp', item_name: 'Linterna Frontal / Mano - 0.2 kg', price_usd: 5 },
+        { item_id: 'hiking_boots', item_name: 'Calzado de Montaña (Botas/Zapatos de Trail) - 1.2 kg', price_usd: 0 },
+        { item_id: 'personal_hygiene', item_name: 'Aseo Personal (Cepillo, Jabón biodegradable, Papel) - 0.3 kg', price_usd: 0 }
+    ],
     logisticServices: [],
     cateringCatalog: []
 };

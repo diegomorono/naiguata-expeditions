@@ -107,65 +107,87 @@
                 <div class="section-wrapper">
                     <div class="section-header" style="text-align: center; margin-bottom: 40px;">
                         <h2 class="section-title" style="margin-bottom: 10px;">La Travesía: De La Julia a la Cumbre</h2>
-                        <p class="section-subtitle" style="margin: 0 auto; max-width: 600px;">Explora el perfil de elevación y los puntos clave que conquistaremos en el camino.</p>
+                        <p class="section-subtitle" style="margin: 0 auto; max-width: 600px;">Explora el perfil de
+                            elevación y los puntos clave que conquistaremos en el camino.</p>
                     </div>
 
-                    <div class="route-explorer glass-panel" style="display: flex; flex-direction: row; gap: 40px; align-items: stretch; justify-content: space-between; flex-wrap: wrap; padding: 30px; overflow: visible; margin-top: 30px; border-radius: 20px;">
+                    <div class="route-explorer glass-panel"
+                        style="display: flex; flex-direction: row; gap: 40px; align-items: stretch; justify-content: space-between; flex-wrap: wrap; padding: 30px; overflow: visible; margin-top: 30px; border-radius: 20px;">
 
                         <!-- SVG Mountain Graphic (Izquierda) -->
-                        <div class="mountain-graphic-container" style="flex: 1.5; min-width: 320px; width: 100%; max-width: 600px; margin: 0 auto; display: flex; align-items: flex-end; justify-content: center; position: relative;">
-                             <svg class="mountain-svg" viewBox="0 0 1000 800" style="width: 100%; height: auto; display: block; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6)); overflow: visible;">
-                                 
-                                 <!-- Right mountain (light grey) -->
-                                 <path d="M 500 800 L 750 400 L 820 500 L 900 450 L 1050 800 Z" fill="#BDC3C7" />
-                                 <path d="M 750 400 L 780 480 L 820 500 L 790 580 L 850 800 L 500 800 Z" fill="#95A5A6" />
-                                 
-                                 <!-- Center mountain -->
-                                 <!-- Left side (light blue) -->
-                                 <path d="M 100 800 L 500 200 L 540 300 L 480 400 L 520 500 L 470 600 L 530 700 L 500 800 Z" fill="#85C1E9" />
-                                 <!-- Right side (lighter blue) -->
-                                 <path d="M 500 200 L 540 300 L 480 400 L 520 500 L 470 600 L 530 700 L 500 800 L 950 800 Z" fill="#D6EAF8" />
-                                 
-                                 <!-- Snowy peak -->
-                                 <path d="M 500 200 L 440 290 L 470 320 L 500 270 L 540 320 L 560 290 Z" fill="#FFFFFF" />
-                                 
-                                 <!-- Left mountain (dark blue, overlapping front) -->
-                                 <path d="M -50 800 L 250 450 L 280 500 L 240 600 L 290 700 L 250 800 Z" fill="#1A252F" />
-                                 <path d="M 250 450 L 280 500 L 240 600 L 290 700 L 250 800 L 600 800 Z" fill="#2C3E50" />
-                                 
-                                 <!-- The Path (Dashed line) -->
-                                 <path d="M 850 750 L 750 720 L 680 650 L 600 580 L 650 500 L 560 450 L 580 380 L 500 320 L 530 250 L 500 200" stroke="#E74C3C" stroke-width="6" stroke-dasharray="15 10" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-                                 
-                                 <!-- Nodes -->
-                                 <g class="mountain-path-dot" data-step="0" style="cursor: pointer;">
-                                     <circle cx="850" cy="750" r="25" fill="transparent" />
-                                     <circle cx="850" cy="750" r="10" fill="#ffffff" stroke="#E74C3C" stroke-width="5" class="dot-inner" />
-                                 </g>
-                                 <g class="mountain-path-dot" data-step="1" style="cursor: pointer;">
-                                     <circle cx="750" cy="720" r="25" fill="transparent" />
-                                     <circle cx="750" cy="720" r="10" fill="#ffffff" stroke="#E74C3C" stroke-width="5" class="dot-inner" />
-                                 </g>
-                                 <g class="mountain-path-dot" data-step="2" style="cursor: pointer;">
-                                     <circle cx="680" cy="650" r="25" fill="transparent" />
-                                     <circle cx="680" cy="650" r="10" fill="#ffffff" stroke="#E74C3C" stroke-width="5" class="dot-inner" />
-                                 </g>
-                                 <g class="mountain-path-dot" data-step="3" style="cursor: pointer;">
-                                     <circle cx="600" cy="580" r="25" fill="transparent" />
-                                     <circle cx="600" cy="580" r="10" fill="#ffffff" stroke="#E74C3C" stroke-width="5" class="dot-inner" />
-                                 </g>
-                                 <g class="mountain-path-dot" data-step="4" style="cursor: pointer;">
-                                     <circle cx="560" cy="450" r="25" fill="transparent" />
-                                     <circle cx="560" cy="450" r="10" fill="#ffffff" stroke="#E74C3C" stroke-width="5" class="dot-inner" />
-                                 </g>
-                                 <g class="mountain-path-dot" data-step="5" style="cursor: pointer;">
-                                     <circle cx="500" cy="200" r="30" fill="transparent" />
-                                     <circle cx="500" cy="200" r="14" fill="#E74C3C" stroke="#ffffff" stroke-width="5" class="dot-inner" />
-                                 </g>
-                             </svg>
+                        <div class="mountain-graphic-container"
+                            style="flex: 1.5; min-width: 320px; width: 100%; max-width: 600px; margin: 0 auto; display: flex; align-items: flex-end; justify-content: center; position: relative;">
+                            <svg class="mountain-svg" viewBox="0 0 1000 800"
+                                style="width: 100%; height: auto; display: block; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6)); overflow: visible;">
+
+                                <!-- Right mountain (light grey) -->
+                                <path d="M 500 800 L 750 400 L 820 500 L 900 450 L 1050 800 Z" fill="#BDC3C7" />
+                                <path d="M 750 400 L 780 480 L 820 500 L 790 580 L 850 800 L 500 800 Z"
+                                    fill="#95A5A6" />
+
+                                <!-- Center mountain -->
+                                <!-- Left side (light blue) -->
+                                <path
+                                    d="M 100 800 L 500 200 L 540 300 L 480 400 L 520 500 L 470 600 L 530 700 L 500 800 Z"
+                                    fill="#85C1E9" />
+                                <!-- Right side (lighter blue) -->
+                                <path
+                                    d="M 500 200 L 540 300 L 480 400 L 520 500 L 470 600 L 530 700 L 500 800 L 950 800 Z"
+                                    fill="#D6EAF8" />
+
+                                <!-- Snowy peak -->
+                                <path d="M 500 200 L 440 290 L 470 320 L 500 270 L 540 320 L 560 290 Z"
+                                    fill="#FFFFFF" />
+
+                                <!-- Left mountain (dark blue, overlapping front) -->
+                                <path d="M -50 800 L 250 450 L 280 500 L 240 600 L 290 700 L 250 800 Z"
+                                    fill="#1A252F" />
+                                <path d="M 250 450 L 280 500 L 240 600 L 290 700 L 250 800 L 600 800 Z"
+                                    fill="#2C3E50" />
+
+                                <!-- The Path (Dashed line) -->
+                                <path
+                                    d="M 850 750 L 750 720 L 680 650 L 600 580 L 650 500 L 560 450 L 580 380 L 500 320 L 530 250 L 500 200"
+                                    stroke="#E74C3C" stroke-width="6" stroke-dasharray="15 10" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+
+                                <!-- Nodes -->
+                                <g class="mountain-path-dot" data-step="0" style="cursor: pointer;">
+                                    <circle cx="850" cy="750" r="25" fill="transparent" />
+                                    <circle cx="850" cy="750" r="10" fill="#ffffff" stroke="#E74C3C" stroke-width="5"
+                                        class="dot-inner" />
+                                </g>
+                                <g class="mountain-path-dot" data-step="1" style="cursor: pointer;">
+                                    <circle cx="750" cy="720" r="25" fill="transparent" />
+                                    <circle cx="750" cy="720" r="10" fill="#ffffff" stroke="#E74C3C" stroke-width="5"
+                                        class="dot-inner" />
+                                </g>
+                                <g class="mountain-path-dot" data-step="2" style="cursor: pointer;">
+                                    <circle cx="680" cy="650" r="25" fill="transparent" />
+                                    <circle cx="680" cy="650" r="10" fill="#ffffff" stroke="#E74C3C" stroke-width="5"
+                                        class="dot-inner" />
+                                </g>
+                                <g class="mountain-path-dot" data-step="3" style="cursor: pointer;">
+                                    <circle cx="600" cy="580" r="25" fill="transparent" />
+                                    <circle cx="600" cy="580" r="10" fill="#ffffff" stroke="#E74C3C" stroke-width="5"
+                                        class="dot-inner" />
+                                </g>
+                                <g class="mountain-path-dot" data-step="4" style="cursor: pointer;">
+                                    <circle cx="560" cy="450" r="25" fill="transparent" />
+                                    <circle cx="560" cy="450" r="10" fill="#ffffff" stroke="#E74C3C" stroke-width="5"
+                                        class="dot-inner" />
+                                </g>
+                                <g class="mountain-path-dot" data-step="5" style="cursor: pointer;">
+                                    <circle cx="500" cy="200" r="30" fill="transparent" />
+                                    <circle cx="500" cy="200" r="14" fill="#E74C3C" stroke="#ffffff" stroke-width="5"
+                                        class="dot-inner" />
+                                </g>
+                            </svg>
                         </div>
 
                         <!-- Step Details Card (Izquierda) -->
-                        <div class="step-details-card" id="active-step-details" style="flex: 1; min-width: 280px; display: flex; flex-direction: column; justify-content: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 30px;">
+                        <div class="step-details-card" id="active-step-details"
+                            style="flex: 1; min-width: 280px; display: flex; flex-direction: column; justify-content: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 30px;">
                         </div>
                     </div>
                 </div>
@@ -176,7 +198,9 @@
                 <div class="section-wrapper">
                     <div class="section-header" style="text-align: center; margin-bottom: 40px;">
                         <h2 class="section-title" style="margin-bottom: 10px;">Planificador Inteligente de Equipaje</h2>
-                        <p class="section-subtitle" style="margin: 0 auto; max-width: 650px;">Nosotros proveemos lo pesado; tú preparas lo personal. Completa la lista para verificar tu nivel de preparación.</p>
+                        <p class="section-subtitle" style="margin: 0 auto; max-width: 650px;">Nosotros proveemos lo
+                            pesado; tú preparas lo personal. Completa la lista para verificar tu nivel de preparación.
+                        </p>
                     </div>
 
                     <div class="checklist-grid">
@@ -226,28 +250,6 @@
                                 <span class="chk-badge badge-orange">Requerido Obligatorio</span>
                                 <h3>Debes traer en tu mochila</h3>
                             </div>
-
-                          <!--  <div class="preparation-tracker">
-                                <div class="tracker-info">
-                                    <span class="tracker-text">Nivel de Preparación:</span>
-                                    <span class="tracker-percentage" id="prep-percentage">0%</span>
-                                </div>
-                                <div class="progress-bar-bg">
-                                    <div class="progress-bar-fill" id="prep-bar" style="width: 0%"></div>
-                                </div>
-                                <div class="warning-banner hidden" id="checklist-warning">
-                                    <svg class="warning-icon" viewBox="0 0 24 24" width="16" height="16"
-                                        stroke="currentColor" stroke-width="2" fill="none">
-                                        <path
-                                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
-                                        </path>
-                                        <line x1="12" y1="9" x2="12" y2="13"></line>
-                                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                                    </svg>
-                                    <span id="warning-text">Faltan elementos de supervivencia críticos.</span>
-                                </div>-->
-                            </div>
-
                             <ul class="gear-list interactive-list" id="interactive-gear-list">
                             </ul>
                         </div>
@@ -273,14 +275,16 @@
                             </div>
                             <div class="form-input-wrapper">
                                 <label for="hiker-email">Correo Electrónico *</label>
-                                <input type="email" id="hiker-email" name="email" required placeholder="carlos@correo.com">
+                                <input type="email" id="hiker-email" name="email" required
+                                    placeholder="carlos@correo.com">
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-input-wrapper">
                                 <label for="hiker-whatsapp">Teléfono WhatsApp *</label>
-                                <input type="tel" id="hiker-whatsapp" name="whatsapp" required placeholder="Ej. +584121234567">
+                                <input type="tel" id="hiker-whatsapp" name="whatsapp" required
+                                    placeholder="Ej. +584121234567">
                             </div>
                             <div class="form-input-wrapper">
                                 <label for="booking-group">¿Vienes con alguien más? (Código de Grupo)</label>
@@ -553,7 +557,8 @@
                                             data-name="Portador Carpa 4P">
                                             <span class="carrier-title">Servicio de Portador - Carpa de 4
                                                 personas</span>
-                                            <span class="carrier-price">+$<span class="tour-base-price-display">--</span> USD</span>
+                                            <span class="carrier-price">+$<span
+                                                    class="tour-base-price-display">--</span> USD</span>
                                         </button>
 
                                     </div>

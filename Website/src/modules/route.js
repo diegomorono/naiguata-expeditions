@@ -4,7 +4,7 @@
 
 export const routeSteps = [
     { name: "PGP La Julia", alt: 1140, dist: "0.0 km", desc: "Punto de encuentro y control de Inparques. Registro obligatorio e inicio del ascenso por senderos de bosque nublado.", icon: "🏕️", difficulty: "Fácil - Moderado" },
-    { name: "Mirador El Edén", alt: 1530, dist: "1.8 km", desc: "Primera gran parada de descanso. Espectacular vista panorámica hacia el Valle de Caracas. Hidratación mandatoria.", icon: "🌅", difficulty: "Exigente" },
+    { name: "Mirador El Edén", alt: 1530, dist: "1.8 km", desc: "Primera gran parada de descanso. Espectacular vista panorámica hacia el Valle de Caracas.", icon: "🌅", difficulty: "Exigente" },
     { name: "Dos Banderas", alt: 1920, dist: "3.2 km", desc: "Punto de quiebre de la vegetación densa. Transición hacia el ecosistema de sub-páramo. Exposición directa al sol.", icon: "🚩", difficulty: "Muy Exigente" },
     { name: "Fila Maestra", alt: 2200, dist: "5.5 km", desc: "Cresta montañosa divisoria. A un lado Caracas, al otro el Mar Caribe. Caminata sobre roca suelta y ráfagas de viento fuertes.", icon: "⛰️", difficulty: "Extrema (Desnivel)" },
     { name: "Anfiteatro", alt: 2640, dist: "7.8 km", desc: "Zona plana protegida del viento. Campamento base principal para armar las carpas. Preparación para el asalto final a la cumbre.", icon: "⛺", difficulty: "Fácil - Moderado" },
@@ -13,7 +13,7 @@ export const routeSteps = [
 
 export function initElevationStepper() {
     const dots = document.querySelectorAll('.mountain-path-dot');
-    
+
     dots.forEach(dot => {
         dot.addEventListener('click', (e) => {
             // El atributo data-step puede estar en el circle mismo o en el group padre
@@ -42,7 +42,7 @@ function showRouteDetails(index) {
     if (index < 0 || index >= routeSteps.length) return;
 
     const dots = document.querySelectorAll('.mountain-path-dot');
-    
+
     // Actualizar clase activa en el SVG
     dots.forEach((dot) => {
         const step = parseInt(dot.getAttribute('data-step') || dot.closest('g')?.getAttribute('data-step') || '0', 10);
@@ -56,10 +56,10 @@ function showRouteDetails(index) {
 
     const step = routeSteps[index];
     const detailsContainer = document.getElementById('active-step-details');
-    
+
     if (detailsContainer && step) {
         const diffColor = getDifficultyColor(step.difficulty);
-        
+
         detailsContainer.innerHTML = `
             <div style="font-size: 2.5rem; margin-bottom: 12px; line-height: 1;">${step.icon}</div>
             <h3 style="font-size: 1.6rem; font-weight: 700; color: #fff; margin-bottom: 10px;">${step.name}</h3>
