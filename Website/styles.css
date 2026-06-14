@@ -4,7 +4,7 @@
 
 :root {
   --background: #080b0f;
-  --background-alt: #0d1117;
+  --background-alt: #080b0f;
   --panel-bg: rgb(15 22 30 / 75%);
   --panel-border: rgb(255 255 255 / 8%);
   --panel-border-hover: rgb(16 185 129 / 25%);
@@ -3566,4 +3566,34 @@ section::after {
   color: var(--text) !important;
   line-height: 1.4 !important;
   text-align: left !important;
+}
+
+/* ==========================================================================
+   UNIFICACIÓN TOTAL DEL COLOR DE FONDO EXTERIOR
+   ========================================================================== */
+
+/* Forzar el fondo homogéneo en la base y las vistas generales */
+body,
+#client-view,
+#admin-view,
+.hero-section {
+  background-color: var(--background) !important;
+}
+
+/* Remover el color específico del Header de navegación, Hero y el Pie de página */
+header,
+.app-header,
+.nav-container,
+#hero,
+.app-footer {
+  background-color: var(--background) !important;
+}
+
+/* Blanquear o remover variaciones en secciones intermedias y el contenedor del formulario */
+#form-step-container,
+.features-section,
+.section-unified,
+.section-container {
+  background-color: var(--background) !important;
+  background-image: none !important;
 }
