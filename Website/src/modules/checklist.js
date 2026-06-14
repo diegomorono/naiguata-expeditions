@@ -26,14 +26,22 @@ export function renderGearChecklist() {
     const inventory = appStore.get().inventory;
     if (!inventory || inventory.length === 0) return;
 
-    container.innerHTML = inventory.map(item => `
-        <li style="display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 8px; background: rgba(255,255,255,0.03); margin-bottom: 6px;">
-            <input type="checkbox" class="gear-checkbox" id="gear-${item.item_id}" style="width: 16px; height: 16px; accent-color: #10b981; cursor: pointer;">
-            <div class="gear-text" style="flex: 1;">
-                <label for="gear-${item.item_id}" style="cursor: pointer; display: block; font-weight: 600; color: #f3f4f6; font-size: 0.95rem; line-height: 1.2;">${item.item_name}</label>
-            </div>
-        </li>
-    `).join('');
+    container.innerHTML = inventory.map(item => {
+        // Separamos el nombre del artículo y el peso de forma dinámica
+        const parts = item.item_name.split(' - ');
+        const itemNameOnly = parts[0];
+        const itemWeightOnly = parts[1] || '';
+
+        return `
+            <li style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(255,255,255,0.02); margin-bottom: 5px; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                    <input type="checkbox" class="gear-checkbox" id="gear-${item.item_id}" style="width: 14px; height: 14px; accent-color: #10b981; cursor: pointer; flex-shrink: 0;">
+                    <label for="gear-${item.item_id}" style="cursor: pointer; font-weight: 500; color: #d1d5db; font-size: 0.88rem; line-height: 1.2; user-select: none;">${itemNameOnly}</label>
+                </div>
+                ${itemWeightOnly ? `<span style="font-size: 0.82rem; color: #8892b0; font-weight: 400; flex-shrink: 0; white-space: nowrap;">${itemWeightOnly}</span>` : ''}
+            </li>
+        `;
+    }).join('');
 
     updateChecklistProgress();
 }
