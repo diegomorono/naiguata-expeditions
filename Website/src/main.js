@@ -78,8 +78,10 @@ function setupLazyLoading() {
 }
 
 function renderDynamicSystemValues() {
-    const currentPrice = appStore.get().tourBasePrice;
-    const currentCapacity = appStore.get().maxCapacityPerDate;
+    const state = appStore.get();
+    const currentPrice = state.tourBasePrice || 50;
+    const currentCapacity = state.maxCapacityPerDate || 12;
+    const bcvRate = state.bcvRate || 1;
 
     // Buscamos e inyectamos el precio en todos los elementos que lo muestren
     document.querySelectorAll('.tour-base-price-display').forEach(el => {
@@ -90,4 +92,17 @@ function renderDynamicSystemValues() {
     document.querySelectorAll('.max-capacity-display').forEach(el => {
         el.textContent = currentCapacity;
     });
+
+    // Inyectar el precio en Bolívares y Tasa oficial
+    const bcvDisplay = document.getElementById('bcv-price-display');
+    if (bcvDisplay) {
+        bcvDisplay.innerHTML = `Ref: Bs. ${(currentPrice * bcvRate).toFixed(2)} <small>(Tasa BCV: ${bcvRate})</small>`;
+        bcvDisplay.style.color = '#10b981';
+        bcvDisplay.style.fontWeight = '500';
+    }
+
+    const bcvRateInfo = document.getElementById('bcv-rate-info');
+    if (bcvRateInfo) {
+        bcvRateInfo.textContent = `Tasa Oficial BCV: Bs. ${bcvRate}`;
+    }
 }

@@ -3,47 +3,39 @@
    ========================================================================== */
 import { appStore } from '../config/state.js';
 
-/**
- * Inicializa el módulo de checklist configurando sus observadores reactivos y listeners únicos.
- */
 export function initGearChecklist() {
-    const container = document.getElementById('checklist-container');
+    const container = document.getElementById('interactive-gear-list');
 
-    // 1. Delegación de eventos (¡Se registra UNA SOLA VEZ aquí al inicializar!)
     if (container) {
         container.addEventListener('change', (e) => {
             if (e.target.classList.contains('gear-checkbox')) {
-                const itemElement = e.target.closest('.gear-item');
-                if (e.target.checked) {
-                    itemElement?.classList.add('checked-item');
-                } else {
-                    itemElement?.classList.remove('checked-item');
-                }
                 updateChecklistProgress();
             }
         });
     }
 
-    // 2. Escuchamos de manera reactiva el almacén global de datos
     appStore.subscribe(() => {
-        console.log("[Checklist] Renderizando checklist dinámico...");
         renderGearChecklist();
     });
 }
 
 export function renderGearChecklist() {
-    const container = document.getElementById('checklist-container');
+    const container = document.getElementById('interactive-gear-list');
     if (!container) return;
 
-    // Renderizado basado en el estado (appStore.get().inventory)
-    container.innerHTML = appStore.get().inventory.map(item => `
-        <div class="gear-item">
-            <input type="checkbox" class="gear-checkbox" id="gear-${item.id}">
-            <label for="gear-${item.id}">${item.name}</label>
-        </div>
+    const inventory = appStore.get().inventory;
+    if (!inventory || inventory.length === 0) return;
+
+    container.innerHTML = inventory.map(item => `
+        <li style="display: flex; align-items: center; gap: 15px; padding: 12px; border-radius: 8px; background: rgba(255,255,255,0.03); margin-bottom: 8px;">
+            <input type="checkbox" class="gear-checkbox" id="gear-${item.item_id}" style="width: 22px; height: 22px; accent-color: #10b981; cursor: pointer;">
+            <div class="gear-text" style="flex: 1;">
+                <label for="gear-${item.item_id}" style="cursor: pointer; display: block; font-weight: 600; color: #f3f4f6;">${item.item_name}</label>
+                <span style="font-size: 0.85rem; color: #9ca3af;">Si no lo tienes, alquílalo por $${item.price_usd}</span>
+            </div>
+        </li>
     `).join('');
 
-    // Ejecución inicial de la barra de progreso tras el renderizado
     updateChecklistProgress();
 }
 
@@ -53,8 +45,9 @@ function updateChecklistProgress() {
 
     const pct = totalItems > 0 ? Math.round((checkedItems / totalItems) * 100) : 0;
 
-    const bar = document.getElementById('checklist-progress-bar');
-    const label = document.getElementById('checklist-progress-text');
+    const bar = document.getElementById('prep-bar');
+    const pctLabel = document.getElementById('prep-percentage');
+    const warning = document.getElementById('checklist-warning');
 
     if (bar) {
         bar.style.width = `${pct}%`;
@@ -63,5 +56,16 @@ function updateChecklistProgress() {
         else bar.style.backgroundColor = '#10b981';
     }
 
-    if (label) label.textContent = `${pct}% de tu equipo obligatorio listo`;
+    if (pctLabel) {
+        pctLabel.textContent = `${pct}%`;
+        pctLabel.style.color = pct === 100 ? '#10b981' : '#f4a261';
+    }
+
+    if (warning) {
+        if (pct < 100 && totalItems > 0) {
+            warning.classList.remove('hidden');
+        } else {
+            warning.classList.add('hidden');
+        }
+    }
 }

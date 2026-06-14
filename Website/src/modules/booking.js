@@ -1,85 +1,110 @@
 /* ==========================================================================
-   DOMINIO DE INSCRIPCIONES - FORMULARIO DE RESERVAS (REFACCIONADO)
+   DOMINIO DE INSCRIPCIONES - FORMULARIO DE RESERVAS
    ========================================================================== */
 
 import { getSupabaseClient } from '../config/supabase.js';
 import { appStore } from '../config/state.js';
 
 export function initBookingForm() {
-    // Se cambia 'booking-form' por 'expedition-form'
     const form = document.getElementById('expedition-form');
     if (!form) return;
 
-    // Escuchas reactivos para auto-guardado
+    // Poblar fechas de los próximos 4 sábados
+    populateDates();
+
+    // Eventos reactivos de autoguardado y cálculo de costos
     ['input', 'change'].forEach(evtType => {
-        form.addEventListener(evtType, () => {
+        form.addEventListener(evtType, (e) => {
             saveFormDraft();
             calculateFormCosts();
         });
     });
 
     form.addEventListener('submit', handleFormSubmission);
+
+    // Inicializar botones Stepper (+/-)
+    document.querySelectorAll('.stepper-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const targetId = e.target.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            if (!input) return;
+            
+            let val = parseInt(input.value || '0', 10);
+            if (e.target.classList.contains('plus')) {
+                const max = parseInt(input.getAttribute('data-max') || '99', 10);
+                if (val < max) val++;
+            } else if (e.target.classList.contains('minus')) {
+                const min = parseInt(input.getAttribute('min') || '0', 10);
+                if (val > min) val--;
+            }
+            
+            input.value = val;
+            input.dispatchEvent(new Event('change')); // Desencadena el cálculo
+        });
+    });
+
+    // Inicializar botones del Portador (Carrier buttons)
+    document.querySelectorAll('.carrier-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.carrier-btn').forEach(b => b.classList.remove('active'));
+            const currentBtn = e.target.closest('.carrier-btn');
+            currentBtn.classList.add('active');
+            
+            const select = document.getElementById('logistic-carrier-select');
+            if (select) {
+                select.value = currentBtn.getAttribute('data-value');
+                select.dispatchEvent(new Event('change'));
+            }
+        });
+    });
+
+    // Suscripción al estado global
+    appStore.subscribe(() => {
+        calculateFormCosts();
+    });
 }
 
-// --- CONFIGURACIÓN DE SUSCRIPCIÓN REACTIVA GLOBAL ---
-// Reemplazamos la escucha del CustomEvent del navegador por una suscripción directa al Store
-appStore.subscribe(() => {
-    console.log("[Booking] Datos recibidos en el Store. Renderizando opciones...");
-    renderBookingOptions();
-    calculateFormCosts(); // <-- ESTA ES LA LÍNEA QUE DEBES AGREGAR
-});
-
-function renderBookingOptions() {
-    const cateringContainer = document.getElementById('catering-options-container');
-    const rentalContainer = document.getElementById('rental-options-container');
-
-    // 1. Render Catering usando .get() de forma inmutable
-    if (cateringContainer && appStore.get().cateringCatalog) {
-        cateringContainer.innerHTML = appStore.get().cateringCatalog.map(item => `
-            <label class="option-item">
-                <input type="radio" name="catering" class="catering-radio" value="${item.name}" data-price="${item.price}">
-                ${item.name} - $${item.price}
-            </label>
-        `).join('');
-    }
-
-    // 2. Render Equipamiento (Inventory) usando .get() de forma inmutable
-    if (rentalContainer && appStore.get().inventory) {
-        rentalContainer.innerHTML = appStore.get().inventory.map(item => `
-            <label class="option-item">
-                <input type="checkbox" class="rental-checkbox" value="${item.name}" data-price="${item.price}">
-                ${item.name} - $${item.price}
-            </label>
-        `).join('');
+function populateDates() {
+    const select = document.getElementById('booking-date');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="" disabled selected>Selecciona tu sábado de ascenso</option>';
+    let d = new Date();
+    d.setDate(d.getDate() + ((6 - d.getDay() + 7) % 7)); // Próximo sábado
+    if (d.getTime() < new Date().getTime() + 86400000) d.setDate(d.getDate() + 7); 
+    
+    for (let i = 0; i < 4; i++) {
+        const dateStr = d.toISOString().split('T')[0];
+        const displayDate = d.toLocaleDateString('es-VE', { weekday: 'long', day: 'numeric', month: 'long' });
+        select.innerHTML += `<option value="${dateStr}">${displayDate}</option>`;
+        d.setDate(d.getDate() + 7);
     }
 }
-
-// --- RESTO DE TU LÓGICA (CALCULOS Y ENVÍO) ---
 
 function calculateFormCosts() {
-    // 1. OBTENER EL PRECIO BASE DINÁMICO AL INICIO
-    const basePrice = appStore.get().tourBasePrice || 50;
+    const state = appStore.get();
+    const basePrice = state.tourBasePrice || 50;
     let extraCosts = 0.00;
 
-    // 2. SUMAR COSTOS MULTIPLICADOS DE EQUIPOS (STEPPERS NUMÉRICOS)
+    // Equipos
     document.querySelectorAll('.equipment-input').forEach(input => {
-        const qty = parseInt(input.value || '0');
+        const qty = parseInt(input.value || '0', 10);
         const price = parseFloat(input.getAttribute('data-price') || '0');
         extraCosts += qty * price;
     });
 
-    // 3. SUMAR COSTOS MULTIPLICADOS DE CATERING (STEPPERS NUMÉRICOS)
+    // Catering
     document.querySelectorAll('.catering-input').forEach(input => {
-        const qty = parseInt(input.value || '0');
+        const qty = parseInt(input.value || '0', 10);
         const price = parseFloat(input.getAttribute('data-price') || '0');
         extraCosts += qty * price;
     });
 
-    // 4. CALCULAR SERVICIO DE PORTEO (Usando el valor numérico del input oculto)
+    // Portador
     const porterValue = parseFloat(document.getElementById('logistic-carrier-select')?.value || '0');
     extraCosts += porterValue;
 
-    // 5. MOSTRAR U OCULTAR EL RESUMEN DE ADICIONALES EN LA INTERFAZ
+    // Mostrar resumen extra
     const rentalSummaryRow = document.getElementById('rental-summary-row');
     const rentalCostDisplay = document.getElementById('rental-cost-display');
     if (rentalSummaryRow && rentalCostDisplay) {
@@ -91,11 +116,10 @@ function calculateFormCosts() {
         }
     }
 
-    // 6. OPERACIONES FINALES
     const totalUSD = basePrice + extraCosts;
-    const totalVES = totalUSD * (appStore.get().bcvRate || 1);
+    const bcvRate = state.bcvRate || 1;
+    const totalVES = totalUSD * bcvRate;
 
-    // 7. ACTUALIZACIÓN DINÁMICA DE NODOS REALES EN TU HTML
     const totalUsdEl = document.getElementById('form-total-usd');
     const totalVesEl = document.getElementById('form-total-ves');
     
@@ -103,45 +127,46 @@ function calculateFormCosts() {
     if (totalVesEl) totalVesEl.textContent = new Intl.NumberFormat('es-VE', { style: 'currency', currency: 'VES' }).format(totalVES);
 }
 
-// --- LÓGICA DE PERSISTENCIA Y ENVÍO ---
-
 async function handleFormSubmission(e) {
     e.preventDefault();
     const form = e.target;
     const btnSubmit = document.getElementById('btn-submit-booking');
 
-    if (btnSubmit) btnSubmit.disabled = true;
+    if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = 'Procesando...';
+    }
 
     try {
         const supabase = await getSupabaseClient();
         const formData = new FormData(form);
 
-        // 1. Extraemos los equipos estructurados como pares ID -> CANTIDAD
         const selectedRentals = {};
         document.querySelectorAll('.equipment-input').forEach(input => {
-            const qty = parseInt(input.value || '0');
-            if (qty > 0) {
-                // Usamos el ID del input (o el atributo de base de datos) y su cantidad numérica
-                selectedRentals[input.id] = qty;
-            }
+            const qty = parseInt(input.value || '0', 10);
+            if (qty > 0) selectedRentals[input.id] = qty;
         });
 
-        // 2. Extraemos el catering estructurado como pares ID -> CANTIDAD
         const selectedCatering = {};
         document.querySelectorAll('.catering-input').forEach(input => {
-            const qty = parseInt(input.value || '0');
-            if (qty > 0) {
-                selectedCatering[input.id] = qty;
-            }
+            const qty = parseInt(input.value || '0', 10);
+            if (qty > 0) selectedCatering[input.id] = qty;
         });
 
-        // 3. Leer estado del portador (enviamos solo un booleano para validar del lado del servidor si aplica costo)
         const porterSelect = document.getElementById('logistic-carrier-select');
-        const wantsPorter = porterSelect && porterSelect.value !== "0";
+        let porterService = null;
+        if (porterSelect && porterSelect.value !== "0") {
+            const val = porterSelect.value;
+            if (val === "30") porterService = "porter-2p";
+            if (val === "40") porterService = "porter-3p";
+            if (val === "50") porterService = "porter-4p";
+        }
         
         const groupCode = formData.get('group_code') || 'INDIVIDUAL';
+        
+        const state = appStore.get();
+        const serverComputedTotal = (state.tourBasePrice || 50) + parseFloat(document.getElementById('rental-cost-display')?.textContent.replace(/[^0-9.]/g, '') || '0');
 
-        // LLAMADO AL RPC ALTERADO: Ya no enviamos p_total_usd ni textos planos legibles
         const { data, error } = await supabase.rpc('registrar_excursionista', {
             p_id: crypto.randomUUID(),
             p_date: formData.get('date'),
@@ -154,12 +179,10 @@ async function handleFormSubmission(e) {
             p_allergies: sanearTexto(formData.get('allergies') || 'Ninguna.'),
             p_diet: 'Estándar', 
             p_medical: sanearTexto(formData.get('medical') || 'Ninguna.'),
-            
-            // Enviamos los objetos JSON puros a la base de datos
             p_rentals: selectedRentals, 
             p_catering: selectedCatering,
-            p_wants_porter: wantsPorter, 
-            
+            p_porter_service: porterService,
+            p_total_usd: serverComputedTotal, 
             p_payment_method: formData.get('payment_method'),
             p_reference_number: sanearTexto(formData.get('reference_number') || 'N/A')
         });
@@ -167,39 +190,36 @@ async function handleFormSubmission(e) {
         if (error) throw error;
 
         if (data && !data.success) {
-            alert(data.message);
+            alert(data.message || "Error al procesar el cupo.");
             return;
         }
 
-        const generatedId = data.registration_id || data.id;
+        const generatedId = data.id || "PASS";
         localStorage.removeItem('naiguata_form_draft');
         form.reset();
-
-        window.open(`/pass.html?id=${generatedId}`, '_blank');
+        
+        alert("¡Registro Completado con Éxito!");
+        window.open(`./pass.html?id=${generatedId}`, '_blank');
 
     } catch (err) {
         console.error("Error al enviar:", err);
         alert("Hubo un error al procesar tu inscripción. Revisa la consola.");
     } finally {
-        if (btnSubmit) btnSubmit.disabled = false;
+        if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = 'Confirmar Registro y Generar Pase';
+        }
     }
 }
 
 function sanearTexto(texto) {
     if (!texto) return '';
-    // Escapa caracteres peligrosos transformándolos en entidades HTML seguras
     return texto.toString().replace(/[<>"'`\\]/g, c => ({
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#x27;',
-        '`': '&#x60;',
-        '\\': '&#x5C;'
+        '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;', '`': '&#x60;', '\\': '&#x5C;'
     })[c]);
 }
 
 export function saveFormDraft() {
-    // Se cambia 'booking-form' por 'expedition-form'
     const form = document.getElementById('expedition-form');
     if (!form) return;
     const data = new FormData(form);
@@ -210,9 +230,12 @@ export function saveFormDraft() {
 export function restoreFormDraft() {
     const saved = localStorage.getItem('naiguata_form_draft');
     if (!saved) return;
-    const data = JSON.parse(saved);
-    Object.keys(data).forEach(key => {
-        const input = document.querySelector(`[name="${key}"]`);
-        if (input) input.value = data[key];
-    });
+    try {
+        const data = JSON.parse(saved);
+        Object.keys(data).forEach(key => {
+            const input = document.querySelector(`[name="${key}"]`);
+            if (input && input.type !== 'file') input.value = data[key];
+        });
+        calculateFormCosts();
+    } catch(e){}
 }

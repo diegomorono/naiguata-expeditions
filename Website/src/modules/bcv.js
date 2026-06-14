@@ -20,9 +20,9 @@ export async function resolveBcvRate() {
         if (data) {
             const settings = {};
             data.forEach(item => {
-                if (item.key === 'last_valid_bcv') settings.bcvRate = parseFloat(item.value);
-                if (item.key === 'tour_base_price') settings.tourBasePrice = parseFloat(item.value);
-                if (item.key === 'max_capacity') settings.maxCapacity = parseInt(item.value, 10);
+                if (item.key === 'last_valid_bcv') settings.bcvRate = parseFloat(item.value.rate);
+                if (item.key === 'tour_base_price') settings.tourBasePrice = parseFloat(item.value.amount);
+                if (item.key === 'max_capacity') settings.maxCapacityPerDate = parseInt(item.value.per_date, 10);
             });
 
             // Guardamos todo de forma segura en el store global

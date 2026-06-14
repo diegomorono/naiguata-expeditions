@@ -95,7 +95,8 @@ CREATE TABLE IF NOT EXISTS expedition_slots (
 INSERT INTO system_settings (key, value) VALUES
     ('last_valid_bcv',   '{"rate": 40.00, "updated_at": "2026-06-01T00:00:00Z"}'),
     ('tour_base_price',  '{"amount": 50.00, "currency": "USD"}'),
-    ('max_capacity',     '{"per_date": 12}')
+    ('max_capacity',     '{"per_date": 12}'),
+    ('payment_info',     '{"pagomovil_banco": "0102 - Banco de Venezuela", "pagomovil_telefono": "04121234567", "pagomovil_cedula": "V-12345678", "binance_email": "pagos@naiguata.com", "zelle_titular": "Naiguata Expeditions", "zelle_correo": "zelle@naiguata.com"}')
 ON CONFLICT (key) DO NOTHING;
 
 INSERT INTO inventory_stock (item_id, item_name, owned_qty, consignment_qty, price_usd) VALUES
