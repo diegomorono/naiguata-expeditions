@@ -3419,150 +3419,151 @@ section::after {
 }
 
 /* ==========================================================================
-   REDISEÑO SECCIÓN ACAMPADA (SOLUCIÓN DEFINITIVA DE ALINEACIÓN Y DOBLE CAPA)
+   REDISEÑO SECCIÓN ACAMPADA (SOLUCIÓN ABSOLUTA DE ALINEACIÓN IZQUIERDA)
    ========================================================================== */
 
-/* 1. Estructura de dos columnas */
-.hero-layout {
-  display: flex;
-  gap: 50px;
-  align-items: flex-start;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 60px 20px;
+/* 1. Forzar la estructura de dos columnas en pantallas de escritorio */
+#client-view .hero-layout {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 50px !important;
+  align-items: flex-start !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  padding: 60px 20px !important;
 }
 
-/* 2. Columna Izquierda: Forzar alineación matemática a la izquierda y romper herencias centradoras */
-.hero-layout .hero-content {
-  flex: 1;
+/* 2. Columna Izquierda: Forzar alineación y sobreescribir herencias centradoras */
+#client-view .hero-content {
+  flex: 1 !important;
   text-align: left !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: flex-start !important;
-  gap: 15px;
-}
-
-/* Anular márgenes automáticos globales que centran los elementos */
-.hero-layout .hero-content .badge {
-  margin: 0 !important;
-}
-
-.hero-layout .hero-content .hero-title {
-  font-family: 'Outfit', sans-serif;
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin: 0 0 20px 0 !important;
-  color: var(--text);
-  text-align: left !important;
-}
-
-.hero-layout .hero-content .hero-description {
-  text-align: left !important;
-  margin-left: 0 !important;
-  margin-right: auto !important;
-}
-
-/* Forzar que el contenedor de botones se alinee a la izquierda */
-.hero-layout .hero-content .hero-ctas {
-  display: flex !important;
   justify-content: flex-start !important;
-  gap: 15px;
-  margin-left: 0 !important;
-  margin-right: auto !important;
-  width: 100%;
+  gap: 15px !important;
 }
 
-/* 3. Columna Derecha: Contenedor puramente estructural (transparente, evita la doble sección) */
-.pricing-card-wrapper {
-  flex: 0 0 380px;
-  width: 380px;
+/* Anular la alineación al centro en cada uno de los elementos internos */
+#client-view .hero-content .badge,
+#client-view .hero-content .hero-title,
+#client-view .hero-content .hero-description {
+  text-align: left !important;
+  align-self: flex-start !important;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+}
+
+#client-view .hero-content .hero-title {
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 2.5rem !important;
+  font-weight: 700 !important;
+  color: var(--text) !important;
+  margin: 0 0 20px 0 !important;
+}
+
+/* Forzar que el bloque de botones se mueva por completo a la izquierda */
+#client-view .hero-content .hero-ctas {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  gap: 15px !important;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  width: auto !important;
+}
+
+/* 3. Columna Derecha: Contenedor estructural limpio sin doble tarjeta */
+#client-view .pricing-card-wrapper {
+  flex: 0 0 380px !important;
+  width: 380px !important;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   padding: 0 !important;
 }
 
-/* Aplicar el diseño visual únicamente a la tarjeta interna real */
-.pricing-card-wrapper .pricing-card {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  border-radius: 16px;
-  padding: 32px;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+/* Aplicar el diseño visual únicamente sobre la tarjeta interna real */
+#client-view .pricing-card-wrapper .pricing-card {
+  background: var(--panel-bg) !important;
+  border: 1px solid var(--panel-border) !important;
+  border-radius: 16px !important;
+  padding: 32px !important;
+  backdrop-filter: blur(8px) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3) !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
-.price-box,
-.price-header {
-  text-align: center;
-  margin-bottom: 20px;
+#client-view .price-box,
+#client-view .price-header {
+  text-align: center !important;
+  margin-bottom: 20px !important;
 }
 
-.card-divider,
-.pricing-card-wrapper hr {
-  border: 0;
-  border-top: 1px solid var(--panel-border);
-  margin: 20px 0;
+#client-view .pricing-card-wrapper hr {
+  border: 0 !important;
+  border-top: 1px solid var(--panel-border) !important;
+  margin: 20px 0 !important;
 }
 
 /* Ajuste Responsivo para Tablets y Teléfonos */
 @media (max-width: 992px) {
-  .hero-layout {
-    flex-direction: column;
-    gap: 35px;
+  #client-view .hero-layout {
+    flex-direction: column !important;
+    gap: 35px !important;
   }
 
-  .hero-layout .hero-content {
+  #client-view .hero-content {
     align-items: center !important;
     text-align: center !important;
   }
 
-  .hero-layout .hero-content .hero-title,
-  .hero-layout .hero-content .hero-description {
+  #client-view .hero-content .badge,
+  #client-view .hero-content .hero-title,
+  #client-view .hero-content .hero-description {
     text-align: center !important;
     margin: 0 auto !important;
+    align-self: center !important;
   }
 
-  .hero-layout .hero-content .hero-ctas {
+  #client-view .hero-content .hero-ctas {
     justify-content: center !important;
     margin: 0 auto !important;
   }
 
-  .pricing-card-wrapper {
-    width: 100%;
-    flex: none;
+  #client-view .pricing-card-wrapper {
+    width: 100% !important;
+    flex: none !important;
   }
 }
 
 /* ==========================================================================
    ICONOS VERDES Y DETALLES EN CHECKLIST
    ========================================================================== */
-
-/* Mantiene tus checklists en el color verde esmeralda correcto sin alteraciones */
-.pricing-card-wrapper .check-icon {
-  width: 18px;
-  height: 18px;
+#client-view .pricing-card-wrapper .check-icon {
+  width: 18px !important;
+  height: 18px !important;
   color: var(--primary) !important;
-  flex-shrink: 0;
-  margin-top: 2px;
+  flex-shrink: 0 !important;
+  margin-top: 2px !important;
 }
 
-.price-features {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 20px;
+#client-view .price-features {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  margin-top: 20px !important;
 }
 
-.feature-tag {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  font-size: 0.95rem;
-  color: var(--text);
-  line-height: 1.4;
-  text-align: left;
+#client-view .feature-tag {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 12px !important;
+  font-size: 0.95rem !important;
+  color: var(--text) !important;
+  line-height: 1.4 !important;
+  text-align: left !important;
 }
