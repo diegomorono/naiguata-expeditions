@@ -27,14 +27,10 @@ export function renderGearChecklist() {
     if (!inventory || inventory.length === 0) return;
 
     container.innerHTML = inventory.map(item => `
-        <li style="display: flex; align-items: center; gap: 15px; padding: 12px; border-radius: 8px; background: rgba(255,255,255,0.03); margin-bottom: 8px;">
-            <input type="checkbox" class="gear-checkbox" id="gear-${item.item_id}" style="width: 22px; height: 22px; accent-color: #10b981; cursor: pointer;">
+        <li style="display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 8px; background: rgba(255,255,255,0.03); margin-bottom: 6px;">
+            <input type="checkbox" class="gear-checkbox" id="gear-${item.item_id}" style="width: 16px; height: 16px; accent-color: #10b981; cursor: pointer;">
             <div class="gear-text" style="flex: 1;">
-                <label for="gear-${item.item_id}" style="cursor: pointer; display: block; font-weight: 600; color: #f3f4f6;">${item.item_name}</label>
-                ${item.price_usd && item.price_usd > 0
-            ? `<span style="font-size: 0.85rem; color: #9ca3af;">Si no lo tienes, alquílalo por $${item.price_usd}</span>`
-            : `<span style="font-size: 0.85rem; color: #f4a261; font-style: italic;">Indispensable – Traer obligatoriamente</span>`
-        }
+                <label for="gear-${item.item_id}" style="cursor: pointer; display: block; font-weight: 600; color: #f3f4f6; font-size: 0.95rem; line-height: 1.2;">${item.item_name}</label>
             </div>
         </li>
     `).join('');
