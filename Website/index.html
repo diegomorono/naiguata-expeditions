@@ -110,45 +110,54 @@
                         en
                         el camino.</p>
 
-                    <div class="route-explorer glass-panel">
+                    <div class="route-explorer glass-panel" style="display: flex; flex-direction: row; gap: 30px; align-items: stretch; flex-wrap: wrap;">
 
-                        <div class="elevation-profile-container">
-                            <svg class="elevation-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-                                <defs>
-                                    <linearGradient id="elevation-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                        <stop offset="0%" stop-color="var(--primary-glow)" stop-opacity="0.35" />
-                                        <stop offset="100%" stop-color="var(--primary-glow)" stop-opacity="0.0" />
-                                    </linearGradient>
-                                </defs>
+                        <!-- SVG Mountain Graphic -->
+                        <div class="mountain-graphic-container" style="flex: 1.5; min-width: 300px; position: relative;">
+                             <svg class="mountain-svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMax meet" style="width: 100%; height: auto; display: block; overflow: visible; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));">
+                                 <!-- Right mountain (light grey) -->
+                                 <path d="M 450 600 L 650 300 L 720 400 L 780 350 L 900 600 Z" fill="#94a3b8" />
+                                 <path d="M 650 300 L 680 380 L 720 400 L 690 480 L 750 600 L 450 600 Z" fill="#64748b" />
 
-                                <path d="M 0 90 L 18 78 L 38 65 L 58 48 L 78 25 L 100 10 L 100 100 L 0 100 Z"
-                                    fill="url(#elevation-grad)" />
-
-                                <path d="M 0 90 L 18 78 L 38 65 L 58 48 L 78 25 L 100 10" stroke="var(--primary)"
-                                    stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-
-                                <circle cx="0" cy="90" r="1.5" class="map-dot active" data-step="0"></circle>
-                                <circle cx="18" cy="78" r="1.2" class="map-dot" data-step="1"></circle>
-                                <circle cx="38" cy="65" r="1.2" class="map-dot" data-step="2"></circle>
-                                <circle cx="58" cy="48" r="1.2" class="map-dot" data-step="3"></circle>
-                                <circle cx="78" cy="25" r="1.2" class="map-dot" data-step="4"></circle>
-                                <circle cx="100" cy="10" r="1.5" class="map-dot" data-step="5"></circle>
-                            </svg>
-
-                            <div class="elevation-label start-lbl">La Julia (1,140m)</div>
-                            <div class="elevation-label end-lbl">Pico Naiguatá (2,765m)</div>
+                                 <!-- Left mountain (dark blue) -->
+                                 <path d="M -100 600 L 150 350 L 220 450 L 300 350 L 450 600 Z" fill="#1e293b" />
+                                 <path d="M 150 350 L 200 420 L 250 400 L 280 480 L 350 420 L 400 500 L 450 600 L -100 600 Z" fill="#0f172a" />
+                                 
+                                 <!-- Main center mountain -->
+                                 <path d="M 50 600 L 400 100 L 750 600 Z" fill="#38bdf8" />
+                                 <path d="M 400 100 L 430 200 L 380 280 L 440 380 L 390 450 L 480 520 L 420 600 L 50 600 Z" fill="#0ea5e9" />
+                                 <path d="M 400 100 L 430 200 L 380 280 L 440 380 L 390 450 L 480 520 L 420 600 L 750 600 Z" fill="#7dd3fc" />
+                                 
+                                 <!-- Snowy peak -->
+                                 <path d="M 400 100 L 445 220 L 420 240 L 400 200 L 370 230 L 340 185 Z" fill="#ffffff" />
+                                 
+                                 <!-- The Path (Dashed line) -->
+                                 <path d="M 680 580 L 600 550 L 540 520 L 490 450 L 500 390 L 420 370 L 400 300 L 470 270 L 430 210 L 400 100" stroke="#ef4444" stroke-width="5" stroke-dasharray="12 10" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                 
+                                 <!-- Nodes -->
+                                 <g class="mountain-path-dot" data-step="0" style="cursor: pointer; transition: all 0.3s ease;">
+                                     <circle cx="600" cy="550" r="10" fill="#ffffff" stroke="#ef4444" stroke-width="4" />
+                                 </g>
+                                 <g class="mountain-path-dot" data-step="1" style="cursor: pointer; transition: all 0.3s ease;">
+                                     <circle cx="540" cy="520" r="10" fill="#ffffff" stroke="#ef4444" stroke-width="4" />
+                                 </g>
+                                 <g class="mountain-path-dot" data-step="2" style="cursor: pointer; transition: all 0.3s ease;">
+                                     <circle cx="490" cy="450" r="10" fill="#ffffff" stroke="#ef4444" stroke-width="4" />
+                                 </g>
+                                 <g class="mountain-path-dot" data-step="3" style="cursor: pointer; transition: all 0.3s ease;">
+                                     <circle cx="400" cy="300" r="10" fill="#ffffff" stroke="#ef4444" stroke-width="4" />
+                                 </g>
+                                 <g class="mountain-path-dot" data-step="4" style="cursor: pointer; transition: all 0.3s ease;">
+                                     <circle cx="470" cy="270" r="10" fill="#ffffff" stroke="#ef4444" stroke-width="4" />
+                                 </g>
+                                 <g class="mountain-path-dot" data-step="5" style="cursor: pointer; transition: all 0.3s ease;">
+                                     <circle cx="400" cy="100" r="14" fill="#ef4444" stroke="#ffffff" stroke-width="4" />
+                                 </g>
+                             </svg>
                         </div>
 
-                        <div class="stepper-nav">
-                            <button class="step-nav-btn active" data-step="0">1. PGP La Julia</button>
-                            <button class="step-nav-btn" data-step="1">2. El Tanque</button>
-                            <button class="step-nav-btn" data-step="2">3. Mirador Edén</button>
-                            <button class="step-nav-btn" data-step="3">4. Dos Banderas</button>
-                            <button class="step-nav-btn" data-step="4">5. El Anfiteatro</button>
-                            <button class="step-nav-btn" data-step="5">6. La Cumbre</button>
-                        </div>
-
-                        <div class="step-details-card" id="active-step-details">
+                        <!-- Step Details Card -->
+                        <div class="step-details-card" id="active-step-details" style="flex: 1; min-width: 300px; display: flex; flex-direction: column; justify-content: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 40px;">
                         </div>
                     </div>
                 </div>
@@ -652,10 +661,8 @@
     <!-- Footer -->
     <footer class="app-footer">
         <div class="footer-container">
-            <p>&copy; 2026 Naiguatá Expeditions. Caracas, Venezuela. | Guía: Diego Morono (+34 673 375 681) |
-                diego.morono03@gmail.com</p>
-            <p class="footer-subtext">Diseño premium para senderistas del Ávila. Desarrollado con Inteligencia
-                Artificial.</p>
+            <p>&copy; 2026 Naiguatá Expeditions. Caracas, Venezuela.</p>
+            <p class="footer-subtext">Diseño premium para senderistas del Ávila.</p>
         </div>
     </footer>
 
