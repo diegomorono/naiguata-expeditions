@@ -110,54 +110,62 @@
                         en
                         el camino.</p>
 
-                    <div class="route-explorer glass-panel" style="display: flex; flex-direction: row; gap: 30px; align-items: stretch; flex-wrap: wrap;">
+                    <div class="route-explorer glass-panel" style="display: flex; flex-direction: row-reverse; gap: 40px; align-items: center; flex-wrap: wrap; padding: 20px; overflow: visible;">
 
-                        <!-- SVG Mountain Graphic -->
-                        <div class="mountain-graphic-container" style="flex: 1.5; min-width: 300px; position: relative;">
-                             <svg class="mountain-svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMax meet" style="width: 100%; height: auto; display: block; overflow: visible; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));">
-                                 <!-- Right mountain (light grey) -->
-                                 <path d="M 450 600 L 650 300 L 720 400 L 780 350 L 900 600 Z" fill="#94a3b8" />
-                                 <path d="M 650 300 L 680 380 L 720 400 L 690 480 L 750 600 L 450 600 Z" fill="#64748b" />
-
-                                 <!-- Left mountain (dark blue) -->
-                                 <path d="M -100 600 L 150 350 L 220 450 L 300 350 L 450 600 Z" fill="#1e293b" />
-                                 <path d="M 150 350 L 200 420 L 250 400 L 280 480 L 350 420 L 400 500 L 450 600 L -100 600 Z" fill="#0f172a" />
+                        <!-- SVG Mountain Graphic (Derecha) -->
+                        <div class="mountain-graphic-container" style="flex: 1.5; min-width: 320px; width: 100%; max-width: 600px; margin: 0 auto; display: flex; align-items: flex-end; justify-content: center; position: relative;">
+                             <svg class="mountain-svg" viewBox="0 0 1000 800" style="width: 100%; height: auto; display: block; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6)); overflow: visible;">
                                  
-                                 <!-- Main center mountain -->
-                                 <path d="M 50 600 L 400 100 L 750 600 Z" fill="#38bdf8" />
-                                 <path d="M 400 100 L 430 200 L 380 280 L 440 380 L 390 450 L 480 520 L 420 600 L 50 600 Z" fill="#0ea5e9" />
-                                 <path d="M 400 100 L 430 200 L 380 280 L 440 380 L 390 450 L 480 520 L 420 600 L 750 600 Z" fill="#7dd3fc" />
+                                 <!-- Right mountain (light grey) -->
+                                 <path d="M 500 800 L 750 400 L 820 500 L 900 450 L 1050 800 Z" fill="#BDC3C7" />
+                                 <path d="M 750 400 L 780 480 L 820 500 L 790 580 L 850 800 L 500 800 Z" fill="#95A5A6" />
+                                 
+                                 <!-- Center mountain -->
+                                 <!-- Left side (light blue) -->
+                                 <path d="M 100 800 L 500 200 L 540 300 L 480 400 L 520 500 L 470 600 L 530 700 L 500 800 Z" fill="#85C1E9" />
+                                 <!-- Right side (lighter blue) -->
+                                 <path d="M 500 200 L 540 300 L 480 400 L 520 500 L 470 600 L 530 700 L 500 800 L 950 800 Z" fill="#D6EAF8" />
                                  
                                  <!-- Snowy peak -->
-                                 <path d="M 400 100 L 445 220 L 420 240 L 400 200 L 370 230 L 340 185 Z" fill="#ffffff" />
+                                 <path d="M 500 200 L 440 290 L 470 320 L 500 270 L 540 320 L 560 290 Z" fill="#FFFFFF" />
+                                 
+                                 <!-- Left mountain (dark blue, overlapping front) -->
+                                 <path d="M -50 800 L 250 450 L 280 500 L 240 600 L 290 700 L 250 800 Z" fill="#1A252F" />
+                                 <path d="M 250 450 L 280 500 L 240 600 L 290 700 L 250 800 L 600 800 Z" fill="#2C3E50" />
                                  
                                  <!-- The Path (Dashed line) -->
-                                 <path d="M 680 580 L 600 550 L 540 520 L 490 450 L 500 390 L 420 370 L 400 300 L 470 270 L 430 210 L 400 100" stroke="#ef4444" stroke-width="5" stroke-dasharray="12 10" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                                 <path d="M 850 750 L 750 720 L 680 650 L 600 580 L 650 500 L 560 450 L 580 380 L 500 320 L 530 250 L 500 200" stroke="#E74C3C" stroke-width="6" stroke-dasharray="15 10" fill="none" stroke-linecap="round" stroke-linejoin="round" />
                                  
                                  <!-- Nodes -->
-                                 <g class="mountain-path-dot" data-step="0" style="cursor: pointer; transition: all 0.3s ease;">
-                                     <circle cx="600" cy="550" r="10" fill="#ffffff" stroke="#ef4444" stroke-width="4" />
+                                 <g class="mountain-path-dot" data-step="0" style="cursor: pointer;">
+                                     <circle cx="850" cy="750" r="25" fill="transparent" />
+                                     <circle cx="850" cy="750" r="10" fill="#ffffff" stroke="#E74C3C" stroke-width="5" class="dot-inner" />
                                  </g>
-                                 <g class="mountain-path-dot" data-step="1" style="cursor: pointer; transition: all 0.3s ease;">
-                                     <circle cx="540" cy="520" r="10" fill="#ffffff" stroke="#ef4444" stroke-width="4" />
+                                 <g class="mountain-path-dot" data-step="1" style="cursor: pointer;">
+                                     <circle cx="750" cy="720" r="25" fill="transparent" />
+                                     <circle cx="750" cy="720" r="10" fill="#ffffff" stroke="#E74C3C" stroke-width="5" class="dot-inner" />
                                  </g>
-                                 <g class="mountain-path-dot" data-step="2" style="cursor: pointer; transition: all 0.3s ease;">
-                                     <circle cx="490" cy="450" r="10" fill="#ffffff" stroke="#ef4444" stroke-width="4" />
+                                 <g class="mountain-path-dot" data-step="2" style="cursor: pointer;">
+                                     <circle cx="680" cy="650" r="25" fill="transparent" />
+                                     <circle cx="680" cy="650" r="10" fill="#ffffff" stroke="#E74C3C" stroke-width="5" class="dot-inner" />
                                  </g>
-                                 <g class="mountain-path-dot" data-step="3" style="cursor: pointer; transition: all 0.3s ease;">
-                                     <circle cx="400" cy="300" r="10" fill="#ffffff" stroke="#ef4444" stroke-width="4" />
+                                 <g class="mountain-path-dot" data-step="3" style="cursor: pointer;">
+                                     <circle cx="600" cy="580" r="25" fill="transparent" />
+                                     <circle cx="600" cy="580" r="10" fill="#ffffff" stroke="#E74C3C" stroke-width="5" class="dot-inner" />
                                  </g>
-                                 <g class="mountain-path-dot" data-step="4" style="cursor: pointer; transition: all 0.3s ease;">
-                                     <circle cx="470" cy="270" r="10" fill="#ffffff" stroke="#ef4444" stroke-width="4" />
+                                 <g class="mountain-path-dot" data-step="4" style="cursor: pointer;">
+                                     <circle cx="560" cy="450" r="25" fill="transparent" />
+                                     <circle cx="560" cy="450" r="10" fill="#ffffff" stroke="#E74C3C" stroke-width="5" class="dot-inner" />
                                  </g>
-                                 <g class="mountain-path-dot" data-step="5" style="cursor: pointer; transition: all 0.3s ease;">
-                                     <circle cx="400" cy="100" r="14" fill="#ef4444" stroke="#ffffff" stroke-width="4" />
+                                 <g class="mountain-path-dot" data-step="5" style="cursor: pointer;">
+                                     <circle cx="500" cy="200" r="30" fill="transparent" />
+                                     <circle cx="500" cy="200" r="14" fill="#E74C3C" stroke="#ffffff" stroke-width="5" class="dot-inner" />
                                  </g>
                              </svg>
                         </div>
 
-                        <!-- Step Details Card -->
-                        <div class="step-details-card" id="active-step-details" style="flex: 1; min-width: 300px; display: flex; flex-direction: column; justify-content: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 40px;">
+                        <!-- Step Details Card (Izquierda) -->
+                        <div class="step-details-card" id="active-step-details" style="flex: 1; min-width: 280px; display: flex; flex-direction: column; justify-content: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 30px;">
                         </div>
                     </div>
                 </div>

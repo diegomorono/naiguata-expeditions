@@ -3381,23 +3381,24 @@ section::after {
 /* ==========================================================================
    MOUNTAIN SVG INTERACTIVE DOTS
    ========================================================================== */
-.mountain-path-dot circle {
+.mountain-path-dot .dot-inner {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     transform-origin: center;
+    transform-box: fill-box;
 }
 
-.mountain-path-dot:hover circle {
-    fill: #ef4444 !important;
+.mountain-path-dot:hover .dot-inner {
+    fill: #E74C3C !important;
     stroke: #ffffff !important;
-    transform: scale(1.2);
+    transform: scale(1.3);
 }
 
-.mountain-path-dot.active circle {
-    fill: #ef4444 !important;
+.mountain-path-dot.active .dot-inner {
+    fill: #E74C3C !important;
     stroke: #10b981 !important; /* Resalta en verde */
     stroke-width: 6px !important;
     filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.8));
-    transform: scale(1.3);
+    transform: scale(1.5);
 }
 
 .mountain-svg {
