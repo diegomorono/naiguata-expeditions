@@ -149,17 +149,11 @@
                         </div>
                         <div class="meta-item">
                             <span class="meta-label">RUTA AUTORIZADA</span>
-                            <span class="meta-value">La Julia - Topo Dos Banderas - Pico Naiguatá</span>
+                            <span class="meta-value">La Julia - Pico Naiguatá</span>
                         </div>
                     </div>
 
                     <div class="pass-validation-zone">
-                        <div class="qr-placeholder">
-                            <div class="qr-mock-code"
-                                style="width: 110px; height: 110px; background: #000; margin: 0 auto; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; font-weight: bold; border-radius: 6px;">
-                                QR VERIFIED
-                            </div>
-                        </div>
                         <div class="instructions-box">
                             <strong>INSTRUCCIONES CLAVE:</strong>
                             <ul>
@@ -176,9 +170,8 @@
     </div>
 
     <script type="module">
-        // Importamos la configuración centralizada de tu app para tener acceso a Supabase
-        // Ajusta esta ruta relativa de acuerdo a dónde guardas la inicialización de Supabase
-        import { supabase } from './src/supabaseClient.js';
+        // 1. Usamos tu inicializador centralizado para garantizar que el CDN de Supabase esté listo
+        import { getSupabaseClient } from './src/config/supabase.js'; // Ajusta la ruta relativa desde pass.html si es necesario
 
         document.addEventListener('DOMContentLoaded', async () => {
             const params = new URLSearchParams(window.location.search);
@@ -190,32 +183,121 @@
                 return;
             }
 
-            // Mostrar el ID en la interfaz
-            document.getElementById('pass-display-id').innerText = `Pase Oficial: ${idParam}`;
-            document.getElementById('pass-card-id').innerText = idParam;
+            // Mostrar el ID en la interfaz de forma segura si los elementos existen
+            const passDisplayId = document.getElementById('pass-display-id');
+            if (passDisplayId) passDisplayId.innerText = `Pase Oficial: ${idParam}`;
 
-            // Funcionalidad para copiar enlace
-            document.getElementById('btn-copy-link').addEventListener('click', () => {
-                navigator.clipboard.writeText(window.location.href);
-                alert('¡Enlace de pase copiado al portapapeles!');
-            });
+            const passCardId = document.getElementById('pass-card-id');
+            if (passCardId) passCardId.innerText = idParam;
+
+            // Funcionalidad para compartir en WhatsApp con todos los datos del pase
+            const btnCopy = document.getElementById('btn-copy-link');
+            if (btnCopy) {
+                btnCopy.addEventListener('click', () => {
+                    // Extraer los datos cargados en el DOM
+                    const nombre = document.getElementById('pass-card-name').innerText.trim() || 'No disponible';
+                    const cedula = document.getElementById('pass-card-doc').innerText.trim() || 'No disponible';
+                    const fecha = document.getElementById('pass-card-date').innerText.trim() || 'No disponible';
+                    const enlace = window.location.href;
+
+                    // Estructurar el mensaje con formato para WhatsApp (negritas y emojis)
+                    const mensaje = `¡Hola! Aquí está mi Pase de Expedición oficial para Pico Naiguatá 🏔️:\n\n` +
+                        `👤 *Nombre:* ${nombre}\n` +
+                        `🪪 *Cédula:* ${cedula}\n` +
+                        `📅 *Fecha:* ${fecha}\n\n` +
+                        `🔗 *Ver Pase Digital:* ${enlace}`;
+
+                    // Generar la URL de la API de WhatsApp codificando el texto de forma segura
+                    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`;
+
+                    // Abrir en una nueva pestaña (funciona en móviles y WhatsApp Web)
+                    window.open(whatsappUrl, '_blank');
+                });
+            }
 
             try {
-                // Buscamos los datos exactos del senderista en Supabase usando el registration_id / ticket_id
+                // 2. Resolvemos la instancia segura de Supabase
+                const supabase = await getSupabaseClient();
+
+                // Buscamos los datos del senderista usando el registration_id
                 const { data, error } = await supabase
-                    .from('registrations') // Ajusta al nombre exacto de tu tabla
-                    .select('full_name, id_number, expedition_date')
-                    .eq('registration_id', idParam) // Ajusta a tu columna llave primaria visual
+                    .from('registrations')
+                    .select('*')
+                    .eq('registration_id', idParam)
                     .single();
 
                 if (error || !data) throw new Error('No se encontró el registro asociado.');
 
-                // Asignación de datos al DOM del pase
-                document.getElementById('pass-card-name').innerText = data.full_name.toUpperCase();
-                document.getElementById('pass-card-doc').innerText = data.id_number;
-                document.getElementById('pass-card-date').innerText = new Date(data.expedition_date).toLocaleDateString('es-VE', {
-                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-                });
+                // Asignación de datos principales al DOM
+                if (document.getElementById('pass-card-name')) {
+                    document.getElementById('pass-card-name').innerText = data.full_name.toUpperCase();
+                }
+                if (document.getElementById('pass-card-doc')) {
+                    document.getElementById('pass-card-doc').innerText = data.id_number;
+                }
+                if (document.getElementById('pass-card-date')) {
+                    document.getElementById('pass-card-date').innerText = new Date(data.expedition_date).toLocaleDateString('es-VE', {
+                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                    });
+                }
+
+                // Guardamos los datos de forma global para el botón de compartir
+                window.currentRegistrationData = data;
+
+                // --- INYECCIÓN DINÁMICA DE TODAS LAS VARIABLES EN EL RESUMEN ---
+                const dateElement = document.getElementById('pass-card-date');
+                if (dateElement) {
+                    let detailsContainer = document.getElementById('pass-extra-details');
+                    if (!detailsContainer) {
+                        detailsContainer = document.createElement('div');
+                        detailsContainer.id = 'pass-extra-details';
+                        detailsContainer.style.marginTop = '20px';
+                        detailsContainer.style.borderTop = '1px dashed var(--panel-border, rgba(255, 255, 255, 0.1))';
+                        detailsContainer.style.paddingTop = '15px';
+                        detailsContainer.style.textAlign = 'left';
+                        dateElement.parentNode.appendChild(detailsContainer);
+                    }
+
+                    // Título de la sección de detalles extendidos
+                    detailsContainer.innerHTML = `<h4 style="margin: 0 0 12px 0; color: var(--secondary, #f4a261); font-size: 0.95rem; text-transform: uppercase; font-weight: 600;">Detalles del Registro</h4>`;
+
+                    const labelsMap = {
+                        phone: 'Teléfono',
+                        emergency_contact: 'Contacto de Emergencia',
+                        payment_method: 'Método de Pago',
+                        reference_number: 'Nro. Referencia / Cédula Pago Móvil',
+                        companions_count: 'Cantidad de Acompañantes',
+                        equipment_rental: 'Alquiler de Equipo / Carpa',
+                        food_preferences: 'Preferencias de Alimentación'
+                    };
+
+                    // Iteramos por todas las propiedades devueltas por Supabase
+                    for (const [key, value] of Object.entries(data)) {
+                        if (['id', 'created_at', 'registration_id', 'ticket_id', 'full_name', 'id_number', 'expedition_date'].includes(key)) continue;
+                        if (value === null || value === undefined || value === '') continue;
+
+                        const friendlyLabel = labelsMap[key] || key.replace(/_/g, ' ').toUpperCase();
+
+                        const p = document.createElement('p');
+                        p.style.margin = '6px 0';
+                        p.style.fontSize = '0.9rem';
+                        p.style.lineHeight = '1.4';
+
+                        // 3. Estructura HTML fija y asignación de contenido dinámico por .textContent para máxima seguridad
+                        p.innerHTML = `<strong style="color: var(--text-muted, #9ca3af);">${friendlyLabel}:</strong> <span class="detail-value" style="color: var(--text, #f3f4f6); font-weight: 500;"></span>`;
+                        p.querySelector('.detail-value').textContent = value;
+
+                        detailsContainer.appendChild(p);
+                    }
+                }
+
+                // Aseguramos la vinculación correcta del botón de imprimir
+                const btnPrint = document.getElementById('btn-print-pass') || document.getElementById('btn-print');
+                if (btnPrint) {
+                    btnPrint.addEventListener('click', () => {
+                        window.print();
+                    });
+                }
 
             } catch (err) {
                 console.error(err);
