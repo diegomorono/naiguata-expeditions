@@ -170,9 +170,13 @@ async function handleFormSubmission(e) {
         // Mapeo seguro por si acaso los nombres de los inputs varían
         const inputDate = formData.get('date') || formData.get('booking-date') || '';
         const inputName = formData.get('name') || formData.get('full_name') || '';
+        const inputCedula = formData.get('cedula') || formData.get('identity_card') || 'N/A';
+
+        // CRUCIAL: Capturamos el UUID aquí para garantizar consistencia absoluta en todo el flujo
+        const passId = crypto.randomUUID();
 
         const { data, error } = await supabase.rpc('registrar_excursionista', {
-            p_id: crypto.randomUUID(),
+            p_id: passId,
             p_date: inputDate,
             p_name: sanearTexto(inputName),
             p_email: sanearTexto(formData.get('email')),
@@ -198,15 +202,46 @@ async function handleFormSubmission(e) {
             return;
         }
 
-        const generatedId = data.id || "PASS";
+        // Asignamos con seguridad el identificador real e inalterable
+        const generatedId = passId;
+
+        // 1. INTEGRACIÓN CON SERVERLESS FUNCTION DE EMAIL (Punto 4)
+        // Se ejecuta en background protegiendo el flujo principal si el correo tarda en responder
+        try {
+            await fetch('/api/send-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    to_name: "Administrador Naiguatá",
+                    client_name: inputName,
+                    client_email: formData.get('email'),
+                    client_cedula: inputCedula,
+                    expedition_date: inputDate,
+                    pass_url: `https://naiguata-expeditions.vercel.app/pass.html?id=${generatedId}`
+                })
+            });
+            console.log("[Email API] Solicitud de notificación despachada correctamente.");
+        } catch (mailErr) {
+            console.error("[Email API] Error al procesar el correo de notificación:", mailErr);
+        }
+
+        // 2. CONSTRUCCIÓN DINÁMICA Y ENVÍO A WHATSAPP (Punto 3)
+        const urlPase = `https://naiguata-expeditions.vercel.app/pass.html?id=${generatedId}`;
+        const textoWhatsapp = `¡Hola! Aquí está mi Pase de Expedición oficial para Pico Naiguatá 🏔️:\n\n👤 Nombre: ${inputName}\n🪪 Cédula: ${inputCedula}\n📅 Fecha: ${inputDate}\n\n🔗 Ver Pase Digital: ${urlPase}`;
+
+        const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoWhatsapp)}`;
+
+        // Abre la API de WhatsApp en una pestaña paralela para evitar que el navegador congele scripts
+        window.open(whatsappUrl, '_blank');
 
         // Limpiamos borradores locales y el formulario
         localStorage.removeItem('naiguata_form_draft');
         form.reset();
 
         // ==========================================================================
-        // ¡REDIRECCIÓN AUTOMÁTICA A OTRA PÁGINA!
-        // En lugar de ocultar divs, mandamos al usuario directo a pass.html con su ID
+        // REDIRECCIÓN AUTOMÁTICA AL PASE DIGITAL REAL (Punto 2)
         // ==========================================================================
         window.location.href = `./pass.html?id=${generatedId}`;
 
@@ -248,3 +283,4 @@ export function restoreFormDraft() {
         calculateFormCosts();
     } catch (e) { }
 }
+
