@@ -6,10 +6,14 @@ import { initGearChecklist } from './modules/checklist.js';
 import { initBookingForm, restoreFormDraft } from './modules/booking.js';
 import { initPaymentInstructions, loadPaymentData } from './modules/payment.js';
 
+// Bandera para evitar ejecución prematura de renderizado antes del parseo del DOM
+let isDomReady = false;
+
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("[Main] Montando la estructura de la aplicación...");
+    isDomReady = true;
 
-    // 1. INICIALIZACIÓN DE EVENT LISTENERS (Seguro hacerlo de primero)
+    // 1. INICIALIZACIÓN DE EVENT LISTENERS
     initElevationStepper();
     initGearChecklist();
     initBookingForm();
@@ -17,33 +21,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 2. CONFIGURACIÓN DE SUSCRIPCIÓN REACTIVA GLOBAL
     appStore.subscribe(() => {
+        // Guardia: Si el DOM no está listo, evitamos intentos de manipulación
+        if (!isDomReady) return;
+
         console.log("[Main] Datos recibidos en el Store. Renderizando componentes remanentes...");
         restoreFormDraft();
         renderRouteGraphic();
-        // Integrado: El renderizado del sistema ahora también reacciona de forma automática
-        // a cualquier actualización atómica del Store global.
         renderDynamicSystemValues();
     });
 
     // 3. FLUJO DE CARGA INMEDIATA (EAGER LOADING)
     try {
         await getSupabaseClient();
-
-        // Ejecutamos únicamente la consulta de la tasa BCV al iniciar la carga de la página
         await resolveBcvRate();
-
-        // Carga de forma segura los datos financieros desde la columna JSONB de Supabase
         await loadPaymentData();
 
-        // Renderizado inicial con los datos en vivo extraídos exitosamente
+        // Renderizado inicial garantizado después del DOMContentLoaded
         renderDynamicSystemValues();
 
     } catch (e) {
         console.error("Error crítico en la inicialización:", e);
-
-        // Fallback de seguridad: Si la red falla o Supabase no responde, forzamos el
-        // renderizado usando los valores de contingencia estables definidos en 'state.js'
-        // para evitar que la interfaz del usuario se quede congelada o en blanco.
         renderDynamicSystemValues();
     }
 
@@ -52,33 +49,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 /**
- * Configura los observadores y listeners para activar la carga diferida de los inventarios
+ * Configura los observadores y listeners para activar la carga diferida
  */
 function setupLazyLoading() {
-    // Selectores del DOM (Asegúrate de que coincidan con los IDs o clases reales de tus archivos HTML/UI)
     const bookingForm = document.querySelector('#booking-form') || document.querySelector('.booking-section');
     const reserveButton = document.querySelector('#btn-reservar') || document.querySelector('.btn-booking');
 
-    // Disparador 1: Carga por clic directo en el botón de reservar
     if (reserveButton) {
         reserveButton.addEventListener('click', () => {
             loadFormCatalogs();
         });
     }
 
-    // Disparador 2: Carga predictiva por scroll usando Intersection Observer
     if (bookingForm && 'IntersectionObserver' in window) {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                // Si el usuario hace scroll y se acerca al formulario
                 if (entry.isIntersecting) {
                     loadFormCatalogs();
-                    // Una vez activada la carga, removemos el observer para liberar memoria
                     observer.unobserve(bookingForm);
                 }
             });
         }, {
-            // Margen de anticipación: inicia la petición 200px antes de que el formulario aparezca en pantalla
             rootMargin: '200px 0px'
         });
 
@@ -87,46 +78,33 @@ function setupLazyLoading() {
 }
 
 /**
- * Inyecta dinámicamente los valores económicos y logísticos en los elementos correspondientes del DOM
+ * Inyecta dinámicamente los valores económicos y logísticos
+ * Nota: Implementa comprobación de existencia (Guardia) para cada elemento
  */
 function renderDynamicSystemValues() {
+    if (!isDomReady) return;
+
     try {
         const state = appStore.get();
         const currentPrice = state.tourBasePrice || 50;
         const currentCapacity = state.maxCapacityPerDate || 12;
         const bcvRate = state.bcvRate || 1;
 
-        // Buscamos e inyectamos el precio en todos los elementos que lo muestren
         const priceElements = document.querySelectorAll('.tour-base-price-display');
-        if (priceElements.length > 0) {
-            priceElements.forEach(el => {
-                el.textContent = currentPrice;
-            });
-        }
+        priceElements.forEach(el => el.textContent = currentPrice);
 
-        // Buscamos e inyectamos la capacidad máxima en la UI
         const capacityElements = document.querySelectorAll('.max-capacity-display');
-        if (capacityElements.length > 0) {
-            capacityElements.forEach(el => {
-                el.textContent = currentCapacity;
-            });
-        }
+        capacityElements.forEach(el => el.textContent = currentCapacity);
 
-        // Inyectar el precio en Bolívares y Tasa oficial
         const bcvDisplay = document.getElementById('bcv-price-display');
         if (bcvDisplay) {
             const totalBs = currentPrice * bcvRate;
-
-            // Formateo geolocalizado para Venezuela (Separadores de miles: . y decimales: ,)
             const formattedBs = totalBs.toLocaleString('es-VE', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             });
 
-            // Estructura con el monto envuelto en la variable naranja de tu marca (--secondary)
             bcvDisplay.innerHTML = `<span style="color: var(--secondary); font-weight: 700;">Bs. ${formattedBs}</span> al cambio BCV`;
-
-            // Limpiamos los estilos inline anteriores para que no interfieran con el nuevo diseño
             bcvDisplay.style.color = '';
             bcvDisplay.style.fontWeight = '';
         }
@@ -136,6 +114,6 @@ function renderDynamicSystemValues() {
             bcvRateInfo.textContent = `Tasa Oficial BCV: Bs. ${bcvRate}`;
         }
     } catch (error) {
-        console.warn("[Render] Error no crítico durante la actualización de valores dinámicos:", error);
+        console.warn("[Render] Error no crítico durante la actualización de valores:", error);
     }
 }
