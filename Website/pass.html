@@ -186,7 +186,8 @@
         // 1. Usamos tu inicializador centralizado para garantizar que el CDN de Supabase esté listo
         import { getSupabaseClient } from './src/config/supabase.js';
 
-        document.addEventListener('DOMContentLoaded', async () => {
+        // Definimos una función de ejecución inmediata para evitar el desfase de DOMContentLoaded
+        async function inicializarPase() {
             const params = new URLSearchParams(window.location.search);
             const idParam = params.get('id');
 
@@ -203,7 +204,7 @@
             const passCardId = document.getElementById('pass-card-id');
             if (passCardId) passCardId.innerText = idParam;
 
-            // Funcionalidad para copiar el enlace real al portapapeles o usar share nativo si está disponible
+            // Funcionalidad para copiar el enlace real al portapapeles o usar share nativo
             const btnCopy = document.getElementById('btn-copy-link');
             if (btnCopy) {
                 btnCopy.addEventListener('click', async () => {
@@ -215,7 +216,7 @@
                                 url: window.location.href
                             });
                         } catch (err) {
-                            console.log('Compartir cancelado o interrumpido');
+                            console.log('Compartir cancelado');
                         }
                     } else {
                         try {
@@ -234,23 +235,18 @@
             const btnWhatsApp = document.getElementById('btn-share-whatsapp');
             if (btnWhatsApp) {
                 btnWhatsApp.addEventListener('click', () => {
-                    // Extraer los datos cargados en el DOM
                     const nombre = document.getElementById('pass-card-name').innerText.trim() || 'No disponible';
                     const cedula = document.getElementById('pass-card-doc').innerText.trim() || 'No disponible';
                     const fecha = document.getElementById('pass-card-date').innerText.trim() || 'No disponible';
                     const enlace = window.location.href;
 
-                    // Estructurar el mensaje con formato para WhatsApp (negritas y emojis)
                     const mensaje = `¡Hola! Aquí está mi Pase de Expedición oficial para Pico Naiguatá 🏔️:\n\n` +
                         `👤 *Nombre:* ${nombre}\n` +
                         `🪪 *Cédula:* ${cedula}\n` +
                         `📅 *Fecha:* ${fecha}\n\n` +
                         `🔗 *Ver Pase Digital:* ${enlace}`;
 
-                    // Generar la URL de la API de WhatsApp codificando el texto de forma segura
                     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`;
-
-                    // Abrir en una nueva pestaña (funciona en móviles y WhatsApp Web)
                     window.open(whatsappUrl, '_blank');
                 });
             }
@@ -281,7 +277,6 @@
                     });
                 }
 
-                // Guardamos los datos de forma global para el botón de compartir
                 window.currentRegistrationData = data;
 
                 // --- INYECCIÓN DINÁMICA DE TODAS LAS VARIABLES EN EL RESUMEN ---
@@ -296,7 +291,6 @@
                         detailsContainer.style.paddingTop = '15px';
                         detailsContainer.style.textAlign = 'left';
 
-                        // CORRECCIÓN: Insertar dentro de .pass-body antes de .pass-validation-zone para no romper el CSS Grid de .pass-meta-grid
                         const validationZone = document.querySelector('.pass-validation-zone');
                         if (validationZone) {
                             validationZone.parentNode.insertBefore(detailsContainer, validationZone);
@@ -305,7 +299,6 @@
                         }
                     }
 
-                    // Título de la sección de detalles extendidos
                     detailsContainer.innerHTML = `<h4 style="margin: 0 0 12px 0; color: var(--secondary, #f4a261); font-size: 0.95rem; text-transform: uppercase; font-weight: 600;">Detalles del Registro</h4>`;
 
                     const labelsMap = {
@@ -325,7 +318,6 @@
                         reference_number: 'Nro. Referencia / Cédula Pago Móvil'
                     };
 
-                    // Iteramos por todas las propiedades devueltas por Supabase
                     for (const [key, value] of Object.entries(data)) {
                         if (['id', 'created_at', 'registration_id', 'ticket_id', 'full_name', 'id_number', 'expedition_date'].includes(key)) continue;
                         if (value === null || value === undefined || value === '') continue;
@@ -339,7 +331,6 @@
 
                         p.innerHTML = `<strong style="color: var(--text-muted, #9ca3af);">${friendlyLabel}:</strong> <span class="detail-value" style="color: var(--text, #f3f4f6); font-weight: 500;"></span>`;
 
-                        // PROTECCIÓN TÉCNICA: Si el valor de Supabase es un objeto JSON (ej. rentals o catering), lo transformamos a texto amigable en vez de [object Object]
                         let displayedValue = value;
                         if (typeof value === 'object') {
                             displayedValue = Object.entries(value)
@@ -354,7 +345,6 @@
                     }
                 }
 
-                // Aseguramos la vinculación correcta del botón de imprimir por ID
                 const btnPrint = document.getElementById('btn-print');
                 if (btnPrint) {
                     btnPrint.addEventListener('click', () => {
@@ -366,7 +356,10 @@
                 console.error(err);
                 alert('Error al cargar la información del pase desde el servidor.');
             }
-        });
+        }
+
+        // Ejecución inmediata al cargar el archivo de módulo
+        inicializarPase();
     </script>
 </body>
 
