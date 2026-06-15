@@ -86,6 +86,16 @@
             background-color: rgba(255, 255, 255, 0.05);
         }
 
+        .btn-whatsapp {
+            background-color: #25d366;
+            color: #ffffff;
+            border: none;
+        }
+
+        .btn-whatsapp:hover {
+            background-color: #1ebd56;
+        }
+
         /* --- CONTROL ESTRICTO DE IMPRESIÓN --- */
         @media print {
             body {
@@ -116,7 +126,8 @@
             <span id="pass-display-id">Cargando identificador...</span>
             <div class="utility-buttons">
                 <button class="btn-utility btn-copy" id="btn-copy-link">🔗 Copiar Enlace</button>
-                <button class="btn-utility btn-print" onclick="window.print()">🖨️ Imprimir Pase</button>
+                <button class="btn-utility btn-whatsapp" id="btn-share-whatsapp">🟢 Compartir WhatsApp</button>
+                <button class="btn-utility btn-print" id="btn-print" onclick="window.print()">🖨️ Imprimir Pase</button>
             </div>
         </div>
 
@@ -171,7 +182,7 @@
 
     <script type="module">
         // 1. Usamos tu inicializador centralizado para garantizar que el CDN de Supabase esté listo
-        import { getSupabaseClient } from './src/config/supabase.js'; // Ajusta la ruta relativa desde pass.html si es necesario
+        import { getSupabaseClient } from './src/config/supabase.js';
 
         document.addEventListener('DOMContentLoaded', async () => {
             const params = new URLSearchParams(window.location.search);
@@ -190,10 +201,25 @@
             const passCardId = document.getElementById('pass-card-id');
             if (passCardId) passCardId.innerText = idParam;
 
-            // Funcionalidad para compartir en WhatsApp con todos los datos del pase
+            // Funcionalidad para copiar el enlace real al portapapeles
             const btnCopy = document.getElementById('btn-copy-link');
             if (btnCopy) {
-                btnCopy.addEventListener('click', () => {
+                btnCopy.addEventListener('click', async () => {
+                    try {
+                        await navigator.clipboard.writeText(window.location.href);
+                        const originalText = btnCopy.innerHTML;
+                        btnCopy.innerHTML = '✅ ¡Copiado!';
+                        setTimeout(() => { btnCopy.innerHTML = originalText; }, 2000);
+                    } catch (err) {
+                        console.error('Error al copiar el enlace:', err);
+                    }
+                });
+            }
+
+            // Funcionalidad dedicada para compartir en WhatsApp con todos los datos del pase
+            const btnWhatsApp = document.getElementById('btn-share-whatsapp');
+            if (btnWhatsApp) {
+                btnWhatsApp.addEventListener('click', () => {
                     // Extraer los datos cargados en el DOM
                     const nombre = document.getElementById('pass-card-name').innerText.trim() || 'No disponible';
                     const cedula = document.getElementById('pass-card-doc').innerText.trim() || 'No disponible';
@@ -255,7 +281,14 @@
                         detailsContainer.style.borderTop = '1px dashed var(--panel-border, rgba(255, 255, 255, 0.1))';
                         detailsContainer.style.paddingTop = '15px';
                         detailsContainer.style.textAlign = 'left';
-                        dateElement.parentNode.appendChild(detailsContainer);
+
+                        // CORRECCIÓN: Insertar dentro de .pass-body antes de .pass-validation-zone para no romper el CSS Grid de .pass-meta-grid
+                        const validationZone = document.querySelector('.pass-validation-zone');
+                        if (validationZone) {
+                            validationZone.parentNode.insertBefore(detailsContainer, validationZone);
+                        } else {
+                            dateElement.parentNode.appendChild(detailsContainer);
+                        }
                     }
 
                     // Título de la sección de detalles extendidos
@@ -283,7 +316,7 @@
                         p.style.fontSize = '0.9rem';
                         p.style.lineHeight = '1.4';
 
-                        // 3. Estructura HTML fija y asignación de contenido dinámico por .textContent para máxima seguridad
+                        // Structure HTML fija y asignación de contenido dinámico por .textContent para máxima seguridad
                         p.innerHTML = `<strong style="color: var(--text-muted, #9ca3af);">${friendlyLabel}:</strong> <span class="detail-value" style="color: var(--text, #f3f4f6); font-weight: 500;"></span>`;
                         p.querySelector('.detail-value').textContent = value;
 
@@ -291,8 +324,8 @@
                     }
                 }
 
-                // Aseguramos la vinculación correcta del botón de imprimir
-                const btnPrint = document.getElementById('btn-print-pass') || document.getElementById('btn-print');
+                // Aseguramos la vinculación correcta del botón de imprimir por ID
+                const btnPrint = document.getElementById('btn-print');
                 if (btnPrint) {
                     btnPrint.addEventListener('click', () => {
                         window.print();

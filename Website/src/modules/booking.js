@@ -185,7 +185,7 @@ async function handleFormSubmission(e) {
             p_gender: formData.get('gender'),
             p_tent_preference: formData.get('tent_preference'),
             p_allergies: sanearTexto(formData.get('allergies') || 'Ninguna.'),
-            p_diet: 'Estándar',
+            p_diet: formData.get('diet') || 'Estándar', // Ajustado dinámicamente con el formulario
             p_medical: sanearTexto(formData.get('medical') || 'Ninguna.'),
             p_rentals: selectedRentals,
             p_catering: selectedCatering,
@@ -202,10 +202,13 @@ async function handleFormSubmission(e) {
             return;
         }
 
-        // Asignamos con seguridad el identificador real e inalterable
+        // SOLUCIÓN: Asignamos el passId (UUID) como el identificador real de la URL 
+        // para asegurar que coincida exactamente con la llave primaria insertada.
+        // (Nota: Si prefieres usar obligatoriamente el formato 'NE-XXXXXX' en la BD, 
+        // tendrías que definir passId con ese formato arriba antes del RPC).
         const generatedId = passId;
 
-        // 1. INTEGRACIÓN CON SERVERLESS FUNCTION DE EMAIL (Punto 4)
+        // 1. INTEGRACIÓN CON SERVERLESS FUNCTION DE EMAIL
         // Se ejecuta en background protegiendo el flujo principal si el correo tarda en responder
         try {
             await fetch('/api/send-email', {
@@ -227,7 +230,7 @@ async function handleFormSubmission(e) {
             console.error("[Email API] Error al procesar el correo de notificación:", mailErr);
         }
 
-        // 2. CONSTRUCCIÓN DINÁMICA Y ENVÍO A WHATSAPP (Punto 3)
+        // 2. CONSTRUCCIÓN DINÁMICA Y ENVÍO A WHATSAPP
         const urlPase = `https://naiguata-expeditions.vercel.app/pass.html?id=${generatedId}`;
         const textoWhatsapp = `¡Hola! Aquí está mi Pase de Expedición oficial para Pico Naiguatá 🏔️:\n\n👤 Nombre: ${inputName}\n🪪 Cédula: ${inputCedula}\n📅 Fecha: ${inputDate}\n\n🔗 Ver Pase Digital: ${urlPase}`;
 
@@ -241,7 +244,7 @@ async function handleFormSubmission(e) {
         form.reset();
 
         // ==========================================================================
-        // REDIRECCIÓN AUTOMÁTICA AL PASE DIGITAL REAL (Punto 2)
+        // REDIRECCIÓN AUTOMÁTICA AL PASE DIGITAL REAL
         // ==========================================================================
         window.location.href = `./pass.html?id=${generatedId}`;
 
