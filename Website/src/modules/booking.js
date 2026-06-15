@@ -28,7 +28,7 @@ export function initBookingForm() {
             const targetId = e.target.getAttribute('data-target');
             const input = document.getElementById(targetId);
             if (!input) return;
-            
+
             let val = parseInt(input.value || '0', 10);
             if (e.target.classList.contains('plus')) {
                 const max = parseInt(input.getAttribute('data-max') || '99', 10);
@@ -37,7 +37,7 @@ export function initBookingForm() {
                 const min = parseInt(input.getAttribute('min') || '0', 10);
                 if (val > min) val--;
             }
-            
+
             input.value = val;
             input.dispatchEvent(new Event('change')); // Desencadena el cálculo
         });
@@ -49,7 +49,7 @@ export function initBookingForm() {
             document.querySelectorAll('.carrier-btn').forEach(b => b.classList.remove('active'));
             const currentBtn = e.target.closest('.carrier-btn');
             currentBtn.classList.add('active');
-            
+
             const select = document.getElementById('logistic-carrier-select');
             if (select) {
                 select.value = currentBtn.getAttribute('data-value');
@@ -67,12 +67,12 @@ export function initBookingForm() {
 function populateDates() {
     const select = document.getElementById('booking-date');
     if (!select) return;
-    
+
     select.innerHTML = '<option value="" disabled selected>Selecciona tu sábado de ascenso</option>';
     let d = new Date();
     d.setDate(d.getDate() + ((6 - d.getDay() + 7) % 7)); // Próximo sábado
-    if (d.getTime() < new Date().getTime() + 86400000) d.setDate(d.getDate() + 7); 
-    
+    if (d.getTime() < new Date().getTime() + 86400000) d.setDate(d.getDate() + 7);
+
     for (let i = 0; i < 4; i++) {
         const dateStr = d.toISOString().split('T')[0];
         const displayDate = d.toLocaleDateString('es-VE', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -122,7 +122,7 @@ function calculateFormCosts() {
 
     const totalUsdEl = document.getElementById('form-total-usd');
     const totalVesEl = document.getElementById('form-total-ves');
-    
+
     if (totalUsdEl) totalUsdEl.textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(totalUSD);
     if (totalVesEl) totalVesEl.textContent = new Intl.NumberFormat('es-VE', { style: 'currency', currency: 'VES' }).format(totalVES);
 }
@@ -161,9 +161,9 @@ async function handleFormSubmission(e) {
             if (val === "40") porterService = "porter-3p";
             if (val === "50") porterService = "porter-4p";
         }
-        
+
         const groupCode = formData.get('group_code') || 'INDIVIDUAL';
-        
+
         const state = appStore.get();
         const serverComputedTotal = (state.tourBasePrice || 50) + parseFloat(document.getElementById('rental-cost-display')?.textContent.replace(/[^0-9.]/g, '') || '0');
 
@@ -177,12 +177,12 @@ async function handleFormSubmission(e) {
             p_gender: formData.get('gender'),
             p_tent_preference: formData.get('tent_preference'),
             p_allergies: sanearTexto(formData.get('allergies') || 'Ninguna.'),
-            p_diet: 'Estándar', 
+            p_diet: 'Estándar',
             p_medical: sanearTexto(formData.get('medical') || 'Ninguna.'),
-            p_rentals: selectedRentals, 
+            p_rentals: selectedRentals,
             p_catering: selectedCatering,
             p_porter_service: porterService,
-            p_total_usd: serverComputedTotal, 
+            p_total_usd: serverComputedTotal,
             p_payment_method: formData.get('payment_method'),
             p_reference_number: sanearTexto(formData.get('reference_number') || 'N/A')
         });
@@ -197,9 +197,36 @@ async function handleFormSubmission(e) {
         const generatedId = data.id || "PASS";
         localStorage.removeItem('naiguata_form_draft');
         form.reset();
-        
-        alert("¡Registro Completado con Éxito!");
-        window.open(`./pass.html?id=${generatedId}`, '_blank');
+
+        // 1. Ocultar el formulario actual para dar espacio al resumen
+        form.style.display = 'none';
+
+        // 2. Mostrar la sección de éxito que preparamos en el index.html
+        const successView = document.getElementById('success-view');
+        if (successView) {
+            successView.style.display = 'block';
+        }
+
+        // 3. Vincular dinámicamente el ID generado al botón de imprimir/ver pase
+        const btnOpenPass = document.getElementById('btn-open-dedicated-pass');
+        if (btnOpenPass) {
+            btnOpenPass.onclick = (e) => {
+                e.preventDefault();
+                window.open(`./pass.html?id=${generatedId}`, '_blank');
+            };
+        }
+
+        // 4. Configurar el botón para regresar al estado inicial del formulario si el usuario lo desea
+        const btnSuccessHome = document.getElementById('btn-success-home');
+        if (btnSuccessHome) {
+            btnSuccessHome.onclick = (e) => {
+                e.preventDefault();
+                if (successView) {
+                    successView.style.display = 'none';
+                }
+                form.style.display = 'block'; // Devuelve la visibilidad al formulario limpio
+            };
+        }
 
     } catch (err) {
         console.error("Error al enviar:", err);
@@ -237,5 +264,5 @@ export function restoreFormDraft() {
             if (input && input.type !== 'file') input.value = data[key];
         });
         calculateFormCosts();
-    } catch(e){}
+    } catch (e) { }
 }

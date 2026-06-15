@@ -656,14 +656,30 @@
 
                         <h2 class="section-title text-center">¡Registro Completado con Éxito!</h2>
                         <p class="section-subtitle text-center">Tu lugar en la próxima expedición a Pico Naiguatá ha
-                            sido reservado. Se ha generado tu pase oficial de abordaje.</p>
+                            sido reservado. Aquí tienes el resumen oficial de tu pase de abordaje:</p>
+
+                        <div id="summary-card"
+                            style="background: rgba(255,255,255,0.03); border: 1px solid var(--panel-border); padding: 20px; border-radius: 8px; text-align: left; margin: 25px auto; max-width: 400px; font-family: 'Inter', sans-serif;">
+                            <p style="margin: 8px 0; color: var(--text-muted);"><strong>Senderista:</strong> <span
+                                    id="summary-name" style="color: var(--text); font-weight: 500;">-</span></p>
+                            <p style="margin: 8px 0; color: var(--text-muted);"><strong>Cédula / Documento:</strong>
+                                <span id="summary-doc" style="color: var(--text); font-weight: 500;">-</span></p>
+                            <p style="margin: 8px 0; color: var(--text-muted);"><strong>Fecha de Expedición:</strong>
+                                <span id="summary-date" style="color: var(--text); font-weight: 500;">-</span></p>
+                            <p style="margin: 8px 0; color: var(--text-muted);"><strong>ID de Pase Oficial:</strong>
+                                <span id="summary-id" style="color: var(--secondary); font-weight: 600;">-</span></p>
+                        </div>
 
                         <div class="success-actions"
                             style="display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: 30px auto 0 auto;">
-                            <button id="btn-open-dedicated-pass" class="btn-primary">
+                            <button id="btn-copy-pass-link" class="btn-primary">
+                                🔗 Copiar Enlace para Compartir Pase
+                            </button>
+                            <button id="btn-open-dedicated-pass" class="btn-secondary">
                                 🎫 Ver e Imprimir Pase de Expedición
                             </button>
-                            <button id="btn-success-home" class="btn-secondary">
+                            <button id="btn-success-home" class="btn-secondary"
+                                style="background: transparent; border: 1px solid var(--panel-border); color: var(--text-muted);">
                                 Volver al Inicio
                             </button>
                         </div>
