@@ -90,42 +90,52 @@ function setupLazyLoading() {
  * Inyecta dinámicamente los valores económicos y logísticos en los elementos correspondientes del DOM
  */
 function renderDynamicSystemValues() {
-    const state = appStore.get();
-    const currentPrice = state.tourBasePrice || 50;
-    const currentCapacity = state.maxCapacityPerDate || 12;
-    const bcvRate = state.bcvRate || 1;
+    try {
+        const state = appStore.get();
+        const currentPrice = state.tourBasePrice || 50;
+        const currentCapacity = state.maxCapacityPerDate || 12;
+        const bcvRate = state.bcvRate || 1;
 
-    // Buscamos e inyectamos el precio en todos los elementos que lo muestren
-    document.querySelectorAll('.tour-base-price-display').forEach(el => {
-        el.textContent = currentPrice;
-    });
+        // Buscamos e inyectamos el precio en todos los elementos que lo muestren
+        const priceElements = document.querySelectorAll('.tour-base-price-display');
+        if (priceElements.length > 0) {
+            priceElements.forEach(el => {
+                el.textContent = currentPrice;
+            });
+        }
 
-    // Buscamos e inyectamos la capacidad máxima en la UI
-    document.querySelectorAll('.max-capacity-display').forEach(el => {
-        el.textContent = currentCapacity;
-    });
+        // Buscamos e inyectamos la capacidad máxima en la UI
+        const capacityElements = document.querySelectorAll('.max-capacity-display');
+        if (capacityElements.length > 0) {
+            capacityElements.forEach(el => {
+                el.textContent = currentCapacity;
+            });
+        }
 
-    // Inyectar el precio en Bolívares y Tasa oficial
-    const bcvDisplay = document.getElementById('bcv-price-display');
-    if (bcvDisplay) {
-        const totalBs = currentPrice * bcvRate;
+        // Inyectar el precio en Bolívares y Tasa oficial
+        const bcvDisplay = document.getElementById('bcv-price-display');
+        if (bcvDisplay) {
+            const totalBs = currentPrice * bcvRate;
 
-        // Formateo geolocalizado para Venezuela (Separadores de miles: . y decimales: ,)
-        const formattedBs = totalBs.toLocaleString('es-VE', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
+            // Formateo geolocalizado para Venezuela (Separadores de miles: . y decimales: ,)
+            const formattedBs = totalBs.toLocaleString('es-VE', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
 
-        // Estructura con el monto envuelto en la variable naranja de tu marca (--secondary)
-        bcvDisplay.innerHTML = `<span style="color: var(--secondary); font-weight: 700;">Bs. ${formattedBs}</span> al cambio BCV`;
+            // Estructura con el monto envuelto en la variable naranja de tu marca (--secondary)
+            bcvDisplay.innerHTML = `<span style="color: var(--secondary); font-weight: 700;">Bs. ${formattedBs}</span> al cambio BCV`;
 
-        // Limpiamos los estilos inline anteriores para que no interfieran con el nuevo diseño
-        bcvDisplay.style.color = '';
-        bcvDisplay.style.fontWeight = '';
-    }
+            // Limpiamos los estilos inline anteriores para que no interfieran con el nuevo diseño
+            bcvDisplay.style.color = '';
+            bcvDisplay.style.fontWeight = '';
+        }
 
-    const bcvRateInfo = document.getElementById('bcv-rate-info');
-    if (bcvRateInfo) {
-        bcvRateInfo.textContent = `Tasa Oficial BCV: Bs. ${bcvRate}`;
+        const bcvRateInfo = document.getElementById('bcv-rate-info');
+        if (bcvRateInfo) {
+            bcvRateInfo.textContent = `Tasa Oficial BCV: Bs. ${bcvRate}`;
+        }
+    } catch (error) {
+        console.warn("[Render] Error no crítico durante la actualización de valores dinámicos:", error);
     }
 }
