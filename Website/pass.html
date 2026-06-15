@@ -13,6 +13,8 @@
 
     <link rel="stylesheet" href="./styles.css">
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         /* Estilos dedicados para la página del pase aislado en pantalla */
         body {
@@ -201,17 +203,29 @@
             const passCardId = document.getElementById('pass-card-id');
             if (passCardId) passCardId.innerText = idParam;
 
-            // Funcionalidad para copiar el enlace real al portapapeles
+            // Funcionalidad para copiar el enlace real al portapapeles o usar share nativo si está disponible
             const btnCopy = document.getElementById('btn-copy-link');
             if (btnCopy) {
                 btnCopy.addEventListener('click', async () => {
-                    try {
-                        await navigator.clipboard.writeText(window.location.href);
-                        const originalText = btnCopy.innerHTML;
-                        btnCopy.innerHTML = '✅ ¡Copiado!';
-                        setTimeout(() => { btnCopy.innerHTML = originalText; }, 2000);
-                    } catch (err) {
-                        console.error('Error al copiar el enlace:', err);
+                    if (navigator.share) {
+                        try {
+                            await navigator.share({
+                                title: 'Pase de Expedición | Naiguatá Expeditions',
+                                text: 'Mi pase digital oficial para el ascenso a Pico Naiguatá 🏔️',
+                                url: window.location.href
+                            });
+                        } catch (err) {
+                            console.log('Compartir cancelado o interrumpido');
+                        }
+                    } else {
+                        try {
+                            await navigator.clipboard.writeText(window.location.href);
+                            const originalText = btnCopy.innerHTML;
+                            btnCopy.innerHTML = '✅ ¡Copiado!';
+                            setTimeout(() => { btnCopy.innerHTML = originalText; }, 2000);
+                        } catch (err) {
+                            console.error('Error al copiar el enlace:', err);
+                        }
                     }
                 });
             }
@@ -295,13 +309,20 @@
                     detailsContainer.innerHTML = `<h4 style="margin: 0 0 12px 0; color: var(--secondary, #f4a261); font-size: 0.95rem; text-transform: uppercase; font-weight: 600;">Detalles del Registro</h4>`;
 
                     const labelsMap = {
-                        phone: 'Teléfono',
-                        emergency_contact: 'Contacto de Emergencia',
-                        payment_method: 'Método de Pago',
-                        reference_number: 'Nro. Referencia / Cédula Pago Móvil',
-                        companions_count: 'Cantidad de Acompañantes',
-                        equipment_rental: 'Alquiler de Equipo / Carpa',
-                        food_preferences: 'Preferencias de Alimentación'
+                        email: 'Correo Electrónico',
+                        whatsapp: 'WhatsApp / Teléfono',
+                        group_code: 'Código de Grupo',
+                        gender: 'Género',
+                        tent_preference: 'Preferencia de Carpa',
+                        allergies: 'Alergias Declaradas',
+                        diet: 'Régimen de Dieta',
+                        medical: 'Condición Médica / Observaciones',
+                        rentals: 'Equipos de Alquiler',
+                        catering: 'Menú / Alimentación Tradicional',
+                        porter_service: 'Servicio de Logística / Porteador',
+                        total_usd: 'Monto Total General (USD)',
+                        payment_method: 'Método de Pago Seleccionado',
+                        reference_number: 'Nro. Referencia / Cédula Pago Móvil'
                     };
 
                     // Iteramos por todas las propiedades devueltas por Supabase
@@ -316,10 +337,19 @@
                         p.style.fontSize = '0.9rem';
                         p.style.lineHeight = '1.4';
 
-                        // Structure HTML fija y asignación de contenido dinámico por .textContent para máxima seguridad
                         p.innerHTML = `<strong style="color: var(--text-muted, #9ca3af);">${friendlyLabel}:</strong> <span class="detail-value" style="color: var(--text, #f3f4f6); font-weight: 500;"></span>`;
-                        p.querySelector('.detail-value').textContent = value;
 
+                        // PROTECCIÓN TÉCNICA: Si el valor de Supabase es un objeto JSON (ej. rentals o catering), lo transformamos a texto amigable en vez de [object Object]
+                        let displayedValue = value;
+                        if (typeof value === 'object') {
+                            displayedValue = Object.entries(value)
+                                .map(([item, qty]) => `${item.replace(/_/g, ' ')} (x${qty})`)
+                                .join(', ') || 'Ninguno';
+                        } else if (key === 'total_usd') {
+                            displayedValue = `$${parseFloat(value).toFixed(2)}`;
+                        }
+
+                        p.querySelector('.detail-value').textContent = displayedValue;
                         detailsContainer.appendChild(p);
                     }
                 }

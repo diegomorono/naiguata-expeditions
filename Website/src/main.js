@@ -20,6 +20,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log("[Main] Datos recibidos en el Store. Renderizando componentes remanentes...");
         restoreFormDraft();
         renderRouteGraphic();
+        // Integrado: El renderizado del sistema ahora también reacciona de forma automática
+        // a cualquier actualización atómica del Store global.
+        renderDynamicSystemValues();
     });
 
     // 3. FLUJO DE CARGA INMEDIATA (EAGER LOADING)
@@ -32,10 +35,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Carga de forma segura los datos financieros desde la columna JSONB de Supabase
         await loadPaymentData();
 
+        // Renderizado inicial con los datos en vivo extraídos exitosamente
         renderDynamicSystemValues();
 
     } catch (e) {
         console.error("Error crítico en la inicialización:", e);
+
+        // Fallback de seguridad: Si la red falla o Supabase no responde, forzamos el
+        // renderizado usando los valores de contingencia estables definidos en 'state.js'
+        // para evitar que la interfaz del usuario se quede congelada o en blanco.
+        renderDynamicSystemValues();
     }
 
     // 4. INICIALIZACIÓN DE DISPARADORES DE LAZY LOADING
@@ -77,6 +86,9 @@ function setupLazyLoading() {
     }
 }
 
+/**
+ * Inyecta dinámicamente los valores económicos y logísticos en los elementos correspondientes del DOM
+ */
 function renderDynamicSystemValues() {
     const state = appStore.get();
     const currentPrice = state.tourBasePrice || 50;

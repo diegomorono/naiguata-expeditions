@@ -185,7 +185,7 @@ async function handleFormSubmission(e) {
             p_gender: formData.get('gender'),
             p_tent_preference: formData.get('tent_preference'),
             p_allergies: sanearTexto(formData.get('allergies') || 'Ninguna.'),
-            p_diet: formData.get('diet') || 'Estándar', // Ajustado dinámicamente con el formulario
+            p_diet: formData.get('diet') || 'Estándar',
             p_medical: sanearTexto(formData.get('medical') || 'Ninguna.'),
             p_rentals: selectedRentals,
             p_catering: selectedCatering,
@@ -202,14 +202,9 @@ async function handleFormSubmission(e) {
             return;
         }
 
-        // SOLUCIÓN: Asignamos el passId (UUID) como el identificador real de la URL 
-        // para asegurar que coincida exactamente con la llave primaria insertada.
-        // (Nota: Si prefieres usar obligatoriamente el formato 'NE-XXXXXX' en la BD, 
-        // tendrías que definir passId con ese formato arriba antes del RPC).
         const generatedId = passId;
 
         // 1. INTEGRACIÓN CON SERVERLESS FUNCTION DE EMAIL
-        // Se ejecuta en background protegiendo el flujo principal si el correo tarda en responder
         try {
             await fetch('/api/send-email', {
                 method: 'POST',
@@ -222,7 +217,7 @@ async function handleFormSubmission(e) {
                     client_email: formData.get('email'),
                     client_cedula: inputCedula,
                     expedition_date: inputDate,
-                    pass_url: `https://naiguata-expeditions.vercel.app/pass.html?id=${generatedId}`
+                    pass_url: `${window.location.origin}/pass.html?id=${generatedId}`
                 })
             });
             console.log("[Email API] Solicitud de notificación despachada correctamente.");
@@ -230,23 +225,72 @@ async function handleFormSubmission(e) {
             console.error("[Email API] Error al procesar el correo de notificación:", mailErr);
         }
 
-        // 2. CONSTRUCCIÓN DINÁMICA Y ENVÍO A WHATSAPP
-        const urlPase = `https://naiguata-expeditions.vercel.app/pass.html?id=${generatedId}`;
-        const textoWhatsapp = `¡Hola! Aquí está mi Pase de Expedición oficial para Pico Naiguatá 🏔️:\n\n👤 Nombre: ${inputName}\n🪪 Cédula: ${inputCedula}\n📅 Fecha: ${inputDate}\n\n🔗 Ver Pase Digital: ${urlPase}`;
+        // 2. CONSTRUCCIÓN DINÁMICA DE ENLACE Y TEXTO DE RESPALDO
+        const urlPase = `${window.location.origin}/pass.html?id=${generatedId}`;
+        const textoCompartir = `¡Hola! Aquí está mi Pase de Expedición oficial para Pico Naiguatá 🏔️:\n\n👤 Nombre: ${inputName}\n🪪 Cédula: ${inputCedula}\n📅 Fecha: ${inputDate}\n\n🔗 Ver Pase Digital: ${urlPase}`;
 
-        const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoWhatsapp)}`;
+        // 3. TRANSICIÓN A LA VISTA DE ÉXITO (Reemplaza la redirección inmediata brusca)
+        const clientView = document.getElementById('client-view');
+        const successView = document.getElementById('success-view');
 
-        // Abre la API de WhatsApp en una pestaña paralela para evitar que el navegador congele scripts
-        window.open(whatsappUrl, '_blank');
+        if (clientView && successView) {
+            clientView.classList.remove('active');
+            clientView.classList.add('hidden');
+            successView.classList.remove('hidden');
+            successView.classList.add('active');
+        }
 
-        // Limpiamos borradores locales y el formulario
+        // 4. POBLAR LOS DATOS EN EL DOM DE LA VISTA DE ÉXITO
+        const summaryName = document.getElementById('summary-name');
+        const summaryDoc = document.getElementById('summary-doc');
+        const summaryDate = document.getElementById('summary-date');
+        const summaryId = document.getElementById('summary-id');
+
+        if (summaryName) summaryName.textContent = inputName;
+        if (summaryDoc) summaryDoc.textContent = inputCedula;
+        if (summaryDate) summaryDate.textContent = inputDate;
+        if (summaryId) summaryId.textContent = generatedId;
+
+        // 5. CONFIGURACIÓN DEL BOTÓN PARA IR AL PASE DEDICADO
+        const btnOpenPass = document.getElementById('btn-open-dedicated-pass');
+        if (btnOpenPass) {
+            btnOpenPass.onclick = () => {
+                window.location.href = `./pass.html?id=${generatedId}`;
+            };
+        }
+
+        // 6. CONFIGURACIÓN UNIFICADA DE COMPARTIR NATIVO / COPIAR ENLACE (ID: btn-copy-pass-link)
+        const btnCopyLink = document.getElementById('btn-copy-pass-link');
+        if (btnCopyLink) {
+            btnCopyLink.onclick = async () => {
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: "Pase de Expedición Naiguatá",
+                            text: `Mi pase oficial para la expedición de ${inputName}`,
+                            url: urlPase
+                        });
+                    } catch (err) {
+                        console.log("Interacción de compartir cancelada.", err);
+                    }
+                } else {
+                    // Fallback: Copiar al portapapeles con el mensaje preformateado premium si no soporta API Share
+                    try {
+                        await navigator.clipboard.writeText(textoCompartir);
+                        const originalText = btnCopyLink.innerHTML;
+                        btnCopyLink.innerHTML = '✅ ¡Detalles Copiados al Portapapeles!';
+                        setTimeout(() => { btnCopyLink.innerHTML = originalText; }, 2500);
+                    } catch (err) {
+                        console.error('Error al copiar al portapapeles:', err);
+                        alert("No se pudo copiar el enlace de manera automática.");
+                    }
+                }
+            };
+        }
+
+        // Limpiamos borradores locales y reiniciamos el formulario de forma segura
         localStorage.removeItem('naiguata_form_draft');
         form.reset();
-
-        // ==========================================================================
-        // REDIRECCIÓN AUTOMÁTICA AL PASE DIGITAL REAL
-        // ==========================================================================
-        window.location.href = `./pass.html?id=${generatedId}`;
 
     } catch (err) {
         console.error("Error al enviar:", err);
