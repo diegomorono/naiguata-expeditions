@@ -139,6 +139,7 @@ async function handleFormSubmission(e) {
 
     try {
         const supabase = await getSupabaseClient();
+        // 1. Declaración única de formData al inicio
         const formData = new FormData(form);
 
         const selectedRentals = {};
@@ -167,10 +168,14 @@ async function handleFormSubmission(e) {
         const state = appStore.get();
         const serverComputedTotal = (state.tourBasePrice || 50) + parseFloat(document.getElementById('rental-cost-display')?.textContent.replace(/[^0-9.]/g, '') || '0');
 
+        // Se extraen los campos con soporte de caída por si cambia el atributo name en el HTML
+        const inputName = formData.get('name') || formData.get('full_name');
+        const inputDate = formData.get('date') || formData.get('expedition_date');
+
         const { data, error } = await supabase.rpc('registrar_excursionista', {
             p_id: crypto.randomUUID(),
-            p_date: formData.get('date'),
-            p_name: sanearTexto(formData.get('name')),
+            p_date: inputDate,
+            p_name: sanearTexto(inputName),
             p_email: sanearTexto(formData.get('email')),
             p_whatsapp: sanearTexto(formData.get('whatsapp')),
             p_group_code: groupCode,
@@ -195,19 +200,53 @@ async function handleFormSubmission(e) {
         }
 
         const generatedId = data.id || "PASS";
+
+        // CORRECCIÓN: Se eliminó la redeclaración de formData y se usan las variables extraídas arriba
+        const fullName = inputName || '';
+        const idNumber = formData.get('id_number') || '';
+        const expeditionDate = inputDate || '';
+
         localStorage.removeItem('naiguata_form_draft');
         form.reset();
 
-        // 1. Ocultar el formulario actual para dar espacio al resumen
-        form.style.display = 'none';
+        // 2. Ocultar el formulario utilizando el sistema de clases nativo de tu app
+        form.classList.add('hidden');
 
-        // 2. Mostrar la sección de éxito que preparamos en el index.html
+        // 3. Inyectar datos de forma segura previniendo errores de referencia nula
+        const elName = document.getElementById('summary-name');
+        const elDoc = document.getElementById('summary-doc');
+        const elDate = document.getElementById('summary-date');
+        const elId = document.getElementById('summary-id');
+
+        if (elName) elName.innerText = fullName.toUpperCase();
+        if (elDoc) elDoc.innerText = idNumber;
+        if (elDate) {
+            elDate.innerText = expeditionDate
+                ? new Date(expeditionDate).toLocaleDateString('es-VE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+                : 'Fecha no especificada';
+        }
+        if (elId) elId.innerText = generatedId;
+
+        // 4. Activar la sección de éxito eliminando la clase restrictiva
         const successView = document.getElementById('success-view');
         if (successView) {
-            successView.style.display = 'block';
+            successView.classList.remove('hidden');
+            successView.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // 3. Vincular dinámicamente el ID generado al botón de imprimir/ver pase
+        // 5. Configurar Botón para copiar el enlace dinámico de pass.html
+        const btnCopyLink = document.getElementById('btn-copy-pass-link');
+        if (btnCopyLink) {
+            btnCopyLink.onclick = (e) => {
+                e.preventDefault();
+                const passUrl = `${window.location.origin}/pass.html?id=${generatedId}`;
+                navigator.clipboard.writeText(passUrl).then(() => {
+                    alert('¡Enlace de pase oficial copiado al portapapeles con éxito!');
+                }).catch(err => console.error('Error al copiar:', err));
+            };
+        }
+
+        // 6. Configurar Botón para abrir el pase imprimible aislado
         const btnOpenPass = document.getElementById('btn-open-dedicated-pass');
         if (btnOpenPass) {
             btnOpenPass.onclick = (e) => {
@@ -216,15 +255,16 @@ async function handleFormSubmission(e) {
             };
         }
 
-        // 4. Configurar el botón para regresar al estado inicial del formulario si el usuario lo desea
+        // 7. Configurar Botón de retorno al formulario limpio
         const btnSuccessHome = document.getElementById('btn-success-home');
         if (btnSuccessHome) {
             btnSuccessHome.onclick = (e) => {
                 e.preventDefault();
                 if (successView) {
-                    successView.style.display = 'none';
+                    successView.classList.add('hidden');
                 }
-                form.style.display = 'block'; // Devuelve la visibilidad al formulario limpio
+                form.classList.remove('hidden');
+                form.scrollIntoView({ behavior: 'smooth' });
             };
         }
 
