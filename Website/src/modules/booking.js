@@ -62,8 +62,18 @@ export function initBookingForm() {
     const dateSelect = document.getElementById('booking-date');
     if (dateSelect) {
         dateSelect.addEventListener('change', (e) => {
-            if (e.target.value) {
-                checkDateAvailability(e.target.value);
+            const val = e.target.value;
+            if (val && val !== 'custom') {
+                checkDateAvailability(val);
+            } else if (val === 'custom') {
+                // Si es fecha personalizada, siempre permitimos (el guía coordinará luego)
+                const dateTip = document.getElementById('booking-date')?.closest('.form-input-wrapper')?.querySelector('.input-tip');
+                const btnSubmit = document.getElementById('btn-submit-booking');
+                if (dateTip) {
+                    dateTip.innerHTML = "✨ <strong>¡Excelente elección!</strong> Procesa tu registro y coordinaremos la fecha propuesta contigo.";
+                    dateTip.style.color = "var(--secondary)";
+                }
+                if (btnSubmit) btnSubmit.disabled = false;
             }
         });
     }
@@ -337,6 +347,8 @@ async function handleFormSubmission(e) {
         const generatedId = passId;
         const displayDate = customDateText ? customDateText : inputDate;
 
+        console.log("[Booking] Registro guardado. Iniciando flujo de éxito para:", generatedId);
+
         // 1. INTEGRACIÓN CON SERVERLESS FUNCTION DE EMAIL
         try {
             await fetch('/api/send-email', {
@@ -353,31 +365,24 @@ async function handleFormSubmission(e) {
                     pass_url: `${window.location.origin}/pass.html?id=${generatedId}`
                 })
             });
-            console.log("[Email API] Solicitud de notificación despachada correctamente.");
         } catch (mailErr) {
-            console.error("[Email API] Error al procesar el correo de notificación:", mailErr);
+            console.error("[Email API] Fallo silencioso:", mailErr);
         }
 
-        // 2. CONSTRUCCIÓN DINÁMICA DE ENLACE Y TEXTO DE RESPALDO
-        const urlPase = `${window.location.origin}/pass.html?id=${generatedId}`;
-        const textoCompartir = `⛰️ *¡MI PRÓXIMA AVENTURA: PICO NAIGUATÁ!* ⛰️\n\n` +
-            `Ya reservé mi lugar para conquistar la cumbre más alta de la costa (2.765 msnm). 🧗‍♂️✨\n\n` +
-            `👤 *Explorador:* ${inputName}\n` +
-            `📅 *Fecha:* ${displayDate}\n\n` +
-            `🔗 *Ver mi Pase Oficial:* ${urlPase}`;
-
-        // 3. TRANSICIÓN A LA VISTA DE ÉXITO (Reemplaza la redirección inmediata brusca)
+        // 2. TRANSICIÓN A LA VISTA DE ÉXITO
         const clientView = document.getElementById('client-view');
         const successView = document.getElementById('success-view');
 
         if (clientView && successView) {
-            clientView.classList.remove('active');
-            clientView.classList.add('hidden');
+            // Ocultamos el scroll y mostramos el modal arriba
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            clientView.style.display = 'none';
             successView.classList.remove('hidden');
-            successView.classList.add('active');
+            successView.style.display = 'block';
         }
 
-        // 4. POBLAR LOS DATOS EN EL DOM DE LA VISTA DE ÉXITO
+        // 3. POBLAR LOS DATOS
         const summaryName = document.getElementById('summary-name');
         const summaryDoc = document.getElementById('summary-doc');
         const summaryDate = document.getElementById('summary-date');
@@ -388,43 +393,39 @@ async function handleFormSubmission(e) {
         if (summaryDate) summaryDate.textContent = displayDate;
         if (summaryId) summaryId.textContent = generatedId;
 
-        // 5. CONFIGURACIÓN DEL BOTÓN [Guardar Pase y Manual]
+        // 4. CONFIGURACIÓN DEL BOTÓN [Guardar Pase y Manual]
+        const urlPase = `${window.location.origin}/pass.html?id=${generatedId}`;
         const btnDownload = document.getElementById('btn-download-pass-manual');
         if (btnDownload) {
             btnDownload.onclick = () => {
-                // Abre el pase en una pestaña nueva con el flag de autoprint activado
-                window.open(`./pass.html?id=${generatedId}&autoprint=true`, '_blank');
+                window.open(`${urlPase}&autoprint=true`, '_blank');
             };
         }
 
-        // 6. CONFIGURACIÓN DEL BOTÓN [Compartir Aventura / Respaldo]
+        // 5. CONFIGURACIÓN DEL BOTÓN [Compartir Aventura / Respaldo]
         const btnShareAdventure = document.getElementById('btn-share-adventure');
         if (btnShareAdventure) {
+            const textoCompartir = `⛰️ *¡MI PRÓXIMA AVENTURA: PICO NAIGUATÁ!* ⛰️\n\n` +
+                `Ya reservé mi lugar para conquistar la cumbre más alta de la costa (2.765 msnm). 🧗‍♂️✨\n\n` +
+                `👤 *Explorador:* ${inputName}\n` +
+                `📅 *Fecha:* ${displayDate}\n\n` +
+                `🔗 *Ver mi Pase Oficial:* ${urlPase}`;
+
             btnShareAdventure.onclick = async () => {
-                // Lógica de detección de dispositivo / Share API
                 if (navigator.share) {
                     try {
                         await navigator.share({
                             title: "Expedición Pico Naiguatá 🏔️",
-                            text: `¡Ya tengo mi pase para el Pico Naiguatá! Acompáñame en esta aventura.`,
+                            text: `¡Ya tengo mi pase para el Pico Naiguatá!`,
                             url: urlPase
                         });
-                    } catch (err) {
-                        console.log("Interacción de compartir cancelada.");
-                    }
+                    } catch (err) { }
                 } else {
-                    // Fallback: Menú de opciones rápidas
-                    const action = confirm("📱 OPCIONES DE COMPARTIR:\n\n- Aceptar: Copiar invitación estética para redes.\n- Cancelar: Enviar respaldo a mi WhatsApp.");
-                    
+                    const action = confirm("📱 OPCIONES DE COMPARTIR:\n\n- Aceptar: Copiar invitación estética.\n- Cancelar: Enviar a mi WhatsApp.");
                     if (action) {
-                        try {
-                            await navigator.clipboard.writeText(textoCompartir);
-                            alert("✅ ¡Invitación estética copiada al portapapeles!");
-                        } catch (e) {
-                            alert("No se pudo copiar. Por favor, selecciona el ID manualmente.");
-                        }
+                        navigator.clipboard.writeText(textoCompartir);
+                        alert("✅ Invitación copiada.");
                     } else {
-                        // Enlace wa.me directo (Respaldo)
                         window.open(`https://wa.me/?text=${encodeURIComponent(textoCompartir)}`, '_blank');
                     }
                 }
