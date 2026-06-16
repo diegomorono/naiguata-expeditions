@@ -1,6 +1,6 @@
 import { getSupabaseClient } from '../config/supabase.js';
 import { adminStore } from '../config/state.js';
-import { DOM_IDS } from '../config/dom-ids.js';
+import { DOM_IDS } from '../config/dom-id.js';
 
 export function renderStats() {
     // Calcula el total neto sumando los montos consumiendo el estado de forma inmutable con .get()

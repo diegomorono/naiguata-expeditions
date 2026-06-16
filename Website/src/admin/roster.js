@@ -1,5 +1,5 @@
 import { adminStore } from '../config/state.js';
-import { DOM_IDS } from '../config/dom-ids.js';
+import { DOM_IDS } from '../config/dom-id.js';
 
 export function renderRoster() {
     // Vinculado al ID correcto del contrato para corregir el desfase con el HTML
