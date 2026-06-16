@@ -73,7 +73,8 @@ async function initAdmin() {
     document.querySelector('.admin-dashboard').style.display = 'block';
 
     // 3. Cargar datos y renderizar vistas
-    await updateDashboardData();
+    // MODIFICACIÓN: Pasamos 'supabase' a updateDashboardData para asegurar autorización
+    await updateDashboardData(supabase);
     renderRoster();
 
     // INICIALIZACIÓN DE TU PANEL FINANCIERO

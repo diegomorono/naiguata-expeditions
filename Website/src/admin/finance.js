@@ -6,7 +6,12 @@ export function renderStats() {
     // Calcula el total neto sumando los montos consumiendo el estado de forma inmutable con .get()
     const financials = adminStore.get().financials || [];
     const totalUSD = financials.reduce((acc, curr) => acc + (curr.total_neto_usd || curr.amount || 0), 0);
-    document.getElementById(DOM_IDS.finance.statTotalUsd).textContent = `$${totalUSD}`;
+
+    // CORRECCIÓN: Verificación de seguridad para evitar el error de 'null' si el elemento no existe en el DOM actual
+    const statElement = document.getElementById(DOM_IDS.finance.statTotalUsd);
+    if (statElement) {
+        statElement.textContent = `$${totalUSD}`;
+    }
 }
 
 export function setupExpenseForm() {

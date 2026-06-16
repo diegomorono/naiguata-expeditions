@@ -7,9 +7,9 @@ import { adminStore } from '../config/state.js';
 import { renderStats } from './finance.js';
 import { renderRoster } from './roster.js';
 
-export async function updateDashboardData() {
+export async function updateDashboardData(supabaseClient) {
     try {
-        const supabase = await getSupabaseClient();
+        const supabase = supabaseClient;
 
         // Extraemos la fecha seleccionada de forma segura usando .get()
         const selectedDate = adminStore.get().selectedDate;
@@ -50,7 +50,7 @@ export async function updateDashboardData() {
 export function handleUpdateBCV(supabaseClient) {
     // CORRECCIÓN: Seleccionamos el input premium ya estructurado en el HTML
     const bcvInput = document.querySelector('#admin-bcv-rate');
-    
+
     if (!bcvInput) {
         console.error("Error: No se encontró el input #admin-bcv-rate en el DOM.");
         return;
@@ -74,7 +74,7 @@ export function handleUpdateBCV(supabaseClient) {
 export function handleUpdateTourPrice(supabaseClient) {
     // CORRECCIÓN: Aplicamos la misma lógica para evitar prompt() en el precio base
     const priceInput = document.querySelector('#admin-tour-price');
-    
+
     if (!priceInput) {
         console.error("Error: No se encontró el input #admin-tour-price en el DOM.");
         return;
@@ -98,7 +98,7 @@ export function handleUpdateTourPrice(supabaseClient) {
 export function handleUpdateMaxCapacity(supabaseClient) {
     // CORRECCIÓN: Aplicamos la misma lógica para evitar prompt() en la capacidad máxima
     const capacityInput = document.querySelector('#admin-max-capacity');
-    
+
     if (!capacityInput) {
         console.error("Error: No se encontró el input #admin-max-capacity en el DOM.");
         return;
@@ -112,7 +112,7 @@ export function handleUpdateMaxCapacity(supabaseClient) {
 
     supabaseClient.from('system_settings')
         .update({ value: parseInt(newCapacity, 10).toString() })
-        .eq('key', 'max_capacity') 
+        .eq('key', 'max_capacity')
         .then(({ error }) => {
             if (error) alert("Error al actualizar la capacidad: " + error.message);
             else alert("Capacidad máxima del sistema actualizada con éxito.");
