@@ -328,6 +328,10 @@
                                 <select id="booking-date" name="date" required>
                                     <option value="" disabled selected>Cargando fechas disponibles...</option>
                                 </select>
+                                <div id="custom-date-wrapper" style="display: none; margin-top: 10px;">
+                                    <label for="custom-date-input">Especifica tu fecha ideal:</label>
+                                    <input type="text" id="custom-date-input" name="custom_date" placeholder="Ej. Sábado 25 de Julio o Rango de fechas">
+                                </div>
                                 <span class="input-tip">Elige el sábado que prefieras para tu ascenso.</span>
                             </div>
                         </div>
@@ -675,14 +679,14 @@
 
                         <div class="success-actions"
                             style="display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: 30px auto 0 auto;">
-                            <button id="btn-copy-pass-link" class="btn-primary">
-                                🔗 Copiar Enlace para Compartir Pase
+                            <button id="btn-download-pass-manual" class="btn-primary btn-large">
+                                📥 Guardar Pase y Manual
                             </button>
-                            <button id="btn-open-dedicated-pass" class="btn-secondary">
-                                🎫 Ver e Imprimir Pase de Expedición
+                            <button id="btn-share-adventure" class="btn-secondary btn-large">
+                                📲 Compartir Aventura / Respaldo
                             </button>
-                            <button id="btn-success-home" class="btn-secondary"
-                                style="background: transparent; border: 1px solid var(--panel-border); color: var(--text-muted);">
+                            <button id="btn-success-home" class="btn-outline"
+                                style="margin-top: 10px; opacity: 0.6; font-size: 0.85rem;">
                                 Volver al Inicio
                             </button>
                         </div>

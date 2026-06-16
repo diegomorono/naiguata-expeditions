@@ -98,17 +98,59 @@
             background-color: #1ebd56;
         }
 
+        /* --- MANUAL DEL TOUR STYLES --- */
+        .manual-tour-container {
+            background: #ffffff;
+            color: #1a202c;
+            padding: 40px;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            margin-top: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: none; /* Oculto en web por defecto, visible en print */
+        }
+
+        .manual-tour-container h2 {
+            font-family: 'Outfit', sans-serif;
+            color: #2d3748;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .manual-section {
+            margin-bottom: 25px;
+        }
+
+        .manual-section h3 {
+            font-size: 1.1rem;
+            color: #2c5282;
+            margin-bottom: 8px;
+        }
+
+        .manual-section p, .manual-section li {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #4a5568;
+        }
+
         /* --- CONTROL ESTRICTO DE IMPRESIÓN --- */
         @media print {
             body {
                 background: #ffffff !important;
                 color: #000000 !important;
                 padding: 0;
+                display: block;
             }
 
             .pass-utility-bar {
                 display: none !important;
-                /* Oculta botones y textos web */
+            }
+
+            .dedicated-pass-container {
+                max-width: 100% !important;
+                width: 100% !important;
+                gap: 0;
             }
 
             .printable-pass-wrapper {
@@ -117,6 +159,15 @@
                 border: none !important;
                 width: 100% !important;
                 max-width: 100% !important;
+                page-break-after: always;
+            }
+
+            .manual-tour-container {
+                display: block !important;
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin-top: 0 !important;
             }
         }
     </style>
@@ -129,7 +180,7 @@
             <div class="utility-buttons">
                 <button class="btn-utility btn-copy" id="btn-copy-link">🔗 Copiar Enlace</button>
                 <button class="btn-utility btn-whatsapp" id="btn-share-whatsapp">🟢 Compartir WhatsApp</button>
-                <button class="btn-utility btn-print" id="btn-print" onclick="window.print()">🖨️ Imprimir Pase</button>
+                <button class="btn-utility btn-print" id="btn-print">🖨️ Imprimir Pase</button>
             </div>
         </div>
 
@@ -180,6 +231,47 @@
                 </div>
             </div>
         </div>
+
+        <!-- MANUAL DEL TOUR (PÁGINA 2 EN IMPRESIÓN) -->
+        <div class="manual-tour-container" id="manual-tour-container">
+            <h2>Manual del Tour: Pico Naiguatá (2.765 m)</h2>
+            
+            <div class="manual-section">
+                <h3>1. Itinerario Aproximado</h3>
+                <p><strong>1er Día - 07:30:</strong> Encuentro en La Julia e inicio del ascenso (~8-10 horas). Paradas en El Tanque, Rancho Grande y llegada al Anfiteatro para acampar.</p>
+                <p><strong>2do Día - Madrugada:</strong> Ascenso a la cumbre para el amanecer. Descenso de ~5-7 horas. Regreso a Caracas aprox. 15:00.</p>
+            </div>
+
+            <div class="manual-section">
+                <h3>2. Lo que nosotros proveemos</h3>
+                <p>Guía experimentado, carpas de montaña (el traslado es responsabilidad del cliente o vía portador), gestión de permisos Inparques y snacks ligeros de salida.</p>
+            </div>
+
+            <div class="manual-section">
+                <h3>3. Lista de Equipo Obligatorio</h3>
+                <ul>
+                    <li><strong>Hidratación:</strong> Mínimo 3-4 litros de agua por persona.</li>
+                    <li><strong>Comida:</strong> Almuerzo, cena y desayuno ligero. Snacks extras (chocolates, frutos secos).</li>
+                    <li><strong>Ropa:</strong> Sistema de capas (transpirable, abrigo/fleece, cortavientos/impermeable). Gorro y guantes para la noche.</li>
+                    <li><strong>Dormir:</strong> Saco de dormir (rating 0-5°C) y aislante térmico (imprescindible).</li>
+                    <li><strong>Seguridad:</strong> Linterna frontal con pilas cargadas, protector solar y botiquín personal.</li>
+                </ul>
+            </div>
+
+            <div class="manual-section">
+                <h3>4. Reglas y Seguridad</h3>
+                <p>Prohibido hacer fogatas. No dejar basura (basura cero). Caminar siempre por el sendero oficial. Respetar el ritmo del grupo.</p>
+            </div>
+
+            <div class="manual-section">
+                <h3>5. Protocolo de Emergencias</h3>
+                <p>El guía cuenta con botiquín y radio. En caso de malestar, informar de inmediato. Números clave: Emergencia 171, Guardaparques 0414-3383081.</p>
+            </div>
+            
+            <p style="font-size: 0.8rem; border-top: 1px solid #eee; padding-top: 10px; margin-top: 20px; color: #718096; text-align: center;">
+                Expediciones Naiguatá - Diego Moroño | www.naiguata-expeditions.vercel.app
+            </p>
+        </div>
     </div>
 
     <script type="module">
@@ -190,6 +282,7 @@
         async function inicializarPase() {
             const params = new URLSearchParams(window.location.search);
             const idParam = params.get('id');
+            const autoPrint = params.get('autoprint') === 'true';
 
             if (!idParam) {
                 alert('ID de pase inválido o inexistente.');
@@ -350,6 +443,13 @@
                     btnPrint.addEventListener('click', () => {
                         window.print();
                     });
+                }
+
+                // Lógica de Autoprint (CAPA 1: Experiencia Fluida)
+                if (autoPrint) {
+                    setTimeout(() => {
+                        window.print();
+                    }, 1500);
                 }
 
             } catch (err) {

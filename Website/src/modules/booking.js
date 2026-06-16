@@ -58,10 +58,112 @@ export function initBookingForm() {
         });
     });
 
+    // NUEVO: Escuchador para validación de disponibilidad por fecha
+    const dateSelect = document.getElementById('booking-date');
+    if (dateSelect) {
+        dateSelect.addEventListener('change', (e) => {
+            if (e.target.value) {
+                checkDateAvailability(e.target.value);
+            }
+        });
+    }
+
     // Suscripción al estado global
     appStore.subscribe(() => {
         calculateFormCosts();
     });
+}
+
+/**
+ * CONSULTA DE DISPONIBILIDAD EN TIEMPO REAL
+ * Cruza los datos de stock total vs reservas confirmadas para la fecha.
+ */
+async function checkDateAvailability(selectedDate) {
+    const btnSubmit = document.getElementById('btn-submit-booking');
+    const dateTip = document.getElementById('booking-date')?.closest('.form-input-wrapper')?.querySelector('.input-tip');
+
+    if (dateTip) {
+        dateTip.textContent = "⏳ Verificando disponibilidad para esta fecha...";
+        dateTip.style.color = "var(--secondary)";
+    }
+
+    try {
+        const supabase = await getSupabaseClient();
+        
+        // 1. Obtenemos las reservas activas para esta fecha
+        const { data: reservations, error } = await supabase
+            .from('registrations')
+            .select('rentals')
+            .eq('date', selectedDate)
+            .neq('status', '🔴 Cancelado');
+
+        if (error) throw error;
+
+        // 2. Validamos Aforo de Senderistas
+        const state = appStore.get();
+        const maxHikers = state.maxCapacityPerDate || 12;
+        const currentHikers = reservations.length;
+        const availableSpots = maxHikers - currentHikers;
+
+        if (dateTip) {
+            if (availableSpots <= 0) {
+                dateTip.innerHTML = "⚠️ <strong>CUPOS AGOTADOS</strong> para este sábado. Por favor elige otra fecha.";
+                dateTip.style.color = "var(--error)";
+                if (btnSubmit) btnSubmit.disabled = true;
+            } else {
+                dateTip.innerHTML = `✅ <strong>¡Hay lugar!</strong> Quedan ${availableSpots} cupos disponibles para esta expedición.`;
+                dateTip.style.color = "var(--primary)";
+                if (btnSubmit) btnSubmit.disabled = false;
+            }
+        }
+
+        // 3. Validamos Stock de Equipos Alquilables
+        const rentedAgg = {};
+        reservations.forEach(res => {
+            if (res.rentals) {
+                Object.entries(res.rentals).forEach(([item, qty]) => {
+                    rentedAgg[item] = (rentedAgg[item] || 0) + qty;
+                });
+            }
+        });
+
+        // Actualizamos los steppers de equipos
+        const inventory = state.inventory || [];
+        document.querySelectorAll('.equipment-input').forEach(input => {
+            const itemId = input.id;
+            const itemDef = inventory.find(i => i.item_id === itemId);
+            if (itemDef) {
+                const totalStock = itemDef.total_quantity || 0;
+                const alreadyRented = rentedAgg[itemId] || 0;
+                const currentAvailable = Math.max(0, totalStock - alreadyRented);
+
+                input.setAttribute('data-max', currentAvailable);
+                
+                // Si el usuario ya tenía seleccionado más de lo que hay, bajamos el valor
+                if (parseInt(input.value) > currentAvailable) {
+                    input.value = currentAvailable;
+                }
+
+                // Actualizamos etiqueta visual
+                const label = input.closest('.equipment-row')?.querySelector('.equipment-price small');
+                if (label) {
+                    if (currentAvailable <= 0) {
+                        label.textContent = "(Agotado)";
+                        label.style.color = "var(--error)";
+                    } else {
+                        label.textContent = `(Disponibles: ${currentAvailable})`;
+                        label.style.color = "rgba(255,255,255,0.3)";
+                    }
+                }
+            }
+        });
+
+        calculateFormCosts();
+
+    } catch (err) {
+        console.error("Error verificando disponibilidad:", err);
+        if (dateTip) dateTip.textContent = "❌ Error al validar cupos. Intenta de nuevo.";
+    }
 }
 
 function populateDates() {
@@ -79,6 +181,25 @@ function populateDates() {
         select.innerHTML += `<option value="${dateStr}">${displayDate}</option>`;
         d.setDate(d.getDate() + 7);
     }
+
+    // OPCIÓN DINÁMICA: Proponer fecha personalizada
+    select.innerHTML += `<option value="custom">📅 Proponer otra fecha (Personalizado)</option>`;
+
+    // Handler para mostrar/ocultar input de fecha personalizada
+    select.addEventListener('change', (e) => {
+        const wrapper = document.getElementById('custom-date-wrapper');
+        const customInput = document.getElementById('custom-date-input');
+        if (e.target.value === 'custom') {
+            wrapper.style.display = 'block';
+            if (customInput) customInput.required = true;
+        } else {
+            wrapper.style.display = 'none';
+            if (customInput) {
+                customInput.required = false;
+                customInput.value = "";
+            }
+        }
+    });
 }
 
 function calculateFormCosts() {
@@ -167,10 +288,21 @@ async function handleFormSubmission(e) {
         const state = appStore.get();
         const serverComputedTotal = (state.tourBasePrice || 50) + parseFloat(document.getElementById('rental-cost-display')?.textContent.replace(/[^0-9.]/g, '') || '0');
 
-        // Mapeo seguro por si acaso los nombres de los inputs varían
-        const inputDate = formData.get('date') || formData.get('booking-date') || '';
-        const inputName = formData.get('name') || formData.get('full_name') || '';
-        const inputCedula = formData.get('cedula') || formData.get('identity_card') || 'N/A';
+        // Lógica de Fecha Personalizada vs Estándar
+        let inputDate = formData.get('date');
+        const customDateText = formData.get('custom_date');
+        let medicalNotes = sanearTexto(formData.get('medical') || 'Ninguna.');
+
+        if (inputDate === 'custom') {
+            // Si es personalizado, usamos el próximo sábado como placeholder en DB pero guardamos el texto en notas
+            const nextSat = new Date();
+            nextSat.setDate(nextSat.getDate() + ((6 - nextSat.getDay() + 7) % 7));
+            inputDate = nextSat.toISOString().split('T')[0];
+            medicalNotes = `[PROPUESTA FECHA: ${customDateText}] ${medicalNotes}`;
+        }
+
+        const inputName = formData.get('name') || '';
+        const inputCedula = formData.get('reference_number') || 'N/A';
 
         // CRUCIAL: Capturamos el UUID aquí para garantizar consistencia absoluta en todo el flujo
         const passId = crypto.randomUUID();
@@ -186,7 +318,7 @@ async function handleFormSubmission(e) {
             p_tent_preference: formData.get('tent_preference'),
             p_allergies: sanearTexto(formData.get('allergies') || 'Ninguna.'),
             p_diet: formData.get('diet') || 'Estándar',
-            p_medical: sanearTexto(formData.get('medical') || 'Ninguna.'),
+            p_medical: medicalNotes,
             p_rentals: selectedRentals,
             p_catering: selectedCatering,
             p_porter_service: porterService,
@@ -203,6 +335,7 @@ async function handleFormSubmission(e) {
         }
 
         const generatedId = passId;
+        const displayDate = customDateText ? customDateText : inputDate;
 
         // 1. INTEGRACIÓN CON SERVERLESS FUNCTION DE EMAIL
         try {
@@ -216,7 +349,7 @@ async function handleFormSubmission(e) {
                     client_name: inputName,
                     client_email: formData.get('email'),
                     client_cedula: inputCedula,
-                    expedition_date: inputDate,
+                    expedition_date: displayDate,
                     pass_url: `${window.location.origin}/pass.html?id=${generatedId}`
                 })
             });
@@ -227,7 +360,11 @@ async function handleFormSubmission(e) {
 
         // 2. CONSTRUCCIÓN DINÁMICA DE ENLACE Y TEXTO DE RESPALDO
         const urlPase = `${window.location.origin}/pass.html?id=${generatedId}`;
-        const textoCompartir = `¡Hola! Aquí está mi Pase de Expedición oficial para Pico Naiguatá 🏔️:\n\n👤 Nombre: ${inputName}\n🪪 Cédula: ${inputCedula}\n📅 Fecha: ${inputDate}\n\n🔗 Ver Pase Digital: ${urlPase}`;
+        const textoCompartir = `⛰️ *¡MI PRÓXIMA AVENTURA: PICO NAIGUATÁ!* ⛰️\n\n` +
+            `Ya reservé mi lugar para conquistar la cumbre más alta de la costa (2.765 msnm). 🧗‍♂️✨\n\n` +
+            `👤 *Explorador:* ${inputName}\n` +
+            `📅 *Fecha:* ${displayDate}\n\n` +
+            `🔗 *Ver mi Pase Oficial:* ${urlPase}`;
 
         // 3. TRANSICIÓN A LA VISTA DE ÉXITO (Reemplaza la redirección inmediata brusca)
         const clientView = document.getElementById('client-view');
@@ -248,43 +385,57 @@ async function handleFormSubmission(e) {
 
         if (summaryName) summaryName.textContent = inputName;
         if (summaryDoc) summaryDoc.textContent = inputCedula;
-        if (summaryDate) summaryDate.textContent = inputDate;
+        if (summaryDate) summaryDate.textContent = displayDate;
         if (summaryId) summaryId.textContent = generatedId;
 
-        // 5. CONFIGURACIÓN DEL BOTÓN PARA IR AL PASE DEDICADO
-        const btnOpenPass = document.getElementById('btn-open-dedicated-pass');
-        if (btnOpenPass) {
-            btnOpenPass.onclick = () => {
-                window.location.href = `./pass.html?id=${generatedId}`;
+        // 5. CONFIGURACIÓN DEL BOTÓN [Guardar Pase y Manual]
+        const btnDownload = document.getElementById('btn-download-pass-manual');
+        if (btnDownload) {
+            btnDownload.onclick = () => {
+                // Abre el pase en una pestaña nueva con el flag de autoprint activado
+                window.open(`./pass.html?id=${generatedId}&autoprint=true`, '_blank');
             };
         }
 
-        // 6. CONFIGURACIÓN UNIFICADA DE COMPARTIR NATIVO / COPIAR ENLACE (ID: btn-copy-pass-link)
-        const btnCopyLink = document.getElementById('btn-copy-pass-link');
-        if (btnCopyLink) {
-            btnCopyLink.onclick = async () => {
+        // 6. CONFIGURACIÓN DEL BOTÓN [Compartir Aventura / Respaldo]
+        const btnShareAdventure = document.getElementById('btn-share-adventure');
+        if (btnShareAdventure) {
+            btnShareAdventure.onclick = async () => {
+                // Lógica de detección de dispositivo / Share API
                 if (navigator.share) {
                     try {
                         await navigator.share({
-                            title: "Pase de Expedición Naiguatá",
-                            text: `Mi pase oficial para la expedición de ${inputName}`,
+                            title: "Expedición Pico Naiguatá 🏔️",
+                            text: `¡Ya tengo mi pase para el Pico Naiguatá! Acompáñame en esta aventura.`,
                             url: urlPase
                         });
                     } catch (err) {
-                        console.log("Interacción de compartir cancelada.", err);
+                        console.log("Interacción de compartir cancelada.");
                     }
                 } else {
-                    // Fallback: Copiar al portapapeles con el mensaje preformateado premium si no soporta API Share
-                    try {
-                        await navigator.clipboard.writeText(textoCompartir);
-                        const originalText = btnCopyLink.innerHTML;
-                        btnCopyLink.innerHTML = '✅ ¡Detalles Copiados al Portapapeles!';
-                        setTimeout(() => { btnCopyLink.innerHTML = originalText; }, 2500);
-                    } catch (err) {
-                        console.error('Error al copiar al portapapeles:', err);
-                        alert("No se pudo copiar el enlace de manera automática.");
+                    // Fallback: Menú de opciones rápidas
+                    const action = confirm("📱 OPCIONES DE COMPARTIR:\n\n- Aceptar: Copiar invitación estética para redes.\n- Cancelar: Enviar respaldo a mi WhatsApp.");
+                    
+                    if (action) {
+                        try {
+                            await navigator.clipboard.writeText(textoCompartir);
+                            alert("✅ ¡Invitación estética copiada al portapapeles!");
+                        } catch (e) {
+                            alert("No se pudo copiar. Por favor, selecciona el ID manualmente.");
+                        }
+                    } else {
+                        // Enlace wa.me directo (Respaldo)
+                        window.open(`https://wa.me/?text=${encodeURIComponent(textoCompartir)}`, '_blank');
                     }
                 }
+            };
+        }
+
+        // 7. CONFIGURACIÓN DEL BOTÓN [Volver al Inicio]
+        const btnHome = document.getElementById('btn-success-home');
+        if (btnHome) {
+            btnHome.onclick = () => {
+                window.location.reload(); // Reinicia la app para un nuevo registro
             };
         }
 

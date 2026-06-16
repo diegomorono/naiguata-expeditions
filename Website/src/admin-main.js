@@ -13,6 +13,7 @@ import {
 } from './admin/core.js';
 import { renderRoster } from './admin/roster.js';
 import { renderStats, setupExpenseForm } from './admin/finance.js';
+import { setupReportButtons } from './admin/reports.js';
 
 // Función auxiliar para calcular el próximo sábado
 function getNextSaturday() {
@@ -38,7 +39,7 @@ async function renderAdminCapacitySettings(supabase) {
         if (data && data.value) {
             // Inyectamos el valor en todas las etiquetas que usen esta clase en el panel
             document.querySelectorAll('.max-capacity-display').forEach(el => {
-                el.textContent = data.value;
+                el.textContent = (typeof data.value === 'object') ? (data.value.per_date || data.value.per_date) : data.value;
             });
             console.log(`[Naiguatá Admin] Capacidad máxima sincronizada: ${data.value} personas.`);
         }
@@ -80,6 +81,7 @@ async function initAdmin() {
     // INICIALIZACIÓN DE TU PANEL FINANCIERO
     renderStats();        // Pinta el total acumulado en USD en tu indicador principal
     setupExpenseForm();   // Activa el "escuchador" de tu formulario seguro de egresos
+    setupReportButtons(); // Activa botones de reportes y PDF
 
     // NUEVO: Ejecuta la renderización del aforo máximo una vez autenticado
     await renderAdminCapacitySettings(supabase);

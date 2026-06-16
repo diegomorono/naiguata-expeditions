@@ -5,37 +5,132 @@
 import { getSupabaseClient } from '../config/supabase.js';
 import { appStore } from '../config/state.js';
 
-export async function resolveBcvRate() {
-    try {
-        console.log("[Naiguatá API] Consultando configuraciones globales en base de datos...");
-        const supabase = await getSupabaseClient();
+/**
+ * CAPA 1: Consumo Dinámico Localizado (API Externa)
+ * Intenta obtener la tasa oficial del día con un timeout de 3 segundos.
+ */
+async function fetchExternalBcvRate() {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-        // En lugar de pedir una sola fila, traemos todas las configuraciones del sistema
+    try {
+        // Usamos una API confiable de código abierto para la tasa BCV
+        const response = await fetch('https://ve.dolarapi.com/v1/dolares/oficial', { 
+            signal: controller.signal 
+        });
+        
+        if (!response.ok) throw new Error('API Externa no respondió correctamente');
+        
+        const data = await response.json();
+        // ve.dolarapi.com devuelve el promedio en el campo 'promedio'
+        return parseFloat(data.promedio || data.price);
+    } catch (err) {
+        console.warn("[BCV Capa 1] Fallo o Timeout:", err.message);
+        return null;
+    } finally {
+        clearTimeout(timeoutId);
+    }
+}
+
+/**
+ * CAPA 3: Alerta de Emergencia
+ * Notifica al administrador cuando el sistema entra en modo de contingencia crítico.
+ */
+async function sendEmergencyAlert(errorDetails) {
+    try {
+        await fetch('/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                to_name: "Diego Moroño",
+                subject: "ALERTA: Sistema Naiguatá en Modo de Emergencia - Fallo de Conexión Base de Datos/BCV",
+                message: `El sistema ha activado la Capa 3 de protección cambiaria. Fallo detectado: ${errorDetails}. Se está utilizando la tasa de emergencia hardcoded.`,
+                is_emergency: "SÍ",
+                timestamp: new Date().toLocaleString()
+            })
+        });
+        console.log("[BCV Capa 3] Alerta de emergencia enviada al administrador.");
+    } catch (e) {
+        console.error("[BCV Capa 3] Error crítico al intentar enviar alerta:", e);
+    }
+}
+
+export async function resolveBcvRate() {
+    let finalRate = null;
+    let source = 'fallback';
+
+    console.log("[Naiguatá API] Iniciando resolución de tasa cambiaria (3 Capas)...");
+
+    // --- CAPA 1: API EXTERNA ---
+    finalRate = await fetchExternalBcvRate();
+    if (finalRate) {
+        source = 'external_api';
+        console.log(`[BCV Capa 1] Tasa obtenida de API externa: ${finalRate}`);
+    }
+
+    // --- CAPA 2: SUPABASE (Fallback de Tasa) ---
+    // También aprovechamos para traer el precio del tour y capacidad
+    try {
+        const supabase = await getSupabaseClient();
         const { data, error } = await supabase
             .from('system_settings')
             .select('key, value');
 
         if (error) throw error;
 
+        const settings = {};
         if (data) {
-            const settings = {};
             data.forEach(item => {
-                if (item.key === 'last_valid_bcv') settings.bcvRate = parseFloat(item.value.rate);
-                if (item.key === 'tour_base_price') settings.tourBasePrice = parseFloat(item.value.amount);
-                if (item.key === 'max_capacity') settings.maxCapacityPerDate = parseInt(item.value.per_date, 10);
+                // Manejamos tanto si el valor es un objeto como si es un valor directo (según core.js)
+                const val = (typeof item.value === 'object' && item.value !== null) 
+                    ? (item.value.rate || item.value.amount || item.value.per_date || item.value.value || item.value) 
+                    : item.value;
+
+                if (item.key === 'last_valid_bcv') {
+                    settings.bcvRateDb = parseFloat(val);
+                }
+                if (item.key === 'tour_base_price') {
+                    settings.tourBasePrice = parseFloat(val);
+                }
+                if (item.key === 'max_capacity') {
+                    settings.maxCapacityPerDate = parseInt(val, 10);
+                }
             });
 
-            // Guardamos todo de forma segura en el store global
+            // Si la Capa 1 falló, usamos el valor de la base de datos
+            if (!finalRate && settings.bcvRateDb) {
+                finalRate = settings.bcvRateDb;
+                source = 'supabase_fallback';
+                console.log(`[BCV Capa 2] Usando última tasa válida de base de datos: ${finalRate}`);
+            }
+
+            // Actualizamos el store con los valores administrativos
             appStore.set({
                 ...appStore.get(),
-                ...settings,
-                bcvSource: 'supabase_live'
+                tourBasePrice: settings.tourBasePrice || 50,
+                maxCapacityPerDate: settings.maxCapacityPerDate || 12
             });
-            console.log("[Naiguatá API] Configuraciones globales sincronizadas con éxito:", settings);
         }
     } catch (err) {
-        console.warn("[Naiguatá Fallback] Error resolviendo configuraciones remotas. Manteniendo respaldos:", err);
+        console.warn("[BCV Capa 2] Error al conectar con Supabase:", err.message);
     }
+
+    // --- CAPA 3: HARDCODE & ALERTA ---
+    if (!finalRate) {
+        finalRate = 45.00; // Tasa de emergencia hardcoded (ajustar según mercado actual)
+        source = 'emergency_hardcode';
+        console.error("[BCV Capa 3] ¡ALERTA! El sistema está operando con tasa de emergencia.");
+        await sendEmergencyAlert("Fallo en Capa 1 (API) y Capa 2 (Database)");
+    }
+
+    // Guardamos la tasa final resuelta en el store global
+    appStore.set({
+        ...appStore.get(),
+        bcvRate: finalRate,
+        bcvSource: source
+    });
+
+    console.log(`[Naiguatá API] Tasa final resuelta: ${finalRate} (Origen: ${source})`);
 }
 
 /**

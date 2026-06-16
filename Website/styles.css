@@ -1934,8 +1934,33 @@ textarea:focus {
   }
 }
 
-/* Ajustes adaptativos para Teléfonos y pantallas pequeñas (600px o menos) */
-@media (width <=600px) {
+/* Admin Roster & Logistics Helpers */
+.hiker-row-alert {
+    background: rgba(239, 68, 68, 0.08) !important;
+    border-left: 4px solid var(--error) !important;
+}
+
+.tent-empty {
+    opacity: 0.6;
+}
+
+.tent-partial {
+    border-color: var(--warning) !important;
+}
+
+.tent-full {
+    border-color: var(--primary) !important;
+    background: rgba(16, 185, 129, 0.05) !important;
+}
+
+.task-action-btn {
+    opacity: 0.8;
+}
+
+.task-action-btn:hover {
+    opacity: 1;
+    transform: scale(1.05);
+}
   .hero-title {
     font-size: 2.3rem;
   }
@@ -2078,9 +2103,57 @@ textarea:focus {
   }
 }
 
+
 /* ==========================================================================
-   DISEÑO EXCLUSIVO Y RESPONSIVO PARA LA TRAVESÍA - NAIGUATÁ EXPEDITIONS
+   ADMIN ROSTER & LOGISTICS HELPERS (NUEVOS COMPONENTES)
    ========================================================================== */
+
+.hiker-row-alert {
+    background: rgba(239, 68, 68, 0.08) !important;
+    border-left: 4px solid var(--error) !important;
+}
+
+.tent-empty {
+    opacity: 0.6;
+}
+
+.tent-partial {
+    border-color: var(--warning) !important;
+}
+
+.tent-full {
+    border-color: var(--primary) !important;
+    background: rgba(16, 185, 129, 0.05) !important;
+}
+
+.task-action-btn {
+    opacity: 0.8;
+}
+
+.task-action-btn:hover {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.dialog-box {
+    max-width: 500px;
+    width: 90%;
+    padding: 30px;
+}
 
 /* Nota: Las bases globales de .elevation-profile-container y .map-dot 
    fueron unificadas en la sección superior para mantener limpia la cascada. */
