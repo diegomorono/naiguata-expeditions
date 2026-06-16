@@ -3,15 +3,25 @@
    ========================================================================== */
 import { getSupabaseClient } from './config/supabase.js';
 import { setupAdminAuth } from './admin/auth.js';
+import { adminStore } from './config/state.js';
 // MODIFICACIÓN: Importamos las funciones controladoras premium desde core.js
-import { 
-    updateDashboardData, 
-    handleUpdateBCV, 
-    handleUpdateTourPrice, 
-    handleUpdateMaxCapacity 
+import {
+    updateDashboardData,
+    handleUpdateBCV,
+    handleUpdateTourPrice,
+    handleUpdateMaxCapacity
 } from './admin/core.js';
 import { renderRoster } from './admin/roster.js';
 import { renderStats, setupExpenseForm } from './admin/finance.js';
+
+// Función auxiliar para calcular el próximo sábado
+function getNextSaturday() {
+    const d = new Date();
+    let daysUntilSaturday = 6 - d.getDay();
+    if (daysUntilSaturday <= 0) daysUntilSaturday += 7;
+    d.setDate(d.getDate() + daysUntilSaturday);
+    return d.toISOString().split('T')[0];
+}
 
 // NUEVA FUNCIÓN: Consulta el límite de aforo y actualiza los placeholders del HTML
 async function renderAdminCapacitySettings(supabase) {
@@ -43,6 +53,14 @@ async function initAdmin() {
 
     // 1. Asegurar conexión a Supabase y capturar el cliente
     const supabase = await getSupabaseClient();
+
+    // Lógica para inicializar fecha si no existe (Fix para date=eq.null)
+    const currentStore = adminStore.get();
+    if (!currentStore.selectedDate) {
+        const nextSaturday = getNextSaturday();
+        adminStore.set({ ...currentStore, selectedDate: nextSaturday });
+        console.log(`[Naiguatá Admin] Fecha inicial establecida automáticamente en: ${nextSaturday}`);
+    }
 
     // VINCULACIÓN DE SEGURIDAD PARA LA RECARGA DE PÁGINA
     const tokenGuardado = sessionStorage.getItem('admin_token');
