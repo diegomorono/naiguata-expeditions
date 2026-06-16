@@ -10,13 +10,10 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
-
     <link rel="stylesheet" href="./styles.css">
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* Estilos dedicados para la página del pase aislado en pantalla */
         body {
             background-color: var(--background, #080b0f);
             color: var(--text, #f3f4f6);
@@ -47,12 +44,6 @@
             border-radius: 12px;
         }
 
-        .pass-utility-bar span {
-            font-size: 0.9rem;
-            color: var(--text-muted, #9ca3af);
-            font-family: 'Inter', sans-serif;
-        }
-
         .utility-buttons {
             display: flex;
             gap: 10px;
@@ -66,109 +57,39 @@
             font-weight: 500;
             font-family: 'Outfit', sans-serif;
             transition: all 0.2s ease;
-        }
-
-        .btn-print {
-            background-color: var(--primary, #10b981);
-            color: #ffffff;
-            border: none;
-        }
-
-        .btn-print:hover {
-            background-color: var(--primary-hover, #059669);
-        }
-
-        .btn-copy {
-            background-color: transparent;
+            background: transparent;
             color: var(--text, #f3f4f6);
             border: 1px solid var(--panel-border, rgba(255, 255, 255, 0.08));
         }
 
-        .btn-copy:hover {
+        .btn-utility:hover {
             background-color: rgba(255, 255, 255, 0.05);
         }
 
-        .btn-whatsapp {
-            background-color: #25d366;
-            color: #ffffff;
-            border: none;
+        .btn-print-primary {
+            background-color: var(--primary, #10b981) !important;
+            border: none !important;
+            color: white !important;
         }
 
-        .btn-whatsapp:hover {
-            background-color: #1ebd56;
-        }
-
-        /* --- MANUAL DEL TOUR STYLES --- */
-        .manual-tour-container {
-            background: #ffffff;
-            color: #1a202c;
-            padding: 40px;
+        .manual-cta-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(244, 162, 97, 0.1));
+            border: 1px solid var(--primary);
+            padding: 20px;
             border-radius: 12px;
-            font-family: 'Inter', sans-serif;
-            margin-top: 30px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            display: none; /* Oculto en web por defecto, visible en print */
+            text-align: center;
+            margin-top: 10px;
         }
 
-        .manual-tour-container h2 {
-            font-family: 'Outfit', sans-serif;
-            color: #2d3748;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
+        .manual-cta-box h4 { margin-top: 0; color: var(--primary); }
+        .manual-cta-box p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; }
 
-        .manual-section {
-            margin-bottom: 25px;
-        }
-
-        .manual-section h3 {
-            font-size: 1.1rem;
-            color: #2c5282;
-            margin-bottom: 8px;
-        }
-
-        .manual-section p, .manual-section li {
-            font-size: 0.9rem;
-            line-height: 1.6;
-            color: #4a5568;
-        }
-
-        /* --- CONTROL ESTRICTO DE IMPRESIÓN --- */
         @media print {
-            body {
-                background: #ffffff !important;
-                color: #000000 !important;
-                padding: 0;
-                display: block;
-            }
-
-            .pass-utility-bar {
-                display: none !important;
-            }
-
-            .dedicated-pass-container {
-                max-width: 100% !important;
-                width: 100% !important;
-                gap: 0;
-            }
-
-            .printable-pass-wrapper {
-                margin: 0 !important;
-                box-shadow: none !important;
-                border: none !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                page-break-after: always;
-            }
-
-            .manual-tour-container {
-                display: block !important;
-                box-shadow: none !important;
-                border: none !important;
-                padding: 0 !important;
-                margin-top: 0 !important;
-            }
+            body { background: white !important; color: black !important; padding: 0; display: block; }
+            .pass-utility-bar, .manual-cta-box, .utility-buttons { display: none !important; }
+            .dedicated-pass-container { max-width: 100% !important; width: 100% !important; }
+            .printable-pass-wrapper { border: none !important; box-shadow: none !important; }
+            #pass-extra-details { display: block !important; }
         }
     </style>
 </head>
@@ -176,11 +97,11 @@
 <body>
     <div class="dedicated-pass-container">
         <div class="pass-utility-bar">
-            <span id="pass-display-id">Cargando identificador...</span>
+            <span id="pass-display-id" style="font-family: monospace; font-weight: 700; color: var(--primary);">Cargando ID...</span>
             <div class="utility-buttons">
-                <button class="btn-utility btn-copy" id="btn-copy-link">🔗 Copiar Enlace</button>
-                <button class="btn-utility btn-whatsapp" id="btn-share-whatsapp">🟢 Compartir WhatsApp</button>
-                <button class="btn-utility btn-print" id="btn-print">🖨️ Imprimir Pase</button>
+                <button class="btn-utility" id="btn-copy-link">🔗 Enlace</button>
+                <button class="btn-utility" id="btn-share-whatsapp">🟢 WhatsApp</button>
+                <button class="btn-utility btn-print-primary" id="btn-print">🖨️ Imprimir Pase</button>
             </div>
         </div>
 
@@ -204,7 +125,7 @@
                             <span class="meta-value" id="pass-card-name">Cargando...</span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-label">CÉDULA / PASAPORTE</span>
+                            <span class="meta-label">ID / REFERENCIA</span>
                             <span class="meta-value" id="pass-card-doc">Cargando...</span>
                         </div>
                         <div class="meta-item">
@@ -212,19 +133,22 @@
                             <span class="meta-value" id="pass-card-date">Cargando...</span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-label">RUTA AUTORIZADA</span>
-                            <span class="meta-value">La Julia - Pico Naiguatá</span>
+                            <span class="meta-label">ESTADO</span>
+                            <span class="meta-value" id="pass-card-status">⏳ Verificando...</span>
                         </div>
                     </div>
 
-                    <div class="pass-validation-zone">
+                    <div id="pass-extra-details" style="margin-top: 25px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 20px;">
+                        <!-- Se poblará con TODO lo registrado -->
+                    </div>
+
+                    <div class="pass-validation-zone" style="margin-top: 20px;">
                         <div class="instructions-box">
                             <strong>INSTRUCCIONES CLAVE:</strong>
-                            <ul>
-                                <li>Punto de encuentro: PGP La Julia, El Marqués, Caracas (7:00 AM).</li>
-                                <li>Lleva obligatoriamente 4L de agua y ropa térmica de abrigo (10°C o menos en la
-                                    noche).</li>
-                                <li>Prohibido el ingreso de bebidas alcohólicas o armas al Parque Nacional.</li>
+                            <ul style="font-size: 0.8rem; margin-top: 10px;">
+                                <li>Punto de encuentro: PGP La Julia (7:00 AM).</li>
+                                <li>Lleva obligatoriamente 4L de agua y ropa de abrigo.</li>
+                                <li>Este pase debe ser presentado digitalmente o impreso al guía.</li>
                             </ul>
                         </div>
                     </div>
@@ -232,235 +156,104 @@
             </div>
         </div>
 
-        <!-- MANUAL DEL TOUR (PÁGINA 2 EN IMPRESIÓN) -->
-        <div class="manual-tour-container" id="manual-tour-container">
-            <h2>Manual del Tour: Pico Naiguatá (2.765 m)</h2>
-            
-            <div class="manual-section">
-                <h3>1. Itinerario Aproximado</h3>
-                <p><strong>1er Día - 07:30:</strong> Encuentro en La Julia e inicio del ascenso (~8-10 horas). Paradas en El Tanque, Rancho Grande y llegada al Anfiteatro para acampar.</p>
-                <p><strong>2do Día - Madrugada:</strong> Ascenso a la cumbre para el amanecer. Descenso de ~5-7 horas. Regreso a Caracas aprox. 15:00.</p>
-            </div>
-
-            <div class="manual-section">
-                <h3>2. Lo que nosotros proveemos</h3>
-                <p>Guía experimentado, carpas de montaña (el traslado es responsabilidad del cliente o vía portador), gestión de permisos Inparques y snacks ligeros de salida.</p>
-            </div>
-
-            <div class="manual-section">
-                <h3>3. Lista de Equipo Obligatorio</h3>
-                <ul>
-                    <li><strong>Hidratación:</strong> Mínimo 3-4 litros de agua por persona.</li>
-                    <li><strong>Comida:</strong> Almuerzo, cena y desayuno ligero. Snacks extras (chocolates, frutos secos).</li>
-                    <li><strong>Ropa:</strong> Sistema de capas (transpirable, abrigo/fleece, cortavientos/impermeable). Gorro y guantes para la noche.</li>
-                    <li><strong>Dormir:</strong> Saco de dormir (rating 0-5°C) y aislante térmico (imprescindible).</li>
-                    <li><strong>Seguridad:</strong> Linterna frontal con pilas cargadas, protector solar y botiquín personal.</li>
-                </ul>
-            </div>
-
-            <div class="manual-section">
-                <h3>4. Reglas y Seguridad</h3>
-                <p>Prohibido hacer fogatas. No dejar basura (basura cero). Caminar siempre por el sendero oficial. Respetar el ritmo del grupo.</p>
-            </div>
-
-            <div class="manual-section">
-                <h3>5. Protocolo de Emergencias</h3>
-                <p>El guía cuenta con botiquín y radio. En caso de malestar, informar de inmediato. Números clave: Emergencia 171, Guardaparques 0414-3383081.</p>
-            </div>
-            
-            <p style="font-size: 0.8rem; border-top: 1px solid #eee; padding-top: 10px; margin-top: 20px; color: #718096; text-align: center;">
-                Expediciones Naiguatá - Diego Moroño | www.naiguata-expeditions.vercel.app
-            </p>
+        <div class="manual-cta-box">
+            <h4>📖 ¡MANUAL DEL TOUR OBLIGATORIO!</h4>
+            <p>Antes de subir, es vital que leas el manual de logística, seguridad y equipo. Haz clic abajo para descargarlo.</p>
+            <button class="btn-primary btn-full-width" onclick="window.open('./manual.html', '_blank')">
+                📥 Descargar Manual del Tour (PDF/Web)
+            </button>
         </div>
     </div>
 
     <script type="module">
-        // 1. Usamos tu inicializador centralizado para garantizar que el CDN de Supabase esté listo
         import { getSupabaseClient } from './src/config/supabase.js';
 
-        // Definimos una función de ejecución inmediata para evitar el desfase de DOMContentLoaded
         async function inicializarPase() {
             const params = new URLSearchParams(window.location.search);
             const idParam = params.get('id');
-            const autoPrint = params.get('autoprint') === 'true';
 
             if (!idParam) {
-                alert('ID de pase inválido o inexistente.');
+                alert('ID de pase inválido.');
                 window.location.href = '/';
                 return;
             }
 
-            // Mostrar el ID en la interfaz de forma segura si los elementos existen
-            const passDisplayId = document.getElementById('pass-display-id');
-            if (passDisplayId) passDisplayId.innerText = `Pase Oficial: ${idParam}`;
-
-            const passCardId = document.getElementById('pass-card-id');
-            if (passCardId) passCardId.innerText = idParam;
-
-            // Funcionalidad para copiar el enlace real al portapapeles o usar share nativo
-            const btnCopy = document.getElementById('btn-copy-link');
-            if (btnCopy) {
-                btnCopy.addEventListener('click', async () => {
-                    if (navigator.share) {
-                        try {
-                            await navigator.share({
-                                title: 'Pase de Expedición | Naiguatá Expeditions',
-                                text: 'Mi pase digital oficial para el ascenso a Pico Naiguatá 🏔️',
-                                url: window.location.href
-                            });
-                        } catch (err) {
-                            console.log('Compartir cancelado');
-                        }
-                    } else {
-                        try {
-                            await navigator.clipboard.writeText(window.location.href);
-                            const originalText = btnCopy.innerHTML;
-                            btnCopy.innerHTML = '✅ ¡Copiado!';
-                            setTimeout(() => { btnCopy.innerHTML = originalText; }, 2000);
-                        } catch (err) {
-                            console.error('Error al copiar el enlace:', err);
-                        }
-                    }
-                });
-            }
-
-            // Funcionalidad dedicada para compartir en WhatsApp con todos los datos del pase
-            const btnWhatsApp = document.getElementById('btn-share-whatsapp');
-            if (btnWhatsApp) {
-                btnWhatsApp.addEventListener('click', () => {
-                    const nombre = document.getElementById('pass-card-name').innerText.trim() || 'No disponible';
-                    const cedula = document.getElementById('pass-card-doc').innerText.trim() || 'No disponible';
-                    const fecha = document.getElementById('pass-card-date').innerText.trim() || 'No disponible';
-                    const enlace = window.location.href;
-
-                    const mensaje = `¡Hola! Aquí está mi Pase de Expedición oficial para Pico Naiguatá 🏔️:\n\n` +
-                        `👤 *Nombre:* ${nombre}\n` +
-                        `🪪 *Cédula:* ${cedula}\n` +
-                        `📅 *Fecha:* ${fecha}\n\n` +
-                        `🔗 *Ver Pase Digital:* ${enlace}`;
-
-                    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`;
-                    window.open(whatsappUrl, '_blank');
-                });
-            }
-
             try {
-                // 2. Resolvemos la instancia segura de Supabase
                 const supabase = await getSupabaseClient();
 
-                // Buscamos los datos del senderista usando el registration_id
+                // FIX CRÍTICO: Buscar por 'id' (Primary Key)
                 const { data, error } = await supabase
                     .from('registrations')
                     .select('*')
-                    .eq('registration_id', idParam)
+                    .eq('id', idParam)
                     .single();
 
-                if (error || !data) throw new Error('No se encontró el registro asociado.');
+                if (error || !data) throw new Error('No se encontró el registro.');
 
-                // Asignación de datos principales al DOM
-                if (document.getElementById('pass-card-name')) {
-                    document.getElementById('pass-card-name').innerText = data.full_name.toUpperCase();
-                }
-                if (document.getElementById('pass-card-doc')) {
-                    document.getElementById('pass-card-doc').innerText = data.id_number;
-                }
-                if (document.getElementById('pass-card-date')) {
-                    document.getElementById('pass-card-date').innerText = new Date(data.expedition_date).toLocaleDateString('es-VE', {
-                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-                    });
-                }
+                // Llenado de variables principales
+                document.getElementById('pass-display-id').innerText = `ID: ${idParam.substring(0,8)}...`;
+                document.getElementById('pass-card-id').innerText = idParam.substring(0,8).toUpperCase();
+                document.getElementById('pass-card-name').innerText = data.name.toUpperCase();
+                document.getElementById('pass-card-doc').innerText = data.reference_number || 'N/A';
+                document.getElementById('pass-card-date').innerText = data.date;
+                document.getElementById('pass-card-status').innerText = data.status;
 
-                window.currentRegistrationData = data;
+                // Integración de TODAS las variables en el desglose
+                const detailsContainer = document.getElementById('pass-extra-details');
+                const labelsMap = {
+                    email: '📧 Correo',
+                    whatsapp: '📱 WhatsApp',
+                    group_code: '👥 Grupo',
+                    gender: '🚻 Género',
+                    tent_preference: '⛺ Carpa',
+                    allergies: '⚠️ Alergias',
+                    medical: '🏥 Salud/Notas',
+                    rentals: '🎒 Alquileres',
+                    catering: '🍎 Catering Extra',
+                    porter_service: '🧳 Portador',
+                    total_usd: '💰 Total USD'
+                };
 
-                // --- INYECCIÓN DINÁMICA DE TODAS LAS VARIABLES EN EL RESUMEN ---
-                const dateElement = document.getElementById('pass-card-date');
-                if (dateElement) {
-                    let detailsContainer = document.getElementById('pass-extra-details');
-                    if (!detailsContainer) {
-                        detailsContainer = document.createElement('div');
-                        detailsContainer.id = 'pass-extra-details';
-                        detailsContainer.style.marginTop = '20px';
-                        detailsContainer.style.borderTop = '1px dashed var(--panel-border, rgba(255, 255, 255, 0.1))';
-                        detailsContainer.style.paddingTop = '15px';
-                        detailsContainer.style.textAlign = 'left';
-
-                        const validationZone = document.querySelector('.pass-validation-zone');
-                        if (validationZone) {
-                            validationZone.parentNode.insertBefore(detailsContainer, validationZone);
-                        } else {
-                            dateElement.parentNode.appendChild(detailsContainer);
-                        }
-                    }
-
-                    detailsContainer.innerHTML = `<h4 style="margin: 0 0 12px 0; color: var(--secondary, #f4a261); font-size: 0.95rem; text-transform: uppercase; font-weight: 600;">Detalles del Registro</h4>`;
-
-                    const labelsMap = {
-                        email: 'Correo Electrónico',
-                        whatsapp: 'WhatsApp / Teléfono',
-                        group_code: 'Código de Grupo',
-                        gender: 'Género',
-                        tent_preference: 'Preferencia de Carpa',
-                        allergies: 'Alergias Declaradas',
-                        diet: 'Régimen de Dieta',
-                        medical: 'Condición Médica / Observaciones',
-                        rentals: 'Equipos de Alquiler',
-                        catering: 'Menú / Alimentación Tradicional',
-                        porter_service: 'Servicio de Logística / Porteador',
-                        total_usd: 'Monto Total General (USD)',
-                        payment_method: 'Método de Pago Seleccionado',
-                        reference_number: 'Nro. Referencia / Cédula Pago Móvil'
-                    };
-
-                    for (const [key, value] of Object.entries(data)) {
-                        if (['id', 'created_at', 'registration_id', 'ticket_id', 'full_name', 'id_number', 'expedition_date'].includes(key)) continue;
-                        if (value === null || value === undefined || value === '') continue;
-
-                        const friendlyLabel = labelsMap[key] || key.replace(/_/g, ' ').toUpperCase();
-
-                        const p = document.createElement('p');
-                        p.style.margin = '6px 0';
-                        p.style.fontSize = '0.9rem';
-                        p.style.lineHeight = '1.4';
-
-                        p.innerHTML = `<strong style="color: var(--text-muted, #9ca3af);">${friendlyLabel}:</strong> <span class="detail-value" style="color: var(--text, #f3f4f6); font-weight: 500;"></span>`;
-
-                        let displayedValue = value;
+                let extraHtml = `<h4 style="color: var(--secondary); font-size: 0.9rem; margin-bottom: 10px;">DETALLES COMPLETOS DEL REGISTRO:</h4>`;
+                
+                Object.entries(data).forEach(([key, value]) => {
+                    if (labelsMap[key] && value && value !== '[]' && value !== '{}') {
+                        let displayVal = value;
                         if (typeof value === 'object') {
-                            displayedValue = Object.entries(value)
-                                .map(([item, qty]) => `${item.replace(/_/g, ' ')} (x${qty})`)
-                                .join(', ') || 'Ninguno';
-                        } else if (key === 'total_usd') {
-                            displayedValue = `$${parseFloat(value).toFixed(2)}`;
+                            displayVal = Object.entries(value).map(([k, v]) => `${k} (x${v})`).join(', ');
                         }
-
-                        p.querySelector('.detail-value').textContent = displayedValue;
-                        detailsContainer.appendChild(p);
+                        if (key === 'total_usd') displayVal = `$${parseFloat(value).toFixed(2)}`;
+                        
+                        extraHtml += `<p style="font-size: 0.85rem; margin: 4px 0;"><strong>${labelsMap[key]}:</strong> ${displayVal}</p>`;
                     }
-                }
+                });
+                detailsContainer.innerHTML = extraHtml;
 
-                const btnPrint = document.getElementById('btn-print');
-                if (btnPrint) {
-                    btnPrint.addEventListener('click', () => {
-                        window.print();
-                    });
-                }
+                // Handlers de botones
+                document.getElementById('btn-print').onclick = () => window.print();
+                
+                document.getElementById('btn-copy-link').onclick = async () => {
+                    await navigator.clipboard.writeText(window.location.href);
+                    alert("✅ Enlace copiado.");
+                };
 
-                // Lógica de Autoprint (CAPA 1: Experiencia Fluida)
-                if (autoPrint) {
-                    setTimeout(() => {
-                        window.print();
-                    }, 1500);
-                }
+                document.getElementById('btn-share-whatsapp').onclick = () => {
+                    const msg = `⛰️ *MI PASE PARA EL PICO NAIGUATÁ* ⛰️\n\n` +
+                        `👤 *Explorador:* ${data.name}\n` +
+                        `📅 *Fecha:* ${data.date}\n` +
+                        `⛺ *Carpa:* ${data.tent_preference}\n` +
+                        `🎒 *Equipos:* ${JSON.stringify(data.rentals)}\n` +
+                        `💰 *Total:* $${data.total_usd}\n\n` +
+                        `🔗 *Pase Digital:* ${window.location.href}`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+                };
 
             } catch (err) {
                 console.error(err);
-                alert('Error al cargar la información del pase desde el servidor.');
+                alert('Error al cargar la información. Revisa tu conexión.');
             }
         }
-
-        // Ejecución inmediata al cargar el archivo de módulo
         inicializarPase();
     </script>
 </body>
-
 </html>

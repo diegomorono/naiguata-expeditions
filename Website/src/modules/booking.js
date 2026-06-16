@@ -345,92 +345,11 @@ async function handleFormSubmission(e) {
         }
 
         const generatedId = passId;
-        const displayDate = customDateText ? customDateText : inputDate;
+        
+        // REDIRECCIÓN DIRECTA AL PASE (Skip success-view)
+        window.location.href = `./pass.html?id=${generatedId}`;
 
-        console.log("[Booking] Registro guardado. Iniciando flujo de éxito para:", generatedId);
-
-        // 1. INTEGRACIÓN CON SERVERLESS FUNCTION DE EMAIL
-        try {
-            await fetch('/api/send-email', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    to_name: "Administrador Naiguatá",
-                    client_name: inputName,
-                    client_email: formData.get('email'),
-                    client_cedula: inputCedula,
-                    expedition_date: displayDate,
-                    pass_url: `${window.location.origin}/pass.html?id=${generatedId}`
-                })
-            });
-        } catch (mailErr) {
-            console.error("[Email API] Fallo silencioso:", mailErr);
-        }
-
-        // 2. TRANSICIÓN A LA VISTA DE ÉXITO
-        const clientView = document.getElementById('client-view');
-        const successView = document.getElementById('success-view');
-
-        if (clientView && successView) {
-            // Ocultamos el scroll y mostramos el modal arriba
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-            clientView.style.display = 'none';
-            successView.classList.remove('hidden');
-            successView.style.display = 'block';
-        }
-
-        // 3. POBLAR LOS DATOS
-        const summaryName = document.getElementById('summary-name');
-        const summaryDoc = document.getElementById('summary-doc');
-        const summaryDate = document.getElementById('summary-date');
-        const summaryId = document.getElementById('summary-id');
-
-        if (summaryName) summaryName.textContent = inputName;
-        if (summaryDoc) summaryDoc.textContent = inputCedula;
-        if (summaryDate) summaryDate.textContent = displayDate;
-        if (summaryId) summaryId.textContent = generatedId;
-
-        // 4. CONFIGURACIÓN DEL BOTÓN [Guardar Pase y Manual]
-        const urlPase = `${window.location.origin}/pass.html?id=${generatedId}`;
-        const btnDownload = document.getElementById('btn-download-pass-manual');
-        if (btnDownload) {
-            btnDownload.onclick = () => {
-                window.open(`${urlPase}&autoprint=true`, '_blank');
-            };
-        }
-
-        // 5. CONFIGURACIÓN DEL BOTÓN [Compartir Aventura / Respaldo]
-        const btnShareAdventure = document.getElementById('btn-share-adventure');
-        if (btnShareAdventure) {
-            const textoCompartir = `⛰️ *¡MI PRÓXIMA AVENTURA: PICO NAIGUATÁ!* ⛰️\n\n` +
-                `Ya reservé mi lugar para conquistar la cumbre más alta de la costa (2.765 msnm). 🧗‍♂️✨\n\n` +
-                `👤 *Explorador:* ${inputName}\n` +
-                `📅 *Fecha:* ${displayDate}\n\n` +
-                `🔗 *Ver mi Pase Oficial:* ${urlPase}`;
-
-            btnShareAdventure.onclick = async () => {
-                if (navigator.share) {
-                    try {
-                        await navigator.share({
-                            title: "Expedición Pico Naiguatá 🏔️",
-                            text: `¡Ya tengo mi pase para el Pico Naiguatá!`,
-                            url: urlPase
-                        });
-                    } catch (err) { }
-                } else {
-                    const action = confirm("📱 OPCIONES DE COMPARTIR:\n\n- Aceptar: Copiar invitación estética.\n- Cancelar: Enviar a mi WhatsApp.");
-                    if (action) {
-                        navigator.clipboard.writeText(textoCompartir);
-                        alert("✅ Invitación copiada.");
-                    } else {
-                        window.open(`https://wa.me/?text=${encodeURIComponent(textoCompartir)}`, '_blank');
-                    }
-                }
-            };
-        }
+    } catch (err) {
 
         // 7. CONFIGURACIÓN DEL BOTÓN [Volver al Inicio]
         const btnHome = document.getElementById('btn-success-home');
