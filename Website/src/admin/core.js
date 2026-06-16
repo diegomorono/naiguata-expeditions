@@ -12,11 +12,11 @@ import { renderChecklist } from './checklist.js';
 export async function updateDashboardData(supabaseClient) {
     try {
         const supabase = supabaseClient;
-
-        // Extraemos la fecha seleccionada de forma segura usando .get()
         const selectedDate = adminStore.get().selectedDate;
 
-        // CARGA EN PARALELO: 'registrations' y 'financial_transactions' (Nombre corregido según schema)
+        console.log("[Admin Core] Cargando datos para fecha:", selectedDate);
+
+        // CARGA EN PARALELO
         const [registrationsResponse, financialsResponse] = await Promise.all([
             supabase
                 .from('registrations')
@@ -29,24 +29,81 @@ export async function updateDashboardData(supabaseClient) {
         ]);
 
         if (registrationsResponse.error) throw registrationsResponse.error;
-        if (financialsResponse.error) throw financialsResponse.error;
 
-        // Modificamos el estado administrativo de forma atómica e inmutable
+        // Modificamos el estado
         adminStore.set({
             ...adminStore.get(),
             registrations: registrationsResponse.data || [],
             financials: financialsResponse.data || []
         });
 
-        // Invocamos los renders reactivos
+        // Renders
         renderRoster();
         renderStats();
         renderLogistics();
         renderChecklist();
+        
+        // También actualizamos el carrusel para reflejar la selección
+        renderExpeditionCarousel(supabase);
 
-        console.log("[Admin Core] Dashboard actualizado para:", selectedDate);
     } catch (err) {
         console.error("Error actualizando dashboard:", err);
+    }
+}
+
+/**
+ * CARRUSEL DE PRÓXIMAS SALIDAS
+ * Busca todas las fechas con registros para permitir navegación.
+ */
+export async function renderExpeditionCarousel(supabase) {
+    const container = document.getElementById('expeditions-carousel-container');
+    if (!container) return;
+
+    try {
+        // Obtenemos fechas únicas de la tabla de registros
+        const { data, error } = await supabase
+            .from('registrations')
+            .select('date')
+            .order('date', { ascending: true });
+
+        if (error) throw error;
+
+        // Extraer fechas únicas
+        const uniqueDates = [...new Set(data.map(d => d.date))];
+        const selectedDate = adminStore.get().selectedDate;
+
+        if (uniqueDates.length === 0) {
+            container.innerHTML = `<p style="opacity: 0.5; font-size: 0.8rem;">No hay expediciones registradas aún.</p>`;
+            return;
+        }
+
+        container.innerHTML = uniqueDates.map(date => {
+            const isActive = date === selectedDate;
+            const d = new Date(date + "T12:00:00");
+            const dayNum = d.getDate();
+            const monthStr = d.toLocaleDateString('es-VE', { month: 'short' }).toUpperCase();
+            
+            return `
+                <div class="expedition-card ${isActive ? 'active' : ''}" 
+                     style="min-width: 100px; padding: 15px; border-radius: 12px; background: ${isActive ? 'var(--primary-glow)' : 'rgba(255,255,255,0.02)'}; 
+                            border: 1px solid ${isActive ? 'var(--primary)' : 'rgba(255,255,255,0.1)'}; 
+                            cursor: pointer; text-align: center; transition: all 0.2s;"
+                     onclick="window.switchAdminDate('${date}')">
+                    <div style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 5px;">${monthStr}</div>
+                    <div style="font-size: 1.5rem; font-weight: 800; font-family: 'Outfit';">${dayNum}</div>
+                    <div style="font-size: 0.6rem; margin-top: 5px;">${d.getFullYear()}</div>
+                </div>
+            `;
+        }).join('');
+
+        // Exponer la función globalmente para los clics
+        window.switchAdminDate = (newDate) => {
+            adminStore.set({ ...adminStore.get(), selectedDate: newDate });
+            updateDashboardData(supabase);
+        };
+
+    } catch (e) {
+        console.error("Error en carrusel:", e);
     }
 }
 

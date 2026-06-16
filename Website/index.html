@@ -646,55 +646,53 @@
                 </div>
             </section>
 
-            <!--PASE DE EXPEDICIÓN-->
-            <section id="success-view" class="view-section hidden">
-                <div class="content-wrapper">
-                    <div class="success-container">
-                        <div class="success-icon-wrapper">
-                            <svg class="success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                                <polyline points="22 4 12 14.01 9 11.01" />
-                            </svg>
-                        </div>
+        </section>
 
-                        <h2 class="section-title text-center">¡Registro Completado con Éxito!</h2>
-                        <p class="section-subtitle text-center">Tu lugar en la próxima expedición a Pico Naiguatá ha
-                            sido reservado. Aquí tienes el resumen oficial de tu pase de abordaje:</p>
+        <!--PASE DE EXPEDICIÓN (Mover fuera de client-view)-->
+        <section id="success-view" class="view-section hidden" style="display: none; padding: 60px 20px; max-width: 800px; margin: 0 auto;">
+            <div class="content-wrapper">
+                <div class="success-container">
+                    <div class="success-icon-wrapper" style="text-align: center; margin-bottom: 20px;">
+                        <svg class="success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 80px; height: 80px; color: var(--primary);">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
+                    </div>
 
-                        <div id="summary-card"
-                            style="background: rgba(255,255,255,0.03); border: 1px solid var(--panel-border); padding: 20px; border-radius: 8px; text-align: left; margin: 25px auto; max-width: 400px; font-family: 'Inter', sans-serif;">
-                            <p style="margin: 8px 0; color: var(--text-muted);"><strong>Senderista:</strong> <span
-                                    id="summary-name" style="color: var(--text); font-weight: 500;">-</span></p>
-                            <p style="margin: 8px 0; color: var(--text-muted);"><strong>Cédula / Documento:</strong>
-                                <span id="summary-doc" style="color: var(--text); font-weight: 500;">-</span>
-                            </p>
-                            <p style="margin: 8px 0; color: var(--text-muted);"><strong>Fecha de Expedición:</strong>
-                                <span id="summary-date" style="color: var(--text); font-weight: 500;">-</span>
-                            </p>
-                            <p style="margin: 8px 0; color: var(--text-muted);"><strong>ID de Pase Oficial:</strong>
-                                <span id="summary-id" style="color: var(--secondary); font-weight: 600;">-</span>
-                            </p>
-                        </div>
+                    <h2 class="section-title text-center" style="text-align: center; font-size: 2.2rem; margin-bottom: 10px;">¡Registro Completado!</h2>
+                    <p class="section-subtitle text-center" style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">Tu lugar en la próxima expedición ha sido reservado con éxito.</p>
 
-                        <div class="success-actions"
-                            style="display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: 30px auto 0 auto;">
-                            <button id="btn-download-pass-manual" class="btn-primary btn-large">
-                                📥 Guardar Pase y Manual
-                            </button>
-                            <button id="btn-share-adventure" class="btn-secondary btn-large">
-                                📲 Compartir Aventura / Respaldo
-                            </button>
-                            <button id="btn-success-home" class="btn-outline"
-                                style="margin-top: 10px; opacity: 0.6; font-size: 0.85rem;">
-                                Volver al Inicio
-                            </button>
-                        </div>
+                    <div id="summary-card"
+                        style="background: rgba(255,255,255,0.03); border: 1px solid var(--panel-border); padding: 25px; border-radius: 12px; text-align: left; margin: 0 auto 30px; max-width: 450px; font-family: 'Inter', sans-serif;">
+                        <p style="margin: 10px 0; color: var(--text-muted);"><strong>Senderista:</strong> <span
+                                id="summary-name" style="color: var(--text); font-weight: 500;">-</span></p>
+                        <p style="margin: 10px 0; color: var(--text-muted);"><strong>Referencia:</strong>
+                            <span id="summary-doc" style="color: var(--text); font-weight: 500;">-</span>
+                        </p>
+                        <p style="margin: 10px 0; color: var(--text-muted);"><strong>Fecha:</strong>
+                            <span id="summary-date" style="color: var(--text); font-weight: 500;">-</span>
+                        </p>
+                        <p style="margin: 10px 0; color: var(--text-muted);"><strong>ID de Pase:</strong>
+                            <span id="summary-id" style="color: var(--secondary); font-weight: 600; font-family: monospace;">-</span>
+                        </p>
+                    </div>
+
+                    <div class="success-actions"
+                        style="display: flex; flex-direction: column; gap: 15px; max-width: 450px; margin: 0 auto;">
+                        <button id="btn-download-pass-manual" class="btn-primary btn-large">
+                            📥 Guardar Pase y Manual
+                        </button>
+                        <button id="btn-share-adventure" class="btn-secondary btn-large">
+                            📲 Compartir Aventura / Respaldo
+                        </button>
+                        <button id="btn-success-home" class="btn-outline"
+                            style="margin-top: 10px; opacity: 0.6; font-size: 0.85rem;">
+                            Volver al Inicio
+                        </button>
                     </div>
                 </div>
-            </section>
-
-            <!-- ORGANIZER / ADMIN DASHBOARD VIEW -->
+            </div>
         </section>
     </main>
 
