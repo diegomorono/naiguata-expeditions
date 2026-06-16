@@ -304,7 +304,6 @@ async function handleFormSubmission(e) {
         let medicalNotes = sanearTexto(formData.get('medical') || 'Ninguna.');
 
         if (inputDate === 'custom') {
-            // Si es personalizado, usamos el próximo sábado como placeholder en DB pero guardamos el texto en notas
             const nextSat = new Date();
             nextSat.setDate(nextSat.getDate() + ((6 - nextSat.getDay() + 7) % 7));
             inputDate = nextSat.toISOString().split('T')[0];
@@ -313,8 +312,6 @@ async function handleFormSubmission(e) {
 
         const inputName = formData.get('name') || '';
         const inputCedula = formData.get('reference_number') || 'N/A';
-
-        // CRUCIAL: Capturamos el UUID aquí para garantizar consistencia absoluta en todo el flujo
         const passId = crypto.randomUUID();
 
         const { data, error } = await supabase.rpc('registrar_excursionista', {
@@ -345,23 +342,7 @@ async function handleFormSubmission(e) {
         }
 
         const generatedId = passId;
-        
-        // REDIRECCIÓN DIRECTA AL PASE (Skip success-view)
         window.location.href = `./pass.html?id=${generatedId}`;
-
-    } catch (err) {
-
-        // 7. CONFIGURACIÓN DEL BOTÓN [Volver al Inicio]
-        const btnHome = document.getElementById('btn-success-home');
-        if (btnHome) {
-            btnHome.onclick = () => {
-                window.location.reload(); // Reinicia la app para un nuevo registro
-            };
-        }
-
-        // Limpiamos borradores locales y reiniciamos el formulario de forma segura
-        localStorage.removeItem('naiguata_form_draft');
-        form.reset();
 
     } catch (err) {
         console.error("Error al enviar:", err);
@@ -401,4 +382,3 @@ export function restoreFormDraft() {
         calculateFormCosts();
     } catch (e) { }
 }
-
