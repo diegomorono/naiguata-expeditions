@@ -1,7 +1,9 @@
 /* =========================================================================
-   ADMIN AUTHENTICATION (CONECTADO A SUPABASE AUTH NATIVO)
+   ADMIN AUTHENTICATION (CONECTADO A LA EDGE FUNCTION tu-edge-function-admin)
    ========================================================================= */
-import { getSupabaseClient } from '../config/supabase.js';
+import { ENV } from '../config/env.js';
+
+const EDGE_FUNCTION_URL = `${ENV.SUPABASE_URL}/functions/v1/tu-edge-function-admin`;
 
 export function setupAdminAuth(onSuccess) {
     const loginForm = document.getElementById('admin-login-form');
@@ -10,39 +12,52 @@ export function setupAdminAuth(onSuccess) {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Nota: Supabase Auth nativo utiliza Email en lugar de un Username genérico
-        const email = document.getElementById('admin-user')?.value;
+        const username = document.getElementById('admin-user')?.value?.trim();
         const password = document.getElementById('admin-password')?.value;
+        const errorMsg = document.getElementById('login-error-msg');
+        const submitBtn = document.getElementById('btn-login-submit');
+
+        if (errorMsg) errorMsg.style.display = 'none';
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Verificando...'; }
 
         try {
-            // 1. Obtener el cliente único e inicializado de Supabase
-            const supabase = await getSupabaseClient();
-
-            // 2. Autenticar directamente contra la tabla auth.users de Supabase
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password
+            const response = await fetch(EDGE_FUNCTION_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // La Edge Function requiere apikey/authorization aunque verify_jwt=false,
+                    // porque Supabase exige la anon key para no bloquear en el gateway.
+                    'apikey': ENV.SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${ENV.SUPABASE_ANON_KEY}`
+                },
+                body: JSON.stringify({ username, password })
             });
 
-            if (error) throw error;
+            const data = await response.json();
 
-            // 3. Extraer el token JWT real generado por la sesión nativa
-            const token = data.session.access_token;
-
-            // Guardamos el token en sessionStorage para la persistencia de la sesión
-            sessionStorage.setItem('admin_token', token);
-
-            // Vinculamos el token a las cabeceras globales de la instancia REST
-            if (window.supabase?.rest?.headers) {
-                window.supabase.rest.headers['Authorization'] = `Bearer ${token}`;
+            if (!response.ok || !data.token) {
+                throw new Error(data.error || 'Credenciales inválidas.');
             }
 
-            // Ejecutar el callback de éxito para dar paso al dashboard
+            // Guardamos el token (service_role key) para autorizar llamadas posteriores
+            sessionStorage.setItem('admin_token', data.token);
+
+            if (window.supabase?.rest?.headers) {
+                window.supabase.rest.headers['Authorization'] = `Bearer ${data.token}`;
+            }
+
             onSuccess();
 
         } catch (error) {
             console.error("Falla en el login administrativo:", error.message);
-            alert(`Acceso denegado: ${error.message}. Asegúrate de ingresar tu correo y contraseña de Supabase.`);
+            if (errorMsg) {
+                errorMsg.textContent = `⚠️ ${error.message}`;
+                errorMsg.style.display = 'block';
+            } else {
+                alert(`Acceso denegado: ${error.message}`);
+            }
+        } finally {
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Iniciar Sesión'; }
         }
     });
 }
