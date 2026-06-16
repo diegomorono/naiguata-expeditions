@@ -11,7 +11,6 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="./styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         body {
@@ -100,15 +99,11 @@
             100% { border-color: rgba(16, 185, 129, 0.4); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.2); }
         }
 
-        .manual-cta-box h4 { margin-top: 0; color: var(--primary); }
-        .manual-cta-box p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; }
-
         @media print {
             body { background: white !important; color: black !important; padding: 0; display: block; }
             .pass-utility-bar, .manual-cta-box, .utility-buttons { display: none !important; }
             .dedicated-pass-container { max-width: 100% !important; width: 100% !important; }
             .printable-pass-wrapper { border: none !important; box-shadow: none !important; }
-            #pass-extra-details { display: block !important; }
         }
     </style>
 </head>
@@ -118,7 +113,7 @@
         <div class="pass-utility-bar">
             <span id="pass-display-id" style="font-family: monospace; font-weight: 700; color: var(--primary);">Buscando registro...</span>
             <div class="utility-buttons">
-                <button class="btn-utility btn-whatsapp" id="btn-share-whatsapp">🟢 WhatsApp</button>
+                <button class="btn-utility" id="btn-share-whatsapp">🟢 WhatsApp</button>
                 <button class="btn-utility btn-print-primary" id="btn-print">🖨️ Imprimir Pase</button>
             </div>
         </div>
@@ -157,7 +152,7 @@
                     </div>
 
                     <div id="pass-extra-details" style="margin-top: 25px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 20px;">
-                        <p style="text-align: center; opacity: 0.5; font-size: 0.8rem;">Sincronizando datos con el servidor...</p>
+                        <p style="text-align: center; opacity: 0.5; font-size: 0.8rem;">Sincronizando datos...</p>
                     </div>
 
                     <div class="pass-validation-zone" style="margin-top: 20px;">
@@ -175,8 +170,8 @@
         </div>
 
         <div class="manual-cta-box">
-            <h4>📖 ¡MANUAL DEL TOUR OBLIGATORIO!</h4>
-            <p>Antes de subir, es vital que leas el manual de logística, seguridad y equipo. Haz clic abajo para descargarlo.</p>
+            <h4 style="margin:0 0 5px 0; color: var(--primary);">📖 ¡MANUAL DEL TOUR OBLIGATORIO!</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Es vital que leas el manual de logística y seguridad antes de subir.</p>
             <button class="btn-primary btn-full-width" onclick="window.open('./manual.html', '_blank')">
                 📥 Descargar Manual del Tour (PDF/Web)
             </button>
@@ -184,22 +179,20 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://cnoeumcshfrfrzyvbxcn.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNub2V1bWNzaGZyZnJ6eXZieGNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyNzIzNDEsImV4cCI6MjA5NTg0ODM0MX0.Sm2-IvEjvIQKwVDbj91jKf87QSonHWlqHBGeFqMuSr8';
+        const EDGE_FUNCTION_URL = 'https://cnoeumcshfrfrzyvbxcn.supabase.co/functions/v1/tu-edge-function-admin';
 
-        // Variables globales para compartir
         let currentHikerData = null;
 
         async function inicializarPase() {
             const params = new URLSearchParams(window.location.search);
             const idParam = params.get('id');
 
-            // 1. Configurar botones básicos de inmediato
+            // Configurar botones de inmediato
             document.getElementById('btn-print').onclick = () => window.print();
             
             document.getElementById('btn-share-whatsapp').onclick = () => {
                 if (!currentHikerData) {
-                    alert("Espera a que carguen los datos para compartir.");
+                    alert("Espera un momento a que carguen los datos.");
                     return;
                 }
                 const data = currentHikerData;
@@ -224,37 +217,37 @@
             }
 
             try {
-                const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-                // Lógica de carga robusta
+                // CONSULTA A TRAVÉS DE LA EDGE FUNCTION (Bypass RLS)
+                let response = null;
                 let data = null;
+
                 for (let i = 0; i < 5; i++) {
-                    const response = await supabase
-                        .from('registrations')
-                        .select('*')
-                        .eq('id', idParam)
-                        .maybeSingle();
+                    console.log(`Intentando cargar pase (Intento ${i+1})...`);
+                    const res = await fetch(EDGE_FUNCTION_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'get_hiker_pass', id: idParam })
+                    });
                     
-                    if (response.data) {
-                        data = response.data;
-                        break;
+                    if (res.ok) {
+                        data = await res.json();
+                        if (data) break;
                     }
-                    await new Promise(r => setTimeout(r, 1500)); // Esperar más tiempo entre reintentos
+                    await new Promise(r => setTimeout(r, 2000));
                 }
 
-                if (!data) throw new Error('El registro aún no aparece en el servidor. Por favor refresca en 10 segundos.');
+                if (!data) throw new Error('No pudimos localizar tu registro. Por favor, reintenta en unos segundos.');
 
                 currentHikerData = data;
 
-                // 2. POBLAR VARIABLES
-                document.getElementById('pass-display-id').innerText = `ID: ${idParam.substring(0,8)}`;
+                // POBLAR UI
+                document.getElementById('pass-display-id').innerText = `Pase: ${idParam.substring(0,8)}`;
                 document.getElementById('pass-card-id').innerText = idParam.substring(0,8).toUpperCase();
                 document.getElementById('pass-card-name').innerText = data.name.toUpperCase();
                 document.getElementById('pass-card-doc').innerText = data.reference_number || 'N/A';
                 document.getElementById('pass-card-date').innerText = data.date;
                 document.getElementById('pass-card-status').innerText = data.status;
 
-                // 3. POBLAR DESGLOSE
                 const detailsContainer = document.getElementById('pass-extra-details');
                 const labelsMap = {
                     email: '📧 Correo',
@@ -288,7 +281,12 @@
 
             } catch (err) {
                 console.error("Error en pass.html:", err);
-                document.getElementById('pass-extra-details').innerHTML = `<div style="text-align:center; padding: 20px;"><p style="color: var(--error); margin-bottom: 10px;">❌ ${err.message}</p><button class="btn-utility" onclick="location.reload()" style="margin: 0 auto;">🔄 Reintentar Carga</button></div>`;
+                document.getElementById('pass-extra-details').innerHTML = `
+                    <div style="text-align:center; padding: 20px;">
+                        <p style="color: var(--error); margin-bottom: 15px;">❌ ${err.message}</p>
+                        <button class="btn-utility" onclick="location.reload()" style="margin: 0 auto;">🔄 Reintentar Ahora</button>
+                    </div>
+                `;
             }
         }
 
