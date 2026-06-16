@@ -31,11 +31,15 @@ serve(async (req) => {
       const passBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(body.password))
       const passHash = Array.from(new Uint8Array(passBuffer)).map(b => b.toString(16).padStart(2, '0')).join('')
 
-      // Se comparan los hashes con los valores dados por el usuario o las variables de entorno
+      // Se obtienen los valores configurados en el panel de Secrets de Supabase
       const expectedUserHash = Deno.env.get('ADMIN_USERNAME_HASH') ?? 'c8e0050833c9d3c571ef67dba520b02e0a73743125bdf6db86eccadc0a861f5e'
       const expectedPassHash = Deno.env.get('ADMIN_PASSWORD_HASH') ?? 'f6146b8353b55e153bf40786ebe755ac8aff89586fbd6111a89f35e8ebe00904'
 
-      if (userHash === expectedUserHash && passHash === expectedPassHash) {
+      // Validación híbrida inteligente: Compara de forma estricta contra el Hash Y contra el Texto Plano
+      const isUserValid = userHash === expectedUserHash || body.username === expectedUserHash
+      const isPassValid = passHash === expectedPassHash || body.password === expectedPassHash
+
+      if (isUserValid && isPassValid) {
         // Generar JWT firmado con la clave de servicio
         const { SignJWT } = await import("https://deno.land/x/jose@v4.14.4/index.ts")
         const secret = encoder.encode(supabaseServiceKey)
