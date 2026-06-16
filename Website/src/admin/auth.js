@@ -1,6 +1,7 @@
 /* =========================================================================
-   ADMIN AUTHENTICATION (CONECTADO A TU-EDGE-FUNCTION-ADMIN)
+   ADMIN AUTHENTICATION (CONECTADO A SUPABASE AUTH NATIVO)
    ========================================================================= */
+import { getSupabaseClient } from '../config/supabase.js';
 
 export function setupAdminAuth(onSuccess) {
     const loginForm = document.getElementById('admin-login-form');
@@ -9,36 +10,39 @@ export function setupAdminAuth(onSuccess) {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const username = document.getElementById('admin-user')?.value;
+        // Nota: Supabase Auth nativo utiliza Email en lugar de un Username genérico
+        const email = document.getElementById('admin-user')?.value;
         const password = document.getElementById('admin-password')?.value;
 
         try {
-            // URL exacta de tu Edge Function
-            const res = await fetch('https://cnoeumcshfrfrzyvbxcn.supabase.co/functions/v1/tu-edge-function-admin', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+            // 1. Obtener el cliente único e inicializado de Supabase
+            const supabase = await getSupabaseClient();
+
+            // 2. Autenticar directamente contra la tabla auth.users de Supabase
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password
             });
 
-            if (!res.ok) {
-                throw new Error('Credenciales inválidas');
-            }
+            if (error) throw error;
 
-            const { token } = await res.json();
+            // 3. Extraer el token JWT real generado por la sesión nativa
+            const token = data.session.access_token;
 
-            // Guardamos el token real (JWT) devuelto por la Edge Function
+            // Guardamos el token en sessionStorage para la persistencia de la sesión
             sessionStorage.setItem('admin_token', token);
 
-            // Vinculamos el token al cliente global de Supabase en el navegador antes de continuar
+            // Vinculamos el token a las cabeceras globales de la instancia REST
             if (window.supabase?.rest?.headers) {
                 window.supabase.rest.headers['Authorization'] = `Bearer ${token}`;
             }
 
+            // Ejecutar el callback de éxito para dar paso al dashboard
             onSuccess();
 
         } catch (error) {
-            console.error("Falla en el login:", error);
-            alert("Acceso denegado. Verifica tus credenciales.");
+            console.error("Falla en el login administrativo:", error.message);
+            alert(`Acceso denegado: ${error.message}. Asegúrate de ingresar tu correo y contraseña de Supabase.`);
         }
     });
 }
