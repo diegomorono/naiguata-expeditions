@@ -2,41 +2,40 @@
    DESIGN SYSTEM - DEEP MOUNTAINEERING & STARS (DARK MODE)
    ========================================================================== */
 
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
 :root {
-  --background: #080b0f;
-  --background-alt: #080b0f;
-  --panel-bg: rgb(15 22 30 / 75%);
-  --panel-border: rgb(255 255 255 / 8%);
-  --panel-border-hover: rgb(16 185 129 / 25%);
+  --background: #040608;
+  --background-alt: #06090c;
+  --panel-bg: rgba(13, 18, 25, 0.7);
+  --panel-border: rgba(255, 255, 255, 0.06);
+  --panel-border-hover: rgba(16, 185, 129, 0.3);
 
-  /* Harmonious colors */
+  /* Refined Premium Palette */
   --primary: #10b981;
-
-  /* Emerald forest green */
   --primary-hover: #059669;
-  --primary-glow: rgb(16 185 129 / 15%);
+  --primary-glow: rgba(16, 185, 129, 0.12);
   --secondary: #f4a261;
-
-  /* Warm campfire orange/gold */
   --secondary-hover: #e07a5f;
-  --secondary-glow: rgb(244 162 97 / 15%);
-  --text: #f3f4f6;
-  --text-muted: #9ca3af;
-  --text-dark: #1f2937;
-  --error: #ef4444;
-  --error-bg: rgb(239 68 68 / 15%);
+  --secondary-glow: rgba(244, 162, 97, 0.12);
+  
+  --text: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dark: #1e293b;
+  
+  --error: #f43f5e;
+  --error-bg: rgba(244, 63, 94, 0.1);
   --warning: #f59e0b;
-  --warning-bg: rgb(245 158 11 / 12%);
+  --warning-bg: rgba(245, 158, 11, 0.1);
   --success: #10b981;
-  --success-bg: rgb(16 185 129 / 12%);
-  --card-shadow: 0 8px 32px 0 rgb(0 0 0 / 37%);
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --primary-bright: #00e676;
-  --select-option-bg: #151a17;
+  --success-bg: rgba(16, 185, 129, 0.1);
+  
+  --card-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ==========================================================================
-   BASE STYLES & RESET (UNIFICADO)
+   BASE STYLES & RESET (PREMIUM)
    ========================================================================== */
 
 * {
@@ -47,19 +46,14 @@
 }
 
 body {
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   background-color: var(--background);
   color: var(--text);
-  line-height: 1.6;
+  line-height: 1.7;
   overflow-x: hidden;
   position: relative;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Base limpia para selectores nativos (Llamada al inicio para asegurar la cascada) */
@@ -154,93 +148,96 @@ h6 {
 }
 
 /* Common UI Helpers */
-
-/* Common UI Helpers */
 .glass-panel {
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
-  backdrop-filter: blur(16px);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 10px 40px rgb(0 0 0 / 50%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: var(--card-shadow);
   transition: var(--transition);
   margin-bottom: 40px;
 }
 
 .glass-panel-hover:hover {
   border-color: var(--panel-border-hover);
-  box-shadow: 0 8px 32px 0 rgb(16 185 129 / 10%);
-  transform: translateY(-2px);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+  transform: translateY(-4px) scale(1.01);
 }
 
 .badge {
   display: inline-block;
-  padding: 6px 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  padding: 8px 16px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-radius: 9999px;
+  letter-spacing: 0.15em;
+  border-radius: 8px;
   background-color: var(--primary-glow);
   color: var(--primary);
-  border: 1px solid rgb(16 185 129 / 30%);
-  margin-bottom: 16px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  margin-bottom: 24px;
 }
 
 .badge-orange {
   background-color: var(--secondary-glow);
   color: var(--secondary);
-  border: 1px solid rgb(244 162 97 / 30%);
-}
-
-.badge-green {
-  background-color: var(--success-bg);
-  color: var(--success);
-  border: 1px solid rgb(16 185 129 / 30%);
+  border: 1px solid rgba(244, 162, 97, 0.2);
 }
 
 .btn-primary {
   background: linear-gradient(135deg, var(--primary), var(--primary-hover));
   color: #fff;
   border: none;
-  padding: 12px 24px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  border-radius: 8px;
+  padding: 16px 36px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-radius: 12px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 12px;
   transition: var(--transition);
-  box-shadow: 0 4px 14px 0 var(--primary-glow);
+  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+  text-decoration: none;
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px 0 rgb(16 185 129 / 30%);
-  opacity: 0.95;
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(16, 185, 129, 0.3);
+  filter: brightness(1.1);
 }
 
 .btn-outline {
   background: transparent;
   color: var(--text);
   border: 1px solid var(--panel-border);
-  padding: 12px 24px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  border-radius: 8px;
+  padding: 16px 36px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-radius: 12px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 12px;
   transition: var(--transition);
+  text-decoration: none;
 }
 
 .btn-outline:hover {
-  background: rgb(255 255 255 / 5%);
+  background: rgba(255, 255, 255, 0.05);
   border-color: var(--text-muted);
+  transform: translateY(-2px);
 }
 
 .btn-secondary {
