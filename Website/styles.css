@@ -86,6 +86,7 @@ h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; font-weight: 700; letter-spa
 .checklist-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 30px; align-items: start; }
 .checklist-card { padding: 48px; }
 .gear-list { list-style: none; display: flex; flex-direction: column; gap: 12px; } /* Tightened vertical spacing */
+.gear-item { display: flex; align-items: flex-start; gap: 16px; }
 .gear-icon-wrapper { width: 44px; height: 44px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
 
 /* Badges */
@@ -107,6 +108,11 @@ h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; font-weight: 700; letter-spa
   background: var(--emerald-glow); 
   color: var(--emerald); 
   border: 1px solid rgba(16, 185, 129, 0.3); 
+}
+.badge-ember {
+  background: var(--ember-glow);
+  color: var(--peak-ember);
+  border: 1px solid rgba(244, 162, 97, 0.3);
 }
 
 /* Buttons */
