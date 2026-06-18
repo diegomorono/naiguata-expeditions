@@ -39,21 +39,25 @@ export function initBookingForm() {
             }
 
             input.value = val;
-            input.dispatchEvent(new Event('change')); // Desencadena el cálculo
+            input.dispatchEvent(new Event('change', { bubbles: true })); // Bubbles to form listener
+            calculateFormCosts(); // Immediate recalculation
         });
     });
 
     // Inicializar botones del Portador (Carrier buttons)
     document.querySelectorAll('.carrier-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            document.querySelectorAll('.carrier-btn').forEach(b => b.classList.remove('active'));
             const currentBtn = e.target.closest('.carrier-btn');
+            if (!currentBtn) return;
+
+            document.querySelectorAll('.carrier-btn').forEach(b => b.classList.remove('active'));
             currentBtn.classList.add('active');
 
             const select = document.getElementById('logistic-carrier-select');
             if (select) {
                 select.value = currentBtn.getAttribute('data-value');
-                select.dispatchEvent(new Event('change'));
+                select.dispatchEvent(new Event('change', { bubbles: true }));
+                calculateFormCosts(); // Immediate recalculation
             }
         });
     });

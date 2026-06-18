@@ -40,7 +40,7 @@
 
                     <div class="hero-content">
                         <span class="badge">Aventura en el Ávila</span>
-                        <h1 class="hero-title">Conquista el punto más alto del Caribe.</h1>
+                        <h1 class="hero-title">Acampa en el Pico Naiguatá</h1>
                         <p class="hero-description">
                             De la selva nublada de <strong>La Julia</strong> al santuario de las nubes:
                             el <strong>Pico Naiguatá (2,765 msnm)</strong>. Una experiencia de altura diseñada para los que buscan lo extraordinario.
@@ -69,19 +69,25 @@
                                     <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span><strong>Campamento Base</strong> provisto y gestionado</span>
+                                    <span><strong>Carpa provista</strong> en el Anfiteatro</span>
                                 </div>
                                 <div class="feature-tag">
                                     <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span><strong>High-Energy Nutrition</strong> Kit de snacks</span>
+                                    <span><strong>Kit de Snacks</strong> completo</span>
                                 </div>
                                 <div class="feature-tag">
                                     <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    <span><strong>Logística Elite</strong> Guías y permisos Inparques</span>
+                                    <span><strong>Guías certificados</strong> y ruta planificada</span>
+                                </div>
+                                <div class="feature-tag">
+                                    <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span><strong>Gestión de permisos</strong> de pernocta (Inparques)</span>
                                 </div>
                             </div>
 
@@ -97,39 +103,41 @@
             <!-- Route Map Section -->
             <div id="route-section" class="section-container">
                 <div class="section-wrapper">
-                    <div class="section-header">
-                        <span class="badge badge-orange">El Ascenso</span>
-                        <h2 class="section-title">De La Julia a la Cumbre</h2>
-                        <p class="section-subtitle">Explora los hitos geográficos de esta legendaria travesía.</p>
-                    </div>
-
                     <div class="route-explorer glass-panel">
-                        <!-- SVG Mountain Graphic -->
-                        <div class="mountain-graphic-container">
-                            <svg class="mountain-svg" viewBox="0 0 1000 800">
-                                <!-- Mountain Shapes -->
-                                <path d="M 500 800 L 750 400 L 820 500 L 900 450 L 1050 800 Z" fill="rgba(255,255,255,0.05)" />
-                                <path d="M 100 800 L 500 200 L 950 800 Z" fill="rgba(16, 185, 129, 0.1)" />
-                                <path d="M 500 200 L 440 290 L 560 290 Z" fill="#FFFFFF" />
-                                <path d="M -50 800 L 250 450 L 600 800 Z" fill="rgba(15, 23, 42, 0.4)" />
-
-                                <!-- The Path -->
-                                <path d="M 850 750 L 750 720 L 680 650 L 600 580 L 650 500 L 560 450 L 580 380 L 500 320 L 530 250 L 500 200"
-                                    stroke="#10b981" stroke-width="4" stroke-dasharray="10 8" fill="none"
-                                    stroke-linecap="round" />
-
-                                <!-- Interactive Nodes -->
-                                <g class="mountain-path-dot" data-step="0"><circle cx="850" cy="750" r="10" class="dot-inner" /></g>
-                                <g class="mountain-path-dot" data-step="1"><circle cx="750" cy="720" r="10" class="dot-inner" /></g>
-                                <g class="mountain-path-dot" data-step="2"><circle cx="680" cy="650" r="10" class="dot-inner" /></g>
-                                <g class="mountain-path-dot" data-step="3"><circle cx="600" cy="580" r="10" class="dot-inner" /></g>
-                                <g class="mountain-path-dot" data-step="4"><circle cx="560" cy="450" r="10" class="dot-inner" /></g>
-                                <g class="mountain-path-dot" data-step="5"><circle cx="500" cy="200" r="14" class="dot-inner" /></g>
-                            </svg>
+                        <div class="route-header">
+                            <span class="badge">El Ascenso</span>
+                            <h2 class="section-title">De La Julia a la Cumbre</h2>
+                            <p class="section-subtitle">Explora los hitos geográficos de esta legendaria travesía.</p>
                         </div>
+                        
+                        <div class="explorer-content">
+                            <!-- SVG Mountain Graphic -->
+                            <div class="mountain-graphic-container">
+                                <svg class="mountain-svg" viewBox="0 0 1000 800">
+                                    <!-- Mountain Shapes -->
+                                    <path d="M 500 800 L 750 400 L 820 500 L 900 450 L 1050 800 Z" fill="rgba(255,255,255,0.05)" />
+                                    <path d="M 100 800 L 500 200 L 950 800 Z" fill="rgba(16, 185, 129, 0.1)" />
+                                    <path d="M 500 200 L 440 290 L 560 290 Z" fill="#FFFFFF" />
+                                    <path d="M -50 800 L 250 450 L 600 800 Z" fill="rgba(15, 23, 42, 0.4)" />
 
-                        <!-- Step Details Card -->
-                        <div class="step-details-card" id="active-step-details"></div>
+                                    <!-- The Path -->
+                                    <path d="M 850 750 L 750 720 L 680 650 L 600 580 L 650 500 L 560 450 L 580 380 L 500 320 L 530 250 L 500 200"
+                                        stroke="#10b981" stroke-width="4" stroke-dasharray="10 8" fill="none"
+                                        stroke-linecap="round" />
+
+                                    <!-- Interactive Nodes -->
+                                    <g class="mountain-path-dot" data-step="0"><circle cx="850" cy="750" r="10" class="dot-inner" /></g>
+                                    <g class="mountain-path-dot" data-step="1"><circle cx="750" cy="720" r="10" class="dot-inner" /></g>
+                                    <g class="mountain-path-dot" data-step="2"><circle cx="680" cy="650" r="10" class="dot-inner" /></g>
+                                    <g class="mountain-path-dot" data-step="3"><circle cx="600" cy="580" r="10" class="dot-inner" /></g>
+                                    <g class="mountain-path-dot" data-step="4"><circle cx="560" cy="450" r="10" class="dot-inner" /></g>
+                                    <g class="mountain-path-dot" data-step="5"><circle cx="500" cy="200" r="14" class="dot-inner" /></g>
+                                </svg>
+                            </div>
+
+                            <!-- Step Details Card -->
+                            <div class="step-details-card" id="active-step-details"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -147,7 +155,7 @@
                     <div class="checklist-grid">
                         <div class="checklist-card glass-panel">
                             <div class="checklist-header">
-                                <span class="chk-badge badge-green">Provisto por el Guía</span>
+                                <span class="badge badge-emerald">Provisto por el Guía</span>
                                 <h3>Nosotros nos encargamos</h3>
                             </div>
                             <ul class="gear-list static-list">
