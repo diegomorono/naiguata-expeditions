@@ -511,6 +511,7 @@ textarea:focus {
   border-radius: 8px;
   overflow: hidden;
   max-width: 120px; /* Make the container more compact */
+  justify-content: space-between; /* Added for spacing */
 }
 
 .stepper-btn {
@@ -529,7 +530,7 @@ textarea:focus {
 }
 
 .stepper-input {
-  flex-grow: 1;
+  width: 40px; /* Reverted to fixed width */
   text-align: center;
   border: none;
   background: transparent;
@@ -681,6 +682,7 @@ textarea:focus {
   margin: 80px auto 0;
   min-width: 380px;
   justify-content: center;
+  gap: 10px; /* Added gap for spacing */
 }
 
 /* Panels */
