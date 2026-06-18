@@ -1,7 +1,6 @@
 import { getSupabaseClient } from './config/supabase.js';
 import { appStore } from './config/state.js';
 import { resolveBcvRate, loadFormCatalogs } from './modules/bcv.js';
-import { initElevationStepper, renderRouteGraphic } from './modules/route.js';
 import { initGearChecklist } from './modules/checklist.js';
 import { initBookingForm, restoreFormDraft } from './modules/booking.js';
 import { initPaymentInstructions, loadPaymentData } from './modules/payment.js';
@@ -14,7 +13,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     isDomReady = true;
 
     // 1. INICIALIZACIÓN DE EVENT LISTENERS
-    initElevationStepper();
     initGearChecklist();
     initBookingForm();
     initPaymentInstructions();
@@ -26,7 +24,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         console.log("[Main] Datos recibidos en el Store. Renderizando componentes remanentes...");
         restoreFormDraft();
-        renderRouteGraphic();
         renderDynamicSystemValues();
     });
 
