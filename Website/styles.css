@@ -510,6 +510,7 @@ textarea:focus {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   overflow: hidden;
+  max-width: 120px; /* Make the container more compact */
 }
 
 .stepper-btn {
@@ -520,6 +521,7 @@ textarea:focus {
   color: #fff;
   cursor: pointer;
   transition: 0.2s;
+  flex-shrink: 0; /* Prevent buttons from shrinking */
 }
 
 .stepper-btn:hover {
@@ -527,7 +529,7 @@ textarea:focus {
 }
 
 .stepper-input {
-  flex-grow: 1;
+  width: 40px;
   text-align: center;
   border: none;
   background: transparent;
