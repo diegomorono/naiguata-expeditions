@@ -529,7 +529,7 @@ textarea:focus {
 }
 
 .stepper-input {
-  width: 40px;
+  flex-grow: 1;
   text-align: center;
   border: none;
   background: transparent;
