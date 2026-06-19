@@ -11,570 +11,535 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
-    <!-- Custom CSS (Reusing base styles with admin extensions) -->
+    <!-- Base Styles -->
     <link rel="stylesheet" href="../styles.css">
+    <!-- Admin-specific CSS -->
+    <link rel="stylesheet" href="./admin-styles.css">
 </head>
 
 <body class="admin-body">
     <div class="glow-orb orb-1"></div>
     <div class="glow-orb orb-2"></div>
 
-    <!-- 1. LOGIN SCREEN -->
-    <div id="admin-login-screen" class="login-container glass-panel">
-        <h2 style="text-align: center; margin-bottom: 10px; font-family: 'Outfit', sans-serif;">Consola de Operaciones
-        </h2>
-        <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px; font-size: 0.9rem;">Expediciones
-            Naiguatá - Acceso Restringido</p>
+    <!-- LOGIN SCREEN -->
+    <div id="admin-login-screen" class="admin-login-container">
+        <div class="login-panel glass-panel">
+            <header class="login-header">
+                <h1 class="login-title">Consola de Operaciones</h1>
+                <p class="login-subtitle">Expediciones Naiguatá - Acceso Restringido</p>
+            </header>
 
-        <form id="admin-login-form">
-            <div class="form-input-wrapper" style="margin-bottom: 20px;">
-                <label for="admin-user">Usuario administrador</label>
-                <input type="text" id="admin-user" required placeholder="Usuario">
-            </div>
-            <div class="form-input-wrapper" style="margin-bottom: 30px;">
-                <label for="admin-password">Contraseña</label>
-                <input type="password" id="admin-password" required placeholder="••••••••••••">
-            </div>
-            <button type="submit" id="btn-login-submit" class="btn-primary btn-large btn-full-width">
-                Iniciar Sesión
-            </button>
-        </form>
-        <p id="login-error-msg"
-            style="color: var(--error); margin-top: 15px; text-align: center; font-size: 0.85rem; display: none;">
-            ⚠️ Credenciales inválidas.
-        </p>
+            <form id="admin-login-form" class="login-form">
+                <div class="form-input-wrapper">
+                    <label for="admin-user">Usuario administrador</label>
+                    <input type="text" id="admin-user" required placeholder="Usuario" aria-label="Usuario administrador">
+                </div>
+                <div class="form-input-wrapper">
+                    <label for="admin-password">Contraseña</label>
+                    <input type="password" id="admin-password" required placeholder="••••••••••••" aria-label="Contraseña">
+                </div>
+                <button type="submit" id="btn-login-submit" class="btn-primary btn-large btn-full-width">
+                    Iniciar Sesión
+                </button>
+            </form>
+            <p id="login-error-msg" class="login-error-message" aria-live="assertive">
+                ⚠️ Credenciales inválidas.
+            </p>
+        </div>
     </div>
 
-    <!-- 2. ADMIN DASHBOARD -->
-    <div id="admin-dashboard-view" class="admin-dashboard" style="display: none;">
+    <!-- ADMIN DASHBOARD -->
+    <div id="admin-dashboard-view" class="admin-dashboard">
         <!-- Dashboard Top Header Bar -->
-        <header class="app-header"
-            style="position: static; margin-bottom: 25px; background: transparent; border: none; padding: 0;">
-            <div class="header-container" style="padding: 0;">
-                <div class="logo">
+        <header class="admin-header">
+            <div class="admin-header-container">
+                <div class="admin-logo">
                     <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
                     </svg>
                     <span class="logo-text">NAIGUATÁ <span class="logo-highlight">OPERACIONES</span></span>
                 </div>
-                <div style="display: flex; gap: 15px; align-items: center;">
-                    <span id="header-admin-name" style="font-size: 0.9rem; color: var(--text-muted);">Administrador:
-                        <strong>Diego Moroño</strong></span>
+                <div class="admin-user-info">
+                    <span id="header-admin-name" class="admin-user-name">
+                        Administrador: <strong>Diego Moroño</strong>
+                    </span>
                     <button id="btn-logout" class="btn-secondary btn-small">Salir</button>
                 </div>
             </div>
         </header>
 
-        <!-- Top Actions and General Stats -->
-        <div
-            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
-            <div>
-                <span class="badge badge-orange">Consola Activa</span>
-                <h1 style="font-family: 'Outfit', sans-serif; font-size: 2rem;">Panel del Guía</h1>
-            </div>
-            <div style="display: flex; gap: 10px;">
-                <button id="btn-inparques-request" class="btn-secondary">
-                    📄 Solicitar INPARQUES
-                </button>
-                <button id="btn-master-report" class="btn-primary">
-                    📥 Descargar Reporte Maestro
-                </button>
-                <button id="btn-share-master" class="btn-outline">
-                    🔗 Compartir Reporte
-                </button>
-            </div>
-        </div>
-
-        <!-- Panel de Control Superior (Carrusel de Próximas Salidas) -->
-        <div class="glass-panel" style="padding: 20px; margin-bottom: 25px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.1rem; margin: 0;">Expediciones Planificadas
-                </h3>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <span style="font-size: 0.8rem; color: var(--text-muted);">Filtro por Rango:</span>
-                    <input type="date" id="filter-start-date"
-                        style="padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: var(--text); font-size: 0.8rem;">
-                    <input type="date" id="filter-end-date"
-                        style="padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: var(--text); font-size: 0.8rem;">
-                    <button id="btn-clear-date-filter" class="btn-secondary btn-small"
-                        style="padding: 4px 8px;">Restablecer</button>
+        <!-- Main Dashboard Content -->
+        <main class="dashboard-main">
+            <!-- Dashboard Header with Actions -->
+            <div class="dashboard-header">
+                <div class="dashboard-title-section">
+                    <span class="badge badge-orange">Consola Activa</span>
+                    <h1 class="dashboard-title">Panel del Guía</h1>
                 </div>
-            </div>
-            <div id="expeditions-carousel-container" class="expeditions-carousel">
-                <!-- Loaded dynamically by JS -->
-            </div>
-        </div>
-
-        <!-- Metrics Row -->
-        <div class="financial-grid">
-            <div class="fin-card glass-panel">
-                <span class="badge">Registrados</span>
-                <div class="fin-value">
-                    <span id="stat-hikers-count">0</span><span
-                        style="font-size: 1.2rem; opacity: 0.5; font-weight: 300;"> / <span
-                            class="max-capacity-display">--</span></span>
-                </div>
-                <span class="input-tip" id="stat-hikers-confirmed">0 Confirmados</span>
-            </div>
-
-            <div class="fin-card glass-panel">
-                <span class="badge">Grupos</span>
-                <div class="fin-value" id="stat-groups-count">0</div>
-                <span class="input-tip">Coordinación de aforo (Máx: <span class="max-capacity-display">--</span>
-                    pp)</span>
-            </div>
-
-            <div class="fin-card glass-panel">
-                <span class="badge">Carpas en Uso</span>
-                <div class="fin-value" id="stat-tents-in-use">0</div>
-                <span class="input-tip" id="stat-tents-capacity">Stock Propio + Consignación</span>
-            </div>
-
-            <div class="fin-card glass-panel highlight-border">
-                <span class="badge badge-green">Recaudación Neta</span>
-                <div class="fin-value font-green" id="stat-revenue">$0.00 USD</div>
-                <span class="input-tip-success" id="stat-revenue-ves">Bs. 0.00 BCV</span>
-            </div>
-        </div>
-
-        <!-- Main Column Layout -->
-        <div class="admin-layout-columns">
-
-            <!-- Sidebar Panel: Controls, Adjustments, Weather, Coverage -->
-            <div style="display: flex; flex-direction: column; gap: 20px;">
-
-                <!-- Semáforo Climático -->
-                <div class="glass-panel" style="padding: 20px;">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <h4 style="margin: 0; font-family: 'Outfit', sans-serif;">Auditoría Climática</h4>
-                        <span id="weather-semaphore" class="badge">CARGANDO...</span>
-                    </div>
-                    <p class="section-desc-tiny" style="margin-bottom: 15px;">Meteoblue & Mountain-Forecast (06:00 AM)
-                    </p>
-                    <div id="weather-details" style="font-size: 0.8rem; line-height: 1.4; color: var(--text-muted);">
-                        - Criterio A (Previsión): ...<br>
-                        - Criterio B (Precipitación): ...
-                    </div>
-                    <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <button id="btn-send-weather-ok" class="btn-primary btn-small btn-full-width" disabled>Confirmar
-                            Salida</button>
-                        <button id="btn-send-weather-cancel" class="btn-danger btn-small btn-full-width"
-                            disabled>Alertar Lluvia</button>
-                    </div>
-                </div>
-
-                <!-- Cobertura Cambiaria y Cobertura Excedente VES -->
-                <div class="glass-panel" style="padding: 20px;">
-                    <h4 style="margin-top: 0; margin-bottom: 10px; font-family: 'Outfit', sans-serif;">Asistente de
-                        Cobertura VES</h4>
-                    <p class="section-desc-tiny" style="margin-bottom: 12px;">Indexación anti-inflacionaria de fondos en
-                        Bolívares.</p>
-
-                    <div style="font-size: 0.85rem; line-height: 1.6; margin-bottom: 15px;">
-                        <div style="display: flex; justify-content: space-between;">
-                            <span>Caja Banco Bs:</span>
-                            <strong id="coverage-ves-balance">Bs. 0.00</strong>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span>Gastos Indexados:</span>
-                            <strong id="coverage-ves-expenses" class="font-orange">Bs. 0.00</strong>
-                        </div>
-                        <div
-                            style="display: flex; justify-content: space-between; margin-top: 5px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 5px;">
-                            <span>Excedente Libre:</span>
-                            <strong id="coverage-ves-surplus" class="font-green">Bs. 0.00</strong>
-                        </div>
-                    </div>
-
-                    <button id="btn-exchange-currency" class="btn-outline btn-small btn-full-width">
-                        💱 Registrar Cambio a Divisas (P2P/Efectivo)
+                <div class="dashboard-actions">
+                    <button id="btn-inparques-request" class="btn-secondary">
+                        📄 Solicitar INPARQUES
                     </button>
-                </div>
-
-                <!-- Panel de Control Financiero (Edición de Ajustes) -->
-                <div class="glass-panel" style="padding: 20px;">
-                    <h4 style="margin-top: 0; margin-bottom: 15px; font-family: 'Outfit', sans-serif;">Ajustes Remotos
-                        de Sistema</h4>
-
-                    <div class="form-group-compact" style="margin-bottom: 15px;">
-                        <label for="admin-bcv-rate">Tasa de Cambio BCV (VES/USD)</label>
-                        <div class="input-with-action">
-                            <input type="number" step="0.01" id="admin-bcv-rate" value="40.00" style="padding: 6px;">
-                            <button id="btn-update-bcv" class="btn-small-primary"
-                                style="padding: 6px 12px;">Forzar</button>
-                        </div>
-                        <span class="input-tip-success" id="admin-bcv-status" style="font-size: 0.75rem;">Sincronizado
-                            vía base de datos Supabase.</span>
-                    </div>
-
-                    <div class="form-group-compact" style="margin-bottom: 15px;">
-                        <label for="admin-tour-price">Precio Base del Tour ($ USD)</label>
-                        <div class="input-with-action">
-                            <input type="number" step="0.01" id="admin-tour-price" placeholder="Ej: 50.00"
-                                style="padding: 6px;">
-                            <button id="btn-update-price" class="btn-small-primary"
-                                style="padding: 6px 12px;">Definir</button>
-                        </div>
-                    </div>
-
-                    <div class="form-group-compact" style="margin-bottom: 15px;">
-                        <label for="admin-max-capacity">Aforo Máximo Remoto (Límite)</label>
-                        <div class="input-with-action">
-                            <input type="number" id="admin-max-capacity" placeholder="Ej: 20" style="padding: 6px;">
-                            <button id="btn-update-capacity" class="btn-small-primary"
-                                style="padding: 6px 12px;">Ajustar</button>
-                        </div>
-                    </div>
-
-                    <hr class="panel-divider" style="margin: 15px 0;">
-
-                    <h5 style="margin-top: 0; margin-bottom: 8px;">Inventario Total Carpas</h5>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                        <div class="form-input-wrapper-compact">
-                            <label style="font-size: 0.7rem;">Propia (2P)</label>
-                            <input type="number" id="tent-stock-own-2p" value="1" min="0">
-                        </div>
-                        <div class="form-input-wrapper-compact">
-                            <label style="font-size: 0.7rem;">Propia (3P)</label>
-                            <input type="number" id="tent-stock-own-3p" value="1" min="0">
-                        </div>
-                        <div class="form-input-wrapper-compact">
-                            <label style="font-size: 0.7rem;">Propia (4P)</label>
-                            <input type="number" id="tent-stock-own-4p" value="1" min="0">
-                        </div>
-                        <div class="form-input-wrapper-compact">
-                            <label style="font-size: 0.7rem;">Externa (2P)</label>
-                            <input type="number" id="tent-stock-ext-2p" value="2" min="0">
-                        </div>
-                    </div>
-
-                    <button id="btn-reallocate-tents" class="btn-secondary btn-small btn-full-width">
-                        🔄 Aplicar Distribución de Pernocta
+                    <button id="btn-master-report" class="btn-primary">
+                        📥 Descargar Reporte Maestro
+                    </button>
+                    <button id="btn-share-master" class="btn-outline">
+                        🔗 Compartir Reporte
                     </button>
                 </div>
             </div>
 
-            <!-- Display Area: Tabs and Content Tables -->
-            <div class="admin-display-column">
-                <!-- Navigation Tabs -->
-                <div class="admin-tabs-nav glass-panel"
-                    style="padding: 8px; margin-bottom: 20px; display: flex; overflow-x: auto; gap: 8px;">
-                    <button class="tab-btn active" data-tab="tab-roster" style="flex: 1; min-width: 140px;">📋 Roster
-                        Oficial</button>
-                    <button class="tab-btn" data-tab="tab-catering" style="flex: 1; min-width: 140px;">🍳 Catering y
-                        Snacks</button>
-                    <button class="tab-btn" data-tab="tab-tents" style="flex: 1; min-width: 140px;">🏕️ Carpas /
-                        Pernocta</button>
-                    <button class="tab-btn" data-tab="tab-finance-mgmt" style="flex: 1; min-width: 140px;">💰 Balance /
-                        Cuentas</button>
-                    <button class="tab-btn" data-tab="tab-checklist" style="flex: 1; min-width: 140px;">⚙️ Checklist
-                        Digital</button>
-                    <button class="tab-btn" data-tab="tab-settings" style="flex: 1; min-width: 140px;">🛠️ Ajustes
-                        Maestros</button>
+            <!-- Expediciones Planificadas -->
+            <section class="dashboard-section">
+                <div class="section-header">
+                    <h2 class="section-title">Expediciones Planificadas</h2>
+                    <div class="date-filter">
+                        <span class="filter-label">Filtro por Rango:</span>
+                        <input type="date" id="filter-start-date" class="date-input">
+                        <input type="date" id="filter-end-date" class="date-input">
+                        <button id="btn-clear-date-filter" class="btn-secondary btn-small">Restablecer</button>
+                    </div>
+                </div>
+                <div id="expeditions-carousel-container" class="expeditions-carousel">
+                    <!-- Loaded dynamically by JS -->
+                </div>
+            </section>
+
+            <!-- Metrics Row -->
+            <div class="metrics-grid">
+                <div class="metric-card glass-panel">
+                    <span class="badge">Registrados</span>
+                    <div class="metric-value">
+                        <span id="stat-hikers-count">0</span>
+                        <span class="metric-max"> / <span class="max-capacity-display">--</span></span>
+                    </div>
+                    <span class="metric-subtitle" id="stat-hikers-confirmed">0 Confirmados</span>
                 </div>
 
-                <!-- Tab 1: Roster -->
-                <div id="tab-roster" class="tab-content active">
-                    <div class="tab-card glass-panel" style="padding: 20px;">
-                        <div
-                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-                            <h3 style="margin: 0; font-family: 'Outfit', sans-serif;">Participantes Registrados</h3>
-                            <button id="btn-add-mock-participant" class="btn-secondary btn-small">
-                                ➕ Simular Excursionista
+                <div class="metric-card glass-panel">
+                    <span class="badge">Grupos</span>
+                    <div class="metric-value" id="stat-groups-count">0</div>
+                    <span class="metric-subtitle">Coordinación de aforo (Máx: <span class="max-capacity-display">--</span> pp)</span>
+                </div>
+
+                <div class="metric-card glass-panel">
+                    <span class="badge">Carpas en Uso</span>
+                    <div class="metric-value" id="stat-tents-in-use">0</div>
+                    <span class="metric-subtitle" id="stat-tents-capacity">Stock Propio + Consignación</span>
+                </div>
+
+                <div class="metric-card glass-panel highlight-card">
+                    <span class="badge badge-green">Recaudación Neta</span>
+                    <div class="metric-value highlight-value" id="stat-revenue">$0.00 USD</div>
+                    <span class="metric-subtitle highlight-subtitle" id="stat-revenue-ves">Bs. 0.00 BCV</span>
+                </div>
+            </div>
+
+            <!-- Main Dashboard Layout -->
+            <div class="dashboard-layout">
+                <!-- Sidebar Panels -->
+                <aside class="dashboard-sidebar">
+                    <!-- Auditoría Climática -->
+                    <section class="sidebar-section glass-panel">
+                        <div class="section-header">
+                            <h3 class="sidebar-title">Auditoría Climática</h3>
+                            <span id="weather-semaphore" class="badge">CARGANDO...</span>
+                        </div>
+                        <p class="section-description">Meteoblue & Mountain-Forecast (06:00 AM)</p>
+                        <div id="weather-details" class="weather-details">
+                            - Criterio A (Previsión): ...<br>
+                            - Criterio B (Precipitación): ...
+                        </div>
+                        <div class="weather-actions">
+                            <button id="btn-send-weather-ok" class="btn-primary btn-small btn-full-width" disabled>
+                                Confirmar Salida
+                            </button>
+                            <button id="btn-send-weather-cancel" class="btn-danger btn-small btn-full-width" disabled>
+                                Alertar Lluvia
                             </button>
                         </div>
-                        <div class="table-container" style="overflow-x: auto;">
-                            <table class="roster-table" id="roster-table"
-                                style="width: 100%; text-align: left; border-collapse: collapse;">
-                                <thead>
-                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                        <th style="padding: 10px;">Participante</th>
-                                        <th style="padding: 10px;">Contacto</th>
-                                        <th style="padding: 10px;">Grupo</th>
-                                        <th style="padding: 10px;">Género</th>
-                                        <th style="padding: 10px;">Alojamiento</th>
-                                        <th style="padding: 10px;">Salud/Médico</th>
-                                        <th style="padding: 10px;">Pago / Total</th>
-                                        <th style="padding: 10px; text-align: center;">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="roster-table-body">
-                                    <!-- Dynamic rows -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                    </section>
 
-                <!-- Tab 2: Catering & Snacks -->
-                <div id="tab-catering" class="tab-content">
-                    <div class="tab-card glass-panel" style="padding: 20px;">
-                        <h3 style="margin-top: 0; font-family: 'Outfit', sans-serif;">Planificación de Catering y Snacks
-                        </h3>
-                        <p class="tab-subtitle"
-                            style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
-                            Lista de compras consolidada para la fecha seleccionada.
+                    <!-- Cobertura Cambiaria -->
+                    <section class="sidebar-section glass-panel">
+                        <h3 class="sidebar-title">Asistente de Cobertura VES</h3>
+                        <p class="section-description">
+                            Indexación anti-inflacionaria de fondos en Bolívares.
                         </p>
-
-                        <div class="snacks-summary-grid"
-                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px;">
-                            <div class="snack-stat-card glass-panel"
-                                style="padding: 15px; display: flex; align-items: center; gap: 12px;">
-                                <span style="font-size: 2rem;">🍌</span>
-                                <div>
-                                    <h4 style="margin: 0; font-size: 1.5rem;" id="catering-bananas-qty">0</h4>
-                                    <span style="font-size: 0.75rem; color: var(--text-muted);">Cambures</span>
-                                </div>
+                        
+                        <div class="coverage-summary">
+                            <div class="coverage-item">
+                                <span>Caja Banco Bs:</span>
+                                <strong id="coverage-ves-balance">Bs. 0.00</strong>
                             </div>
-                            <div class="snack-stat-card glass-panel"
-                                style="padding: 15px; display: flex; align-items: center; gap: 12px;">
-                                <span style="font-size: 2rem;">🫓</span>
-                                <div>
-                                    <h4 style="margin: 0; font-size: 1.5rem;" id="catering-bars-qty">0</h4>
-                                    <span style="font-size: 0.75rem; color: var(--text-muted);">Barras
-                                        Energéticas</span>
-                                </div>
+                            <div class="coverage-item">
+                                <span>Gastos Indexados:</span>
+                                <strong id="coverage-ves-expenses" class="coverage-expense">Bs. 0.00</strong>
                             </div>
-                            <div class="snack-stat-card glass-panel"
-                                style="padding: 15px; display: flex; align-items: center; gap: 12px;">
-                                <span style="font-size: 2rem;">🥜</span>
-                                <div>
-                                    <h4 style="margin: 0; font-size: 1.5rem;" id="catering-mix-qty">0 g</h4>
-                                    <span style="font-size: 0.75rem; color: var(--text-muted);">Mix Frutos Secos</span>
-                                </div>
+                            <div class="coverage-total">
+                                <span>Excedente Libre:</span>
+                                <strong id="coverage-ves-surplus" class="coverage-surplus">Bs. 0.00</strong>
                             </div>
                         </div>
 
-                        <div id="catering-allergies-alerts" style="margin-bottom: 25px;">
-                            <!-- Alert warnings for food restrictions -->
-                        </div>
+                        <button id="btn-exchange-currency" class="btn-outline btn-small btn-full-width">
+                            💱 Registrar Cambio a Divisas (P2P/Efectivo)
+                        </button>
+                    </section>
 
-                        <div class="glass-panel" style="padding: 20px;">
-                            <h4 style="margin-top: 0; margin-bottom: 12px; font-family: 'Outfit', sans-serif;">
-                                Consolidado para Producción y Compras</h4>
-                            <ul id="catering-shopping-list" class="bullet-list-styled" style="line-height: 1.8;">
-                                <!-- Dynamic calculations -->
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab 3: Tents Allocation -->
-                <div id="tab-tents" class="tab-content">
-                    <div class="tab-card glass-panel" style="padding: 20px;">
-                        <h3 style="margin-top: 0; font-family: 'Outfit', sans-serif;">Distribución del Campamento
-                            (Anfiteatro)</h3>
-                        <p class="tab-subtitle"
-                            style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
-                            Asignación automática basada en códigos de grupo, género y optimización de carpas propias
-                            (Diego) para mitigar el alquiler de externas ($10 USD).
-                        </p>
-
-                        <div id="tents-allocation-container"
-                            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
-                            <!-- Dynamic tent components -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab 4: Finance & Cajas -->
-                <div id="tab-finance-mgmt" class="tab-content">
-                    <div class="tab-card glass-panel" style="padding: 20px;">
-                        <h3 style="margin-top: 0; font-family: 'Outfit', sans-serif;">Auditoría Financiera y Cajas</h3>
-                        <p class="tab-subtitle"
-                            style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px;">
-                            Visualización en dólares sobre la base unificada de transacciones.
-                        </p>
-
-                        <!-- Sub-rango o Filtros Financieros -->
-                        <div class="glass-panel"
-                            style="padding: 15px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; justify-content: space-between;">
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <span style="font-size: 0.85rem; color: var(--text-muted);">Rango de Análisis:</span>
-                                <button id="fin-filter-event" class="btn-secondary btn-small active">Salida
-                                    Activa</button>
-                                <button id="fin-filter-all" class="btn-secondary btn-small">Total Histórico</button>
+                    <!-- Panel de Control Financiero -->
+                    <section class="sidebar-section glass-panel">
+                        <h3 class="sidebar-title">Ajustes Remotos de Sistema</h3>
+                        
+                        <div class="form-group">
+                            <label for="admin-bcv-rate">Tasa de Cambio BCV (VES/USD)</label>
+                            <div class="input-with-action">
+                                <input type="number" step="0.01" id="admin-bcv-rate" value="40.00">
+                                <button id="btn-update-bcv" class="btn-small-primary">Forzar</button>
                             </div>
-                            <div id="liquidation-split-box"
-                                style="font-size: 0.85rem; padding: 10px 15px; border-radius: 8px; background: rgba(var(--primary-glow-rgb), 0.1); border: 1px solid rgba(255,255,255,0.05); display: flex; gap: 20px;">
-                                <div>
-                                    <span style="color: var(--text-muted);">Neto Naiguatá:</span>
-                                    <strong id="split-income-net"
-                                        style="color: var(--success); margin-left: 5px;">$0.00</strong>
+                            <span class="form-hint" id="admin-bcv-status">Sincronizado vía base de datos Supabase.</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="admin-tour-price">Precio Base del Tour ($ USD)</label>
+                            <div class="input-with-action">
+                                <input type="number" step="0.01" id="admin-tour-price" placeholder="Ej: 50.00">
+                                <button id="btn-update-price" class="btn-small-primary">Definir</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="admin-max-capacity">Aforo Máximo Remoto (Límite)</label>
+                            <div class="input-with-action">
+                                <input type="number" id="admin-max-capacity" placeholder="Ej: 20">
+                                <button id="btn-update-capacity" class="btn-small-primary">Ajustar</button>
+                            </div>
+                        </div>
+
+                        <div class="section-divider"></div>
+
+                        <h4 class="sidebar-subtitle">Inventario Total Carpas</h4>
+                        <div class="tent-inventory-grid">
+                            <div class="form-input-compact">
+                                <label>Propia (2P)</label>
+                                <input type="number" id="tent-stock-own-2p" value="1" min="0">
+                            </div>
+                            <div class="form-input-compact">
+                                <label>Propia (3P)</label>
+                                <input type="number" id="tent-stock-own-3p" value="1" min="0">
+                            </div>
+                            <div class="form-input-compact">
+                                <label>Propia (4P)</label>
+                                <input type="number" id="tent-stock-own-4p" value="1" min="0">
+                            </div>
+                            <div class="form-input-compact">
+                                <label>Externa (2P)</label>
+                                <input type="number" id="tent-stock-ext-2p" value="2" min="0">
+                            </div>
+                        </div>
+
+                        <button id="btn-reallocate-tents" class="btn-secondary btn-small btn-full-width">
+                            🔄 Aplicar Distribución de Pernocta
+                        </button>
+                    </section>
+                </aside>
+
+                <!-- Main Content Area -->
+                <div class="dashboard-content">
+                    <!-- Navigation Tabs -->
+                    <nav class="dashboard-tabs" role="tablist">
+                        <button class="tab-btn active" data-tab="tab-roster" role="tab">
+                            📋 Roster Oficial
+                        </button>
+                        <button class="tab-btn" data-tab="tab-catering" role="tab">
+                            🍳 Catering y Snacks
+                        </button>
+                        <button class="tab-btn" data-tab="tab-tents" role="tab">
+                            🏕️ Carpas / Pernocta
+                        </button>
+                        <button class="tab-btn" data-tab="tab-finance-mgmt" role="tab">
+                            💰 Balance / Cuentas
+                        </button>
+                        <button class="tab-btn" data-tab="tab-checklist" role="tab">
+                            ⚙️ Checklist Digital
+                        </button>
+                        <button class="tab-btn" data-tab="tab-settings" role="tab">
+                            🛠️ Ajustes Maestros
+                        </button>
+                    </nav>
+
+                    <!-- Tab Contents -->
+                    <div class="tab-contents">
+                        <!-- Tab 1: Roster -->
+                        <section id="tab-roster" class="tab-content active" role="tabpanel">
+                            <div class="tab-card glass-panel">
+                                <div class="tab-header">
+                                    <h3 class="tab-title">Participantes Registrados</h3>
+                                    <button id="btn-add-mock-participant" class="btn-secondary btn-small">
+                                        ➕ Simular Excursionista
+                                    </button>
                                 </div>
-                                <div>
-                                    <span style="color: var(--text-muted);">Cuentas por Pagar (Proveedores):</span>
-                                    <strong id="split-accounts-payable"
-                                        style="color: var(--error); margin-left: 5px;">$0.00</strong>
+                                <div class="table-container">
+                                    <table class="roster-table" id="roster-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Participante</th>
+                                                <th>Contacto</th>
+                                                <th>Grupo</th>
+                                                <th>Género</th>
+                                                <th>Alojamiento</th>
+                                                <th>Salud/Médico</th>
+                                                <th>Pago / Total</th>
+                                                <th class="text-center">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="roster-table-body">
+                                            <!-- Dynamic rows -->
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                        </div>
+                        </section>
 
-                        <!-- Cajas Principales -->
-                        <div
-                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px;">
-                            <div class="fin-card glass-panel" style="background: rgba(255,255,255,0.01);">
-                                <h5 style="margin: 0; color: var(--text-muted);">💵 Caja Efectivo</h5>
-                                <div class="fin-value" id="box-cash-val" style="font-size: 1.4rem;">$0.00</div>
-                            </div>
-                            <div class="fin-card glass-panel" style="background: rgba(255,255,255,0.01);">
-                                <h5 style="margin: 0; color: var(--text-muted);">🔶 Caja Binance</h5>
-                                <div class="fin-value" id="box-binance-val" style="font-size: 1.4rem;">$0.00</div>
-                            </div>
-                            <div class="fin-card glass-panel" style="background: rgba(255,255,255,0.01);">
-                                <h5 style="margin: 0; color: var(--text-muted);">💜 Caja Zelle</h5>
-                                <div class="fin-value" id="box-zelle-val" style="font-size: 1.4rem;">$0.00</div>
-                            </div>
-                            <div class="fin-card glass-panel" style="background: rgba(255,255,255,0.01);">
-                                <h5 style="margin: 0; color: var(--text-muted);">🇻🇪 Caja Banco Bs</h5>
-                                <div class="fin-value" id="box-banco-val"
-                                    style="font-size: 1.4rem; color: var(--primary);">Bs. 0.00</div>
-                            </div>
-                        </div>
+                        <!-- Tab 2: Catering & Snacks -->
+                        <section id="tab-catering" class="tab-content" role="tabpanel">
+                            <div class="tab-card glass-panel">
+                                <h3 class="tab-title">Planificación de Catering y Snacks</h3>
+                                <p class="tab-subtitle">
+                                    Lista de compras consolidada para la fecha seleccionada.
+                                </p>
 
-                        <!-- Graficas SVG -->
-                        <div
-                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; margin-bottom: 25px;">
-                            <!-- Flujo de Caja -->
-                            <div class="glass-panel" style="padding: 15px;">
-                                <h4 style="margin-top: 0; margin-bottom: 10px;">Flujo de Caja (Ingresos vs Egresos)</h4>
-                                <div id="chart-cash-flow" class="chart-placeholder">
-                                    <!-- Dynamic SVG Graph -->
-                                </div>
-                            </div>
-                            <!-- Distribución de Costos -->
-                            <div class="glass-panel" style="padding: 15px;">
-                                <h4 style="margin-top: 0; margin-bottom: 10px;">Distribución de Gastos</h4>
-                                <div id="chart-expense-dist" class="chart-placeholder">
-                                    <!-- Dynamic SVG Graph -->
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Formulario de Egreso Manual -->
-                        <div class="glass-panel" style="padding: 20px;">
-                            <h4 style="margin-top: 0; margin-bottom: 15px; font-family: 'Outfit', sans-serif;">Registrar
-                                Egreso Operativo</h4>
-                            <form id="expense-register-form">
-                                <div
-                                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 15px;">
-                                    <div class="form-input-wrapper">
-                                        <label for="exp-category">Categoría</label>
-                                        <select id="exp-category" required>
-                                            <option value="" disabled selected>Selecciona</option>
-                                            <option value="Catering/Alimentos">Catering/Alimentos</option>
-                                            <option value="Guías Auxiliares">Guías Auxiliares</option>
-                                            <option value="Logística/Transporte">Logística/Transporte</option>
-                                            <option value="Imprevistos">Imprevistos</option>
-                                        </select>
+                                <div class="snacks-summary-grid">
+                                    <div class="snack-stat-card glass-panel">
+                                        <span class="snack-emoji">🍌</span>
+                                        <div class="snack-info">
+                                            <h4 id="catering-bananas-qty">0</h4>
+                                            <span class="snack-label">Cambures</span>
+                                        </div>
                                     </div>
-                                    <div class="form-input-wrapper">
-                                        <label for="exp-account">Cuenta Origen</label>
-                                        <select id="exp-account" required>
-                                            <option value="" disabled selected>Selecciona</option>
-                                            <option value="Efectivo">Efectivo (USD)</option>
-                                            <option value="Binance">Binance (USDT)</option>
-                                            <option value="Zelle">Zelle (USD)</option>
-                                            <option value="Banco Bs">Banco Bs (VES)</option>
-                                        </select>
+                                    <div class="snack-stat-card glass-panel">
+                                        <span class="snack-emoji">🫓</span>
+                                        <div class="snack-info">
+                                            <h4 id="catering-bars-qty">0</h4>
+                                            <span class="snack-label">Barras Energéticas</span>
+                                        </div>
                                     </div>
-                                    <div class="form-input-wrapper">
-                                        <label for="exp-amount">Monto Original</label>
-                                        <input type="number" step="0.01" id="exp-amount" required placeholder="0.00">
-                                    </div>
-                                    <div class="form-input-wrapper" id="exp-rate-wrapper" style="display: none;">
-                                        <label for="exp-rate">Tasa Cambio Aplicada</label>
-                                        <input type="number" step="0.01" id="exp-rate" placeholder="Tasa del día">
+                                    <div class="snack-stat-card glass-panel">
+                                        <span class="snack-emoji">🥜</span>
+                                        <div class="snack-info">
+                                            <h4 id="catering-mix-qty">0 g</h4>
+                                            <span class="snack-label">Mix Frutos Secos</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="form-input-wrapper" style="margin-bottom: 15px;">
-                                    <label for="exp-desc">Descripción del Movimiento</label>
-                                    <input type="text" id="exp-desc" required
-                                        placeholder="Ej. Pago transporte privado a La Julia">
+
+                                <div id="catering-allergies-alerts" class="allergy-alerts">
+                                    <!-- Alert warnings for food restrictions -->
                                 </div>
-                                <button type="submit" class="btn-primary">Registrar Gasto</button>
-                            </form>
-                        </div>
+
+                                <div class="glass-panel">
+                                    <h4 class="tab-subtitle">Consolidado para Producción y Compras</h4>
+                                    <ul id="catering-shopping-list" class="bullet-list">
+                                        <!-- Dynamic calculations -->
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Tab 3: Tents Allocation -->
+                        <section id="tab-tents" class="tab-content" role="tabpanel">
+                            <div class="tab-card glass-panel">
+                                <h3 class="tab-title">Distribución del Campamento (Anfiteatro)</h3>
+                                <p class="tab-subtitle">
+                                    Asignación automática basada en códigos de grupo, género y optimización de carpas propias para mitigar el alquiler de externas ($10 USD).
+                                </p>
+
+                                <div id="tents-allocation-container" class="tents-allocation-grid">
+                                    <!-- Dynamic tent components -->
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Tab 4: Finance & Cajas -->
+                        <section id="tab-finance-mgmt" class="tab-content" role="tabpanel">
+                            <div class="tab-card glass-panel">
+                                <h3 class="tab-title">Auditoría Financiera y Cajas</h3>
+                                <p class="tab-subtitle">
+                                    Visualización en dólares sobre la base unificada de transacciones.
+                                </p>
+
+                                <!-- Financial Filters -->
+                                <div class="finance-filters glass-panel">
+                                    <div class="filter-group">
+                                        <span class="filter-label">Rango de Análisis:</span>
+                                        <button id="fin-filter-event" class="btn-secondary btn-small active">
+                                            Salida Activa
+                                        </button>
+                                        <button id="fin-filter-all" class="btn-secondary btn-small">
+                                            Total Histórico
+                                        </button>
+                                    </div>
+                                    <div id="liquidation-split-box" class="liquidation-split">
+                                        <div class="split-item">
+                                            <span>Neto Naiguatá:</span>
+                                            <strong id="split-income-net">$0.00</strong>
+                                        </div>
+                                        <div class="split-item">
+                                            <span>Cuentas por Pagar (Proveedores):</span>
+                                            <strong id="split-accounts-payable">$0.00</strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Cash Boxes -->
+                                <div class="cash-boxes-grid">
+                                    <div class="cash-box glass-panel">
+                                        <h5>💵 Caja Efectivo</h5>
+                                        <div class="cash-value" id="box-cash-val">$0.00</div>
+                                    </div>
+                                    <div class="cash-box glass-panel">
+                                        <h5>🔶 Caja Binance</h5>
+                                        <div class="cash-value" id="box-binance-val">$0.00</div>
+                                    </div>
+                                    <div class="cash-box glass-panel">
+                                        <h5>💜 Caja Zelle</h5>
+                                        <div class="cash-value" id="box-zelle-val">$0.00</div>
+                                    </div>
+                                    <div class="cash-box glass-panel">
+                                        <h5>🇻🇪 Caja Banco Bs</h5>
+                                        <div class="cash-value highlight" id="box-banco-val">Bs. 0.00</div>
+                                    </div>
+                                </div>
+
+                                <!-- Charts -->
+                                <div class="charts-grid">
+                                    <div class="chart-container glass-panel">
+                                        <h4 class="chart-title">Flujo de Caja (Ingresos vs Egresos)</h4>
+                                        <div id="chart-cash-flow" class="chart-placeholder">
+                                            <!-- Dynamic SVG Graph -->
+                                        </div>
+                                    </div>
+                                    <div class="chart-container glass-panel">
+                                        <h4 class="chart-title">Distribución de Gastos</h4>
+                                        <div id="chart-expense-dist" class="chart-placeholder">
+                                            <!-- Dynamic SVG Graph -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Expense Registration Form -->
+                                <div class="glass-panel">
+                                    <h4 class="tab-subtitle">Registrar Egreso Operativo</h4>
+                                    <form id="expense-register-form" class="expense-form">
+                                        <div class="form-grid">
+                                            <div class="form-input-wrapper">
+                                                <label for="exp-category">Categoría</label>
+                                                <select id="exp-category" required>
+                                                    <option value="" disabled selected>Selecciona</option>
+                                                    <option value="Catering/Alimentos">Catering/Alimentos</option>
+                                                    <option value="Guías Auxiliares">Guías Auxiliares</option>
+                                                    <option value="Logística/Transporte">Logística/Transporte</option>
+                                                    <option value="Imprevistos">Imprevistos</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-input-wrapper">
+                                                <label for="exp-account">Cuenta Origen</label>
+                                                <select id="exp-account" required>
+                                                    <option value="" disabled selected>Selecciona</option>
+                                                    <option value="Efectivo">Efectivo (USD)</option>
+                                                    <option value="Binance">Binance (USDT)</option>
+                                                    <option value="Zelle">Zelle (USD)</option>
+                                                    <option value="Banco Bs">Banco Bs (VES)</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-input-wrapper">
+                                                <label for="exp-amount">Monto Original</label>
+                                                <input type="number" step="0.01" id="exp-amount" required placeholder="0.00">
+                                            </div>
+                                            <div class="form-input-wrapper" id="exp-rate-wrapper">
+                                                <label for="exp-rate">Tasa Cambio Aplicada</label>
+                                                <input type="number" step="0.01" id="exp-rate" placeholder="Tasa del día">
+                                            </div>
+                                        </div>
+                                        <div class="form-input-wrapper">
+                                            <label for="exp-desc">Descripción del Movimiento</label>
+                                            <input type="text" id="exp-desc" required 
+                                                   placeholder="Ej. Pago transporte privado a La Julia">
+                                        </div>
+                                        <button type="submit" class="btn-primary">Registrar Gasto</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Tab 5: Checklist Digital -->
+                        <section id="tab-checklist" class="tab-content" role="tabpanel">
+                            <div class="tab-card glass-panel">
+                                <h3 class="tab-title">Checklist Pre-Viaje Digital</h3>
+                                <p class="tab-subtitle">
+                                    Lista de verificación interactiva vinculada a la base de datos Supabase para mantener sincronizado el estado.
+                                </p>
+
+                                <div id="checklist-blocks-container" class="checklist-container">
+                                    <!-- Populated dynamically by JS -->
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Tab 6: Ajustes Maestros -->
+                        <section id="tab-settings" class="tab-content" role="tabpanel">
+                            <div class="tab-card glass-panel">
+                                <h3 class="tab-title">Variables y Precios Maestros (Base USD)</h3>
+                                <p class="tab-subtitle">
+                                    Edita los costos y valores del negocio. Todos los cálculos matemáticos del sistema se actualizan automáticamente.
+                                </p>
+
+                                <div class="table-container">
+                                    <table class="settings-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Insumo / Suministro</th>
+                                                <th>Unidad</th>
+                                                <th>Costo ($)</th>
+                                                <th class="text-center">Acción</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="settings-catalog-table">
+                                            <!-- Dynamic rows from system settings catalog -->
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="info-panel glass-panel">
+                                    <h4 class="info-title">Fórmula de Producción Integrada</h4>
+                                    <p class="info-text">
+                                        El costo base calculado para el catering por participante es de <strong>$3.51 USD</strong>. <br>
+                                        Composición: Avena (40g) + Nueces (15g) + Almendras (15g) + Papelón (25g) [Todo x2] + Mix (50g) + 1 Cambur + Bolsa.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
                     </div>
                 </div>
-
-                <!-- Tab 5: Checklist Digital -->
-                <div id="tab-checklist" class="tab-content">
-                    <div class="tab-card glass-panel" style="padding: 20px;">
-                        <h3 style="margin-top: 0; font-family: 'Outfit', sans-serif;">Checklist Pre-Viaje Digital</h3>
-                        <p class="tab-subtitle"
-                            style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px;">
-                            Lista de verificación interactiva vinculada a la base de datos Supabase para mantener
-                            sincronizado el estado.
-                        </p>
-
-                        <div id="checklist-blocks-container">
-                            <!-- Populated dynamically by JS -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab 6: Ajustes Maestros -->
-                <div id="tab-settings" class="tab-content">
-                    <div class="tab-card glass-panel" style="padding: 20px;">
-                        <h3 style="margin-top: 0; font-family: 'Outfit', sans-serif;">Variables y Precios Maestros (Base
-                            USD)</h3>
-                        <p class="tab-subtitle"
-                            style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
-                            Edita los costos y valores del negocio. Todos los cálculos matemáticos del sistema se
-                            actualizan automáticamente.
-                        </p>
-
-                        <div class="table-container" style="margin-bottom: 25px;">
-                            <table class="roster-table" style="width: 100%; text-align: left;">
-                                <thead>
-                                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                        <th style="padding: 10px;">Insumo / Suministro</th>
-                                        <th style="padding: 10px;">Unidad</th>
-                                        <th style="padding: 10px;">Costo ($)</th>
-                                        <th style="padding: 10px; text-align: center;">Acción</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="settings-catalog-table">
-                                    <!-- Dynamic rows from system settings catalog -->
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="glass-panel" style="padding: 15px; border-left: 4px solid var(--primary);">
-                            <h4 style="margin-top: 0; margin-bottom: 5px; font-family: 'Outfit', sans-serif;">Fórmula de
-                                Producción Integrada</h4>
-                            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
-                                El costo base calculado para el catering por participante es de <strong
-                                    style="color: var(--text);">$3.51 USD</strong>. <br>
-                                Composición: Avena (40g) + Nueces (15g) + Almendras (15g) + Papelón (25g) [Todo x2] +
-                                Mix (50g) + 1 Cambur + Bolsa.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
             </div>
-        </div>
+        </main>
     </div>
 
-    <!-- Modals and Popups -->
-
-    <!-- Modal 1: Conciliación / Auditoría de Pago -->
-    <div id="modal-payment-audit" class="dialog-overlay">
-        <div class="dialog-box glass-panel">
-            <h3 style="margin-top: 0; margin-bottom: 15px; font-family: 'Outfit', sans-serif;">Auditar Transacción</h3>
-
-            <div style="font-size: 0.9rem; line-height: 1.8; margin-bottom: 20px;">
+    <!-- Modals -->
+    <!-- Modal: Conciliación / Auditoría de Pago -->
+    <div id="modal-payment-audit" class="modal-overlay">
+        <div class="modal-dialog glass-panel">
+            <h3 class="modal-title">Auditar Transacción</h3>
+            
+            <div class="audit-details">
                 <div>Excursionista: <strong id="audit-hiker-name">-</strong></div>
                 <div>Método de Pago: <strong id="audit-pay-method">-</strong></div>
                 <div>Monto Estimado: <strong id="audit-pay-amount">-</strong></div>
-                <div>Referencia Aportada: <strong id="audit-pay-ref" style="color: var(--primary);">-</strong></div>
+                <div>Referencia Aportada: <strong id="audit-pay-ref">-</strong></div>
             </div>
 
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <div class="modal-actions">
                 <button id="btn-audit-close" class="btn-secondary">Cerrar</button>
                 <button id="btn-audit-reject" class="btn-danger">Rechazar Registro ❌</button>
                 <button id="btn-audit-approve" class="btn-primary">Confirmar Pago ✅</button>
@@ -582,32 +547,31 @@
         </div>
     </div>
 
-    <!-- Modal 2: Registrar Conversión (Permuta) -->
-    <div id="modal-permuta-register" class="dialog-overlay">
-        <div class="dialog-box glass-panel">
-            <h3 style="margin-top: 0; margin-bottom: 15px; font-family: 'Outfit', sans-serif;">Registrar Permuta
-                Cambiaria</h3>
-            <form id="permuta-register-form">
-                <div class="form-input-wrapper" style="margin-bottom: 15px;">
+    <!-- Modal: Registrar Conversión (Permuta) -->
+    <div id="modal-permuta-register" class="modal-overlay">
+        <div class="modal-dialog glass-panel">
+            <h3 class="modal-title">Registrar Permuta Cambiaria</h3>
+            <form id="permuta-register-form" class="modal-form">
+                <div class="form-input-wrapper">
                     <label for="perm-ves-amount">Monto a Retirar (VES) de Banco Bs</label>
                     <input type="number" step="0.01" id="perm-ves-amount" required placeholder="0.00">
                 </div>
-                <div class="form-input-wrapper" style="margin-bottom: 15px;">
+                <div class="form-input-wrapper">
                     <label for="perm-usd-account">Cuenta Divisas de Destino</label>
                     <select id="perm-usd-account" required>
                         <option value="Efectivo">Efectivo Físico (USD)</option>
                         <option value="Binance">Binance Pay (USDT)</option>
                     </select>
                 </div>
-                <div class="form-input-wrapper" style="margin-bottom: 15px;">
+                <div class="form-input-wrapper">
                     <label for="perm-usd-amount">Monto Recibido en Divisas (USD)</label>
                     <input type="number" step="0.01" id="perm-usd-amount" required placeholder="0.00">
                 </div>
-                <div class="form-input-wrapper" style="margin-bottom: 20px;">
+                <div class="form-input-wrapper">
                     <label for="perm-rate">Tasa Real de la Operación</label>
                     <input type="number" step="0.01" id="perm-rate" required placeholder="Tasa pactada">
                 </div>
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <div class="modal-actions">
                     <button type="button" id="btn-permuta-close" class="btn-secondary">Cancelar</button>
                     <button type="submit" class="btn-primary">Registrar Conversión</button>
                 </div>
@@ -617,7 +581,7 @@
 
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Main Logic Script (Admin script) -->
+    <!-- Main Logic Script -->
     <script type="module" src="./src/admin-main.js"></script>
 </body>
 
