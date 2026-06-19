@@ -48,6 +48,21 @@ async function renderAdminCapacitySettings(supabase) {
     }
 }
 
+// Helper centralizado de visibilidad: Login <-> Dashboard
+// CORRECCIÓN: Antes apuntaba a '.login-container' (clase inexistente en el HTML actual),
+// lo que lanzaba un TypeError silencioso y dejaba el dashboard visible debajo del login.
+function showDashboardView() {
+    const loginScreen = document.getElementById('admin-login-screen');
+    const dashboardView = document.getElementById('admin-dashboard-view');
+
+    if (!loginScreen || !dashboardView) {
+        throw new Error('No se encontraron los contenedores #admin-login-screen / #admin-dashboard-view en el DOM.');
+    }
+
+    loginScreen.style.display = 'none';
+    dashboardView.style.display = 'block';
+}
+
 // Nombre consistente: initAdmin
 async function initAdmin() {
     console.log("[Naiguatá Admin] Inicializando consola...");
@@ -69,9 +84,8 @@ async function initAdmin() {
         window.supabase.rest.headers['Authorization'] = `Bearer ${tokenGuardado}`;
     }
 
-    // 2. Ocultar login y mostrar dashboard
-    document.querySelector('.login-container').style.display = 'none';
-    document.querySelector('.admin-dashboard').style.display = 'block';
+    // 2. Ocultar login y mostrar dashboard (única fuente de verdad para la transición de vistas)
+    showDashboardView();
 
     // 3. Cargar datos y renderizar vistas
     // MODIFICACIÓN: Pasamos 'supabase' a updateDashboardData para asegurar autorización

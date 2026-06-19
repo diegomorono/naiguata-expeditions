@@ -90,6 +90,12 @@
 
 /* Admin Dashboard */
 .admin-dashboard {
+  /* CORRECCIÓN CRÍTICA: el dashboard debe estar oculto hasta que admin-main.js
+     confirme el login y lo muestre explícitamente vía JS (display:block inline,
+     que tiene mayor especificidad que esta regla). Antes no existía este
+     "display:none" por defecto, por lo que el panel quedaba visible debajo
+     del formulario de login incluso sin autenticarse. */
+  display: none;
   padding: var(--admin-spacing-xl);
   max-width: 1400px;
   margin: 0 auto;
@@ -195,6 +201,7 @@
 .filter-label {
   font-size: 0.85rem;
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .date-input {
@@ -204,12 +211,42 @@
   background: rgba(255, 255, 255, 0.03);
   color: var(--text-main);
   font-size: 0.85rem;
+  flex: 1 1 140px;
+  min-width: 0;
 }
 
 .date-input:focus {
   outline: none;
   border-color: var(--emerald);
   box-shadow: 0 0 0 3px var(--emerald-glow);
+}
+
+/* Expeditions Carousel */
+/* CORRECCIÓN: esta clase se usa en index.html (#expeditions-carousel-container)
+   y core.js inyecta tarjetas .expedition-card dentro, pero nunca existió
+   una regla CSS para ella: las tarjetas simplemente se apilaban en bloque
+   en vez de desplazarse horizontalmente. */
+.expeditions-carousel {
+  display: flex;
+  gap: var(--admin-spacing-md);
+  overflow-x: auto;
+  padding: var(--admin-spacing-xs) var(--admin-spacing-xs) var(--admin-spacing-sm);
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+.expeditions-carousel::-webkit-scrollbar {
+  height: 6px;
+}
+
+.expeditions-carousel::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 3px;
+}
+
+.expedition-card {
+  scroll-snap-align: start;
+  flex-shrink: 0;
 }
 
 /* Metrics Grid */
@@ -265,7 +302,9 @@
 /* Dashboard Layout */
 .dashboard-layout {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  /* Antes: 320px fijo, que podía desbordar en laptops de ~1024-1100px
+     antes de llegar al breakpoint de 1200px. Ahora es fluido con tope. */
+  grid-template-columns: minmax(260px, 320px) 1fr;
   gap: var(--admin-spacing-xl);
 }
 
@@ -328,6 +367,7 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.85rem;
+  gap: var(--admin-spacing-sm);
 }
 
 .coverage-total {
@@ -368,11 +408,13 @@
 
 .input-with-action input {
   flex: 1;
+  min-width: 0;
 }
 
 .btn-small-primary {
   padding: 6px 12px;
   font-size: 0.8rem;
+  white-space: nowrap;
 }
 
 .form-hint {
@@ -411,6 +453,7 @@
 .form-input-compact input {
   padding: 4px 8px;
   font-size: 0.85rem;
+  width: 100%;
 }
 
 /* Dashboard Content */
@@ -418,6 +461,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--admin-spacing-lg);
+  min-width: 0;
+  /* Evita que la columna de contenido empuje el grid al desbordar tablas */
 }
 
 /* Tabs Navigation */
@@ -430,6 +475,17 @@
   backdrop-filter: blur(20px);
   border: 1px solid var(--border-subtle);
   border-radius: var(--admin-border-radius-lg);
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dashboard-tabs::-webkit-scrollbar {
+  height: 6px;
+}
+
+.dashboard-tabs::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 3px;
 }
 
 .tab-btn {
@@ -446,6 +502,7 @@
   cursor: pointer;
   transition: var(--transition-master);
   text-align: center;
+  scroll-snap-align: start;
 }
 
 .tab-btn:hover {
@@ -507,14 +564,19 @@
   overflow-x: auto;
   border-radius: var(--admin-border-radius-lg);
   border: 1px solid var(--border-subtle);
+  -webkit-overflow-scrolling: touch;
 }
 
-.roster-table {
+.roster-table,
+.settings-table {
   width: 100%;
+  min-width: 720px;
+  /* Mantiene columnas legibles; en móvil el contenedor hace scroll horizontal en vez de comprimir el texto */
   border-collapse: collapse;
 }
 
-.roster-table th {
+.roster-table th,
+.settings-table th {
   padding: var(--admin-spacing-md);
   background: rgba(255, 255, 255, 0.03);
   color: var(--text-muted);
@@ -523,15 +585,18 @@
   text-transform: uppercase;
   text-align: left;
   border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
 }
 
-.roster-table td {
+.roster-table td,
+.settings-table td {
   padding: var(--admin-spacing-md);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   font-size: 0.9rem;
 }
 
-.roster-table tr:hover {
+.roster-table tr:hover,
+.settings-table tr:hover {
   background: rgba(255, 255, 255, 0.02);
 }
 
@@ -611,15 +676,20 @@
   display: flex;
   gap: var(--admin-spacing-sm);
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .liquidation-split {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--admin-spacing-xl);
   font-size: 0.85rem;
   padding: var(--admin-spacing-md) var(--admin-spacing-lg);
   border-radius: var(--admin-border-radius-md);
-  background: rgba(var(--admin-success), 0.1);
+  /* CORRECCIÓN: rgba(var(--admin-success), 0.1) es CSS inválido — --admin-success
+     guarda un hex (#10b981), no componentes "r, g, b" separados, así que el
+     navegador descartaba esta declaración y el panel quedaba sin tinte. */
+  background: rgba(16, 185, 129, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -745,11 +815,14 @@
   justify-content: center;
   z-index: 1000;
   display: none;
+  padding: var(--admin-spacing-lg);
 }
 
 .modal-dialog {
   width: 100%;
   max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
   padding: var(--admin-spacing-xl);
 }
 
@@ -769,8 +842,13 @@
 
 .modal-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--admin-spacing-sm);
   justify-content: flex-end;
+}
+
+.modal-actions button {
+  flex: 1 1 auto;
 }
 
 .modal-form {
@@ -789,9 +867,9 @@
   .dashboard-layout {
     grid-template-columns: 1fr;
   }
-  
+
   .dashboard-sidebar {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     display: grid;
   }
 }
@@ -800,47 +878,51 @@
   .admin-dashboard {
     padding: var(--admin-spacing-lg);
   }
-  
+
   .dashboard-header {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .dashboard-actions {
     justify-content: stretch;
   }
-  
+
   .dashboard-actions button {
     flex: 1;
     min-width: 0;
   }
-  
+
   .section-header {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .date-filter {
     width: 100%;
     justify-content: space-between;
   }
-  
+
   .charts-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .finance-filters {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .liquidation-split {
     flex-direction: column;
     gap: var(--admin-spacing-md);
     width: 100%;
   }
-  
+
   .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-sidebar {
     grid-template-columns: 1fr;
   }
 }
@@ -849,38 +931,38 @@
   .admin-login-container {
     padding: var(--admin-spacing-lg);
   }
-  
+
   .login-panel {
     padding: var(--admin-spacing-xl);
   }
-  
+
   .admin-header-container {
     flex-direction: column;
     gap: var(--admin-spacing-md);
     align-items: flex-start;
   }
-  
+
   .admin-user-info {
     width: 100%;
     justify-content: space-between;
   }
-  
+
   .metrics-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .snacks-summary-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .cash-boxes-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .dashboard-tabs {
     flex-direction: column;
   }
-  
+
   .tab-btn {
     min-width: 0;
   }
@@ -951,6 +1033,7 @@ button:focus {
 
 /* Print Styles */
 @media print {
+
   .admin-header,
   .dashboard-actions,
   button,
@@ -958,20 +1041,159 @@ button:focus {
   .modal-overlay {
     display: none !important;
   }
-  
+
   .admin-dashboard {
     padding: 0;
+    display: block !important;
   }
-  
+
   .glass-panel {
     background: white;
     border: 1px solid #ddd;
     box-shadow: none;
     backdrop-filter: none;
   }
-  
+
   body {
     background: white;
     color: black;
+  }
+}
+
+/* ==========================================================================
+   AUDITORÍA DE ALINEACIÓN RESPONSIVE (Desktop / Tablet / Móvil)
+   Pasada exhaustiva adicional, sin alterar el lenguaje visual existente:
+   mismos colores, tipografías y componentes — solo se afina el grid, el
+   espaciado, los puntos de quiebre y los objetivos táctiles (touch targets).
+   ========================================================================== */
+
+/* --- Tablet grande / laptop pequeño (1024px): suaviza el salto entre el
+   layout de 2 columnas y el apilado total que antes ocurría recién en 1200px --- */
+@media (max-width: 1024px) {
+  .dashboard-layout {
+    gap: var(--admin-spacing-lg);
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Tablet / móvil grande (640px): densidad de información en grids de
+   tarjetas para evitar columnas únicas innecesariamente altas --- */
+@media (max-width: 640px) {
+  .metrics-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--admin-spacing-md);
+  }
+
+  .snacks-summary-grid {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: var(--admin-spacing-md);
+  }
+
+  .cash-boxes-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--admin-spacing-md);
+  }
+
+  .metric-value {
+    font-size: 1.8rem;
+  }
+
+  .dashboard-title {
+    font-size: 1.5rem;
+  }
+
+  .tab-card,
+  .sidebar-section,
+  .modal-dialog {
+    padding: var(--admin-spacing-md);
+  }
+
+  .form-summary-card,
+  .glass-panel {
+    border-radius: var(--admin-border-radius-lg);
+  }
+
+  /* Hoja inferior (bottom-sheet) para modales: patrón táctil más natural
+     que un diálogo centrado en pantallas angostas */
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal-dialog {
+    max-width: 100%;
+    max-height: 85vh;
+    border-radius: var(--admin-border-radius-lg) var(--admin-border-radius-lg) 0 0;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
+}
+
+/* --- Móvil pequeño (420px) --- */
+@media (max-width: 420px) {
+  .admin-dashboard {
+    padding: var(--admin-spacing-md);
+  }
+
+  .login-panel {
+    padding: var(--admin-spacing-lg) var(--admin-spacing-md);
+  }
+
+  .login-title {
+    font-size: 1.45rem;
+  }
+
+  .tent-inventory-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--admin-spacing-xs);
+  }
+
+  .cash-boxes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .snack-stat-card,
+  .cash-box {
+    padding: var(--admin-spacing-md);
+  }
+}
+
+/* --- Objetivos táctiles: cualquier control interactivo del admin mantiene
+   un alto mínimo cómodo para el dedo (44px es el estándar de accesibilidad
+   táctil de Apple/Google) sin afectar el tamaño visual en desktop --- */
+@media (max-width: 768px) {
+
+  .admin-body .btn-primary,
+  .admin-body .btn-secondary,
+  .admin-body .btn-outline,
+  .admin-body .btn-danger,
+  .admin-body .btn-small-primary,
+  .admin-body .tab-btn,
+  .admin-body input,
+  .admin-body select {
+    min-height: 44px;
+  }
+
+  .admin-body .btn-small,
+  .admin-body .btn-small-primary {
+    min-height: 38px;
+  }
+}
+
+/* --- Asegura que el carrusel de expediciones respire bien en pantallas
+   angostas, mostrando una vista previa parcial de la siguiente tarjeta
+   (afordance de "hay más contenido al desplazar") --- */
+@media (max-width: 640px) {
+  .expeditions-carousel {
+    gap: var(--admin-spacing-sm);
   }
 }
