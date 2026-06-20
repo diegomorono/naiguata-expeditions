@@ -11,7 +11,7 @@ Este proyecto contiene la landing page pública y la consola de administración 
 ## Infraestructura y Arquitectura (100% Gratis y Autónomo)
 El Agente debe configurar la lógica del backend utilizando las siguientes herramientas gratuitas que no requieren configuraciones manuales de servidores ni llaves API complejas de correo:
 - **Base de Datos:** Configurar la persistencia de datos de los inscritos (contacto, salud, grupo, fecha seleccionada) utilizando el plan gratuito de Supabase.
-- **Notificación Directa por WhatsApp:** Generar un mensaje al administrador al número `+34673375681` y correo `diego.morono03@gmail.com` con el resumen estructurado y limpio del registro del usuario, actuando como la alerta principal de nueva inscripción en tiempo real para el guía, al cliente finalizar el formulario.
+- **Notificación Directa por WhatsApp:** Generar un mensaje al administrador al correo `diego.morono03@gmail.com` estructurado y limpio del registro del usuario, actuando como la alerta principal de nueva inscripción en tiempo real para el guía, al cliente finalizar el formulario.
 - **Notificación por Email (EmailJS):** Implementar envío automático simultáneo mediante la librería de EmailJS.
   - **Service ID:**
   - **Template ID:**
@@ -22,7 +22,7 @@ El Agente debe configurar la lógica del backend utilizando las siguientes herra
 
 ### 1. Ofuscación de Entorno y Variables Privadas
 Queda estrictamente prohibido escribir de forma explícita contraseñas, llaves maestras o contraseñas de administración (como la clave del panel `/admin` o el token de Supabase) directamente en el código fuente de los archivos `app.js` o `index.html`. El sistema debe procesar las credenciales utilizando la arquitectura de variables de entorno del hosting.
-- **Inyección en Vercel:** Durante el despliegue, el Agente debe programar el script para que consuma las credenciales desde `process.env.SUPABASE_ANON_KEY` y `process.env.ADMIN_PASSWORD`.
+- **Inyección en Vercel:** Durante el despliegue, el Agente debe programar el script para que consuma las credenciales desde `process.env.SUPABASE_ANON_KEY` y `process.env.ADMIN_PASSWORD_HASH`.
 - **Mecanismo de Respaldo Local:** Para flujos de desarrollo local en entorno cliente, el script de autenticación del panel de administración (`/admin`) debe comparar el hash de la contraseña ingresada mediante funciones nativas de encriptación ligera (`crypto.subtle` o hashing básico) en lugar de una comparación de texto plano como. Esto evita que la clave sea visible al inspeccionar el código fuente del navegador.
 
 ### 2. Restricción de Acceso a Tablas Críticas
@@ -55,10 +55,9 @@ Para ejecutar y probar este proyecto de forma local o en desarrollo, sigue estas
   * **Campo Dinámico:** Un input numérico conectado directamente al campo `last_valid_bcv` en Supabase.
   * **Acción Operativa:** Si el guía nota que el dólar oficial subió drásticamente y las APIs automáticas fallaron, podrá ingresar manualmente la tasa del día con un clic en **[Forzar Actualización de Tasa]**, impactando de inmediato en el cálculo de Bolívares de todos los formularios públicos activos.
 
-2. **Acceso Restringido:** **Eliminar por completo el botón de "Panel de Guía" del menú de navegación público.** El acceso a la administración será privado y restringido de forma exclusiva a través de la ruta web hija configurada en Vercel: `https://naiguata-expeditions.vercel.app/admin`.
-3. **La Travesía (Ruta):** Reemplazar el gráfico matemático por un componente de línea de tiempo (Timeline) interactivo y fluido con consejos destacados del guía.
-4. **Planificador de Equipaje:** Diseño balanceado 50/50 en dos columnas ordenadas por kits compactos desplegables y barra de progreso funcional unida a `localStorage`.
-5. **Formulario de Registro:** Implementar el selector de fecha inteligente mostrando los próximos Sábados disponibles y una opción dinámica para proponer fecha personalizada en campo de texto libre.
+2. **Acceso Restringido de "Panel de Guía" del menú de navegación público.** El acceso a la administración será privado y restringido de forma exclusiva a través de la ruta web hija configurada en Vercel: `https://naiguata-expeditions.vercel.app/admin`.
+3. **Planificador de Equipaje:** Diseño balanceado 50/50 en dos columnas ordenadas por kits compactos desplegables unida a `localStorage`.
+4. **Formulario de Registro:** Implementar el selector de fecha inteligente mostrando los próximos Sábados disponibles.
 
 ## 📦 Módulo de Inventario y Alquileres (Gestión de Stock)
 ### 1. Estructura de Inventario
@@ -94,7 +93,7 @@ El uso de carpas de terceros penaliza el flujo de caja con un costo fijo de $10 
 - **Flota de Carpas Registrada:**
   - Flota Propia (Diego): 1 Carpa (2 personas), 1 Carpa (3 personas), 1 Carpa (4 personas).
   - Flota Externa (Terceros): 2 Carpas (2 personas).
-- **Regla de Optimización en `/admin`:** Al consolidar las carpas para la fecha de la expedición, la consola del administrador ejecutará una función de emparejamiento que llenará primero las tres carpas propias según el volumen de personas registradas. Las 2 carpas externas de 2 personas permanecerán bloqueadas en reserva y el sistema solo sugerirá su uso si la capacidad de la flota propia se ve completamente desbordada por la cantidad de participantes.
+- **Regla de Optimización en `/admin`:** Al consolidar las carpas para la fecha de la expedición, la consola del administrador ejecutará una función de emparejamiento que llenará primero las carpas propias según el volumen de personas registradas. Las carpas externas permanecerán bloqueadas en reserva y el sistema solo sugerirá su uso si la capacidad de la flota propia se ve completamente desbordada por la cantidad de participantes.
 
 ### 3. Reporte de Cierre y Liquidación (Split de Caja en Panel `/admin`)
 Para evitar confusiones contables al finalizar el tour, la pantalla de finanzas calculará automáticamente la división del dinero recaudado en la expedición.
@@ -110,7 +109,7 @@ El sistema gestiona la tabla `catering_inventory` en Supabase. Dado que todos lo
 
 - **Productos:**
   - Dulce de guayaba: Precio $2
-  - Barras Energéticas: Precio $2.5
+  - Barra Energética: Precio $2.5
   - Mix de frutos secos (100g): Precio $4
 
 ### 2. Lógica de Pedidos
@@ -138,17 +137,17 @@ El sistema ejecuta una función unificada de cálculo (`calcularTotalExpedicion(
   - Tarifa Base del Tour: $50 USD fijo por participante.
   - Subtotal Alquileres: Sumatoria dinámica de ítems seleccionados de la tabla `inventory_stock`.
   - Subtotal Snacks/Catering: Sumatoria de raciones multiplicadas por su precio unitario en `catering_inventory`.
-  - Subtotal Carga: Monto fijo de la tarifa seleccionada ($0, $20, $30 o $50 USD) según la tabla `logistic_services`.
-- **Actualización de UI:** El total general se despliega en tiempo real en la parte inferior del formulario mediante un contenedor flotante etiquetado como "Pase de Expedición: Total a Transferir".
+  - Subtotal Carga: Monto fijo de la tarifa seleccionada según la tabla `logistic_services`.
+- **Actualización de UI:** El total general se despliega en tiempo real en la parte inferior del formulario mediante un contenedor flotante con el "costo Base del Tour + Adicionales = Total a Pagar".
 
 ### 2. Estructura del Mensaje de Alerta (Notificación al Administrador vía WhatsApp)
-Al presionar el botón de envío, el script procesa y almacena el registro en la base de datos de Supabase. De forma inmediata, el sistema prepara el formato de despacho para notificar al administrador (coordinador de Expediciones Naiguatá) con un mensaje corto y optimizado. Queda estrictamente prohibido incluir el texto del manual aquí para no saturar la URL de la API.
+Al presionar el botón de envío, el script procesa y almacena el registro en la base de datos de Supabase. De forma inmediata, el sistema prepara el formato de despacho para notificar al administrador (coordinador de Expediciones Naiguatá) con un email con todos los datos del registro. Queda estrictamente prohibido incluir el texto del manual aquí para no saturar la URL de la API.
 - **Formato del Mensaje:**
   > ⛰️ **NUEVA INSCRIPCIÓN - EXPEDICIONES NAIGUATÁ** ⛰️
-  > - Excursionista: [Nombre Completo] | C.I: [Documento]
+  > - Excursionista: [Nombre Completo, Teléfono, Correo, Código Grupo, Género]
   > - Carpa Asignada: [Preferencia seleccionada en Paso 1]
-  > - Alquileres: [Ítems elegidos o "Ninguno"]
-  > - Snacks: [Raciones solicitadas o "Ninguno"]
+  > - Alquileres: [Todos los ítems elegidos o "Ninguno"]
+  > - Snacks: [Todas las raciones solicitadas o "Ninguno"]
   > - Portador de Carpa: [Servicio contratado o "Ninguno - Carga el cliente"]
   > 💰 **TOTAL GENERAL A PAGAR:** $[Suma Total] USD
   > _Confirma datos de pago._
@@ -160,24 +159,25 @@ A diferencia de los sistemas con aprobaciones bloqueantes, este software prioriz
 1. **Registro y Pago Asistido:** El cliente completa sus datos, visualiza los datos fijos de recaudación, e ingresa su número de referencia obligatorio.
 2. **Inyección Inmediata:** Al presionar el botón de envío, el script guarda los datos en Supabase con el estatus inicial `🟡 Pendiente por Verificar` y, sin esperar validación humana, desbloquea de forma instantánea el Modal de Éxito en pantalla.
 3. **Centro de Descarga Unificado (Acceso Post-Registro):** Este espacio actúa como el contenedor definitivo de documentos y herramientas de respaldo offline para el participante desde el primer instante:
-    - **Botón [Guardar Pase y Manual]:** Ejecuta la generación y descarga unificada en un solo archivo (PDF o PNG de alta calidad). La primera página rinde el Pase de Expedición con su código QR de validación (vinculado al ID del registro en Supabase) y el desglose de sus montos; la segunda página renderiza íntegramente el contenido oficial del "Manual del Tour".
+    - **Botón [Descargar]:** Ejecuta la generación y descarga unificada de un archivo (PDF o PNG de alta calidad). La página muestra el Pase de Expedición con el resumen de los datos del cliente y el desglose de sus montos.
     - **Botón [Compartir Aventura / Respaldo]:** Botón dual inteligente con Web Share API. Permite al usuario copiar un texto estético de su viaje para redes sociales o enviar directamente el PDF/PNG generado con el Manual y el Pase hacia su propio chat de guardados en Telegram o WhatsApp como respaldo offline para la montaña.
+    - **Botón [Descargar Manual del Tour]:**Ejecuta la generación y unificada de un archivo (PDF o PNG de alta calidad) donde renderiza íntegramente el contenido oficial del "Manual del Tour".
 4. **Auditoría Posterior:** El administrador, a su propio ritmo a través de la consola privada `/admin`, revisa las referencias y presiona **[Confirmar Pago ✅]**, lo que muta el estado en la base de datos a `🟢 Confirmado`.
 
 ## Directrices del Flujo de Confirmación (Sección 5)
 ## 💻 Frontend (Registro Público - index.html)
-- **Ubicación del Formulario:** Se ubicará después del componente "La Travesía (Ruta)" y antes del Footer.
+- **Ubicación del Formulario:** Se ubicará después del componente "Planificador de Equipaje" y antes del Footer.
 - **Flujo de Datos (UX):**
-    1. **Datos Personales:** Identificación del senderista (Nombre y Apellido, C.I, Celular, Correo Electrónico, ¿Vienes con alguien más? (Código de Grupo), Género, Preferencia de Alojamiento (carpa de 2 personas, carpa de 3 personas o carpa de 4 personas)). "NOTA: ⚠️ Aviso de Logística en Preferencia de Alojamiento: El préstamo de la carpa está incluido, pero el traslado físico hasta la cima no. Podrás contratar el Servicio Opcional de Portador de Carpas al finalizar tu registro."
-    2. **Selector de Fecha:** Sábados disponibles + Campo de fecha personalizada.
-    3. **Módulo Unificado de Provisiones:** Checklist de Equipos, Snacks y Portador de Carpas (sección de "Alquileres y Provisiones, ").
-    4. **Seguridad:** Campo obligatorio de "Información de Salud Crítica" (alergias/condiciones).
+    1. **Datos Personales:** Identificación del senderista (Nombre y Apellido, Celular, Correo Electrónico, ¿Vienes con alguien más? (Código de Grupo), Género, Preferencia de Alojamiento (carpa de 2 personas, carpa de 3 personas o carpa de 4 personas)).
+    2. **Selector de Fecha:** Sábados disponibles.
+    3. **Seguridad:** Campo obligatorio de "Información de Salud Crítica" (alergias/condiciones).
+    4. **Módulo Unificado de Provisiones:** Checklist de Equipos, Snacks y Portador de Carpas (sección de "Alquileres y Provisiones, ").
     5. **Módulo de Pagos Simplificado (Flujo Rápido sin APIs Externas):**
         - *Lógica de Operación:* Para evitar dependencias, burocracia o aprobaciones institucionales con plataformas de pago, el sistema operará mediante verificación de datos y referencias manuales/asistidas, agilizando el despliegue del software.
         - *Pago Móvil (VES):* El formulario desplegará de forma dinámica los datos fijos de recepción del administrador:
             El sistema calculará automáticamente el monto en Bolívares usando la tasa BCV del día reflejada en el Hero. El cliente completará la transferencia desde su banco e ingresará obligatoriamente el "Número de Referencia" de la transacción para procesar su registro.
         - *Cripto (USDT con Binance Pay):* El sistema mostrará en pantalla las credenciales directas de la cuenta:
-            - **Diseño de Interfaz (UI):** El Agente debe maquetar un contenedor centrado para un código QR de pago. Por ahora, se dejará un placeholder visual limpio o un icono de QR estilizado, permitiendo que la imagen final del QR (`diegomorono`) se vincule localmente más adelante.
+            - **Diseño de Interfaz (UI):** Emergerá un cuadro visual con los datos (Correo: thecardanomerch@gmail.com)
             El cliente realizará la transferencia directa de app a app e ingresará su ID de usuario o número de comprobante de Binance como campo de validación.
         - *Dólares Manuales (Zelle / Efectivo):* 
             - Si selecciona "Zelle", emergerá un cuadro visual con los datos (Titular: Diego Moroño | Correo: diego.morono03@gmail.com) y un input obligatorio para el "Número de Referencia".
@@ -188,16 +188,15 @@ A diferencia de los sistemas con aprobaciones bloqueantes, este software prioriz
 
 ### 🔍 Módulo de Sanitización, Normalización de Texto y Máscaras de Entrada
 Para mantener la base de datos impecable, estandarizada y libre de caracteres corruptos o strings maliciosos (SQL Injection/XSS), el script aplicará filtros estrictos de entrada antes de procesar cualquier variable.
-- **Formateo Automatizado en Clientes:** El campo de número de teléfono aplicará una máscara en tiempo real obligando al formato internacional legible (ej. +58-412-0000000). Los campos de texto destinados a nombres propios o correos electrónicos serán procesados nativamente mediante las funciones `.trim()` para eliminar espacios huérfanos en los extremos y convertidos automáticamente a formato tipo título (Title Case) o minúsculas estrictas según corresponda. Esto garantiza que las consultas de búsqueda en la consola `/admin` funcionen perfectamente sin fallos por discrepancias de mayúsculas o caracteres extraños. 
+- **Formateo Automatizado en Clientes:** El campo de número de teléfono aplicará una máscara en tiempo real obligando al formato internacional legible (ej. +58-412-0000000). Los campos de texto destinados a nombres propios o correos electrónicos serán procesados nativamente mediante las funciones `.trim()` para eliminar espacios huérfanos en los extremos y convertidos automáticamente a formato tipo título (Title Case) o minúsculas estrictas según corresponda. Esto garantiza que las consultas de búsqueda en la consola `/admin` funcionen perfectamente sin fallos por discrepancias de mayúsculas o caracteres extraños.
 
-1. **Modal de Éxito:** Remover los botones redundantes del fondo y dejar únicamente dos acciones premium:
-   - **[Guardar Pase y Manual]**: Ejecuta la generación y descarga unificada (en formato PDF o PNG de alta calidad) del Pase de Expedición con su código QR y, consecutivamente, el documento estructurado del Manual del Tour adjunto abajo.
-   - **[Compartir Aventura / Respaldo]:** Botón dual inteligente con lógica de detección de dispositivo:
+1. **Modal de Éxito:** Únicamente tres acciones premium:
+   - **[Descargar]**: Ejecuta la generación y descarga (en formato PDF o PNG de alta calidad) del Pase de Expedición con todos los datos registrados del cliente.
+   - **[Compartir Aventura / Respaldo]:** Botón inteligente con lógica de detección de dispositivo:
      - **Acción Estética:** Al hacer clic, abre un menú que permite:
-       a) **Copiar invitación:** Copia al portapapeles un texto estético para compartir en redes sociales.
-       b) **Respaldo:** Genera un enlace `wa.me` directo a tu propio número o a tu chat de guardados, adjuntando el resumen del registro.
-       c) **Integración de Archivos:** Si el navegador lo permite, dispara la función de "Compartir" nativa del sistema operativo (Share API) para enviar el PDF/PNG generado directamente a tu Telegram/WhatsApp de guardados.
-
+       a) **Copiar invitación:** Copia al portapapeles un texto con todos los datos del registro del cliente para compartir en Whatsapp.
+       b) **Integración de Archivos:** Si el navegador lo permite, dispara la función de "Compartir" nativa del sistema operativo (Share API) para enviar el PDF/PNG generado directamente a tu Telegram/WhatsApp de guardados.
+    - **[Descargar Manual del Tour]**: Ejecuta la generación y descarga (en formato PDF o PNG de alta calidad) del documento estructurado del Manual del Tour adjunto abajo.
 ### 🛠️ Módulo de Resiliencia Frontend y Almacenamiento Persistente en Borrador (LocalStorage)
 Para ofrecer una experiencia de usuario sumamente profesional, el formulario debe proteger el progreso del cliente ante interrupciones inesperadas como pérdidas de conexión a internet o recargas accidentales de la página.
 - **Persistencia en Tiempo Real:** El script de `app.js` escuchará el evento `input` en todos los campos del formulario públicos (Paso 1 al Paso 4) para guardar automáticamente una copia cifrada o limpia de los datos en el `localStorage` del navegador. Si la página se refresca en plena mitad del registro, el sistema restaurará de forma transparente toda la información previamente ingresada.
@@ -205,12 +204,12 @@ Para ofrecer una experiencia de usuario sumamente profesional, el formulario deb
 
 ### Contenido Oficial para el Manual del Tour (A integrar en la Descarga)
 El Agente debe formatear este texto con tipografía elegante y espaciados limpios en la segunda página del archivo descargable:
-- **Título:** Manual del Tour: Acampada Nocturna al Pico Naiguatá (2.765 m) - Servicio Guiado. Precio: $50 USD al cambio oficial BCV por persona.
+- **Título:** Manual del Tour: Acampada Nocturna al Pico Naiguatá (2.765 m) - Servicio Guiado. Precio: $50 USD.
 - **1. Itinerario Aproximado (Sujeto a clima y ritmo del grupo):**
   - *1er Día - 07:30:* Punto de encuentro en sendero La Julia e inicio del ascenso. Ascenso: ~8-10 horas con paradas (desnivel ~1.800-1.900 m, distancia ~8-9 km ida). Paradas: La Julia, El Tanque, Rancho Grande, Anfiteatro (Instalación de carpas, cena). *Posible ascenso corto a cumbre para atardecer si hay luz y energía.
   - *2do Día - Madrugada:* Ascenso a cumbre para amanecer (vistas 360° Caracas y el Caribe). 06:00-07:00: Fotos, desayuno ligero. Descenso: ~5-7 horas (~8-9 km). 14:00-16:00: Regreso aproximado a Caracas.
   - *Totales:* Duración total ruta: ~17-18 km ida/vuelta | Dificultad: Exigente (buena condición física requerida).
-- **2. Lo que nosotros proveemos (Incluido en el costo):** Guía experimentado durante todo el recorrido, carpas limpias y cómodas (El préstamo de la carpa es gratuito, pero su transporte a la cumbre no se incluye en el precio. El traslado corre por cuenta del cliente, salvo que se contrate el servicio de portador de carpas), orientación en ruta, manejo de grupo y snacks ligeros.
+- **2. Lo que nosotros proveemos (Incluido en el costo):** Guía experimentado durante todo el recorrido, orientación en ruta, manejo de grupo, snacks ligeros y carpas limpias y cómodas (El préstamo es gratuito, pero su transporte a la cumbre no se incluye, salvo que se contrate el servicio de portador de carpas).
 - **3. Lista oficial de lo que DEBES llevar (Responsabilidad personal, empacar ligero en mochila de 30-45 L):**
   - *Hidratación (Imprescindible):* 3-4 litros de agua mínimo por persona (camelbak o botellas). Hay puntos de agua en ruta (La Julia, El Tanque, Anfiteatro), pero no dependas 100% – lleva suficiente para ascenso y noche.
   - *Comida y Energía:* Snacks para todo el día (frutos secos, mínimo 2 barritas energéticas), frutas (manzanas, cambures), almuerzo/cena listo para consumir (sandwich, fajitas, pasta fría), desayuno ligero (galletas, pan) y extras (chocolates, gomitas, electrolitos).
@@ -224,7 +223,7 @@ El Agente debe formatear este texto con tipografía elegante y espaciados limpio
 ---
 
 ## 🛠️ Sección 6: Consola Privada de Operaciones (Panel del Guía)
-Rediseñar por completo el panel administrativo, implementando una lógica de control global por fechas:
+Diseño completo del panel administrativo, implementando una lógica de control global por fechas:
 
 ### 1. Panel de Control Superior (Filtro Maestro)
 - **Tarjetas de Salidas Próximas:** Componente visual interactivo (tipo "Carrusel" o "Grid") que muestra las próximas expediciones.
@@ -253,7 +252,7 @@ Rediseñar por completo el panel administrativo, implementando una lógica de co
         2. **Botón [Rechazar Registro ❌]:** Cambia el estado a "Cancelado" o elimina la fila en Supabase, liberando de forma inmediata y automática los equipos de inventario y las plazas de carpas asignadas para esa fecha.
 
 ### 3. Algoritmo Inteligente de Distribución de Carpas
-- **Inventario Fijo Real:** Establecer estrictamente el inventario en **2 carpas con un aforo máximo de 3 personas cada una, y 3 carpas con un aforo máximo de 2 personas cada una**.
+- **Inventario Fijo Real:** Establecer estrictamente el inventario en los definidos anteriormente.
 - **Lógica de Asignación Automática:** Al filtrar por fecha, el sistema debe ejecutar un algoritmo eficiente que limpie, normalice el texto de los códigos y organice a los excursionistas:
   1. Agrupar prioritariamente a los participantes que tengan el mismo código de grupo (ignorando de forma automática mayúsculas, conectores redundantes como "grupo de", "los", o espacios adicionales).
   2. Distribuir a los senderistas individuales restantes segmentando por género (M/F) para garantizar la comodidad y optimización absoluta de las plazas.
@@ -291,7 +290,7 @@ Rediseñar por completo el panel administrativo, implementando una lógica de co
 ### 6. Automatización de Solicitud INPARQUES
 - **Botón "Generar Solicitud INPARQUES":** Implementar un botón que procese la documentación legal necesaria para la expedición.
 - **Acción:**
-  1. **Documento del Representante:** El sistema genera un PDF con tus datos como representante de "Expediciones Naiguatá" siguiendo la estructura del documento oficial de INPARQUES (`JURIDICA.pdf`).
+  1. **Documento del Representante:** El sistema genera un PDF con tus datos como representante de "Expediciones Naiguatá" siguiendo la estructura del documento oficial de INPARQUES (`https://www.mintur.gob.ve/documents/tramites/rtn/solicitud_rtn_juridico.pdf`).
   2. **Envío:** Abre una ventana de correo pre-configurada con el asunto: "Solicitud de Permiso para Actividad Recreativa - [Fecha] - Expediciones Naiguatá".
   3. **Destinatarios:** `dgs.parquesrecreacion@gmail.com` y `dgparques.nacionales@gmail.com`.
 
@@ -344,10 +343,10 @@ El Agente debe estructurar e implementar las siguientes tablas en la base de dat
   - **Lógica de Conversión y Automatización Financiera:**
     * **Si el gasto se registra en Bolívares (VES)(Entrada Manual Condicional):** Campo numérico habilitado únicamente cuando la cuenta es `Banco Bs`. Permite al guía digitar manualmente la tasa exacta del BCV a la que se ejecutó el gasto (contemplando pagos realizados en días anteriores) e inyecta la fila calculando de forma matemática: `amount_original` (en VES), `exchange_rate` (tasa BCV) y el valor neto convertido a dólares en un campo interno de la base de datos (`total_neto_usd = amount_original / exchange_rate`).
     * **Si el gasto se registra en Dólares (USD):** El sistema asume que el egreso es directo. Guarda `amount_original` (en USD) y establece el `total_neto_usd` exactamente con el mismo valor, dejando la tasa referencial asentada.
-  - **Impacto en el Balance:** Al presionar **[Registrar Egreso]**, la transacción resta de forma inmediata el saldo disponible de la "Cuenta de Origen" seleccionada y se vincula al `id` de la fecha del tour para deducir la rentabilidad de esa salida.
+  - **Impacto en el Balance:** Al presionar **[Registrar Egreso]**, la transacción resta de forma inmediata el saldo disponible de la "Cuenta de Origen" seleccionada y se vincula al `id` con una selección manual de registro de la fecha del tour para deducir la rentabilidad de esa salida.
 
 ### 3. Vista UI del Balance de Cajas (Consolidado de Cuentas)
-En la pestaña financiera del panel `/admin`, el sistema debe renderizar un componente de control de caja idéntico al algoritmo del script, pero procesado en tiempo real en el cliente:
+En la pestaña financiera del panel `/admin`, el sistema debe renderizar un componente de control de caja procesado en tiempo real:
 - **Matriz de Saldos Activos:** Tarjetas dinámicas que listen el saldo neto actual (Fórmula: $\text{Entradas} - \text{Salidas}$) segmentado de forma estricta por cada una de tus 4 cajas principales:
     - 💵 **Caja Efectivo (USD)**
     - 🔶 **Caja Binance (USDT/USD)**

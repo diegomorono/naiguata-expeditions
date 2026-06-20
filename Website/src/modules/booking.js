@@ -103,7 +103,7 @@ async function checkDateAvailability(selectedDate) {
 
     try {
         const supabase = await getSupabaseClient();
-        
+
         // 1. Obtenemos las reservas activas para esta fecha
         const { data: reservations, error } = await supabase
             .from('registrations')
@@ -152,7 +152,7 @@ async function checkDateAvailability(selectedDate) {
                 const currentAvailable = Math.max(0, totalStock - alreadyRented);
 
                 input.setAttribute('data-max', currentAvailable);
-                
+
                 // Si el usuario ya tenía seleccionado más de lo que hay, bajamos el valor
                 if (parseInt(input.value) > currentAvailable) {
                     input.value = currentAvailable;
@@ -346,7 +346,31 @@ async function handleFormSubmission(e) {
         }
 
         const generatedId = passId;
-        window.location.href = `./pass.html?id=${generatedId}`;
+
+        // Medida de resiliencia Offline-First: Guardar copia temporal en localStorage
+        const registrationData = {
+            id: generatedId,
+            date: inputDate,
+            name: sanearTexto(inputName),
+            email: sanearTexto(formData.get('email')),
+            whatsapp: sanearTexto(formData.get('whatsapp')),
+            group_code: groupCode,
+            gender: formData.get('gender'),
+            tent_preference: formData.get('tent_preference'),
+            allergies: sanearTexto(formData.get('allergies') || 'Ninguna.'),
+            diet: formData.get('diet') || 'Estándar',
+            medical: medicalNotes,
+            rentals: selectedRentals,
+            catering: selectedCatering,
+            porter_service: porterService,
+            total_usd: serverComputedTotal,
+            payment_method: formData.get('payment_method'),
+            reference_number: sanearTexto(formData.get('reference_number') || 'N/A'),
+            status: '⏳ Sincronizado (Pendiente de Aprobación)'
+        };
+        localStorage.setItem('registration_' + generatedId, JSON.stringify(registrationData));
+
+        window.location.href = 'pass.html?id=' + generatedId;
 
     } catch (err) {
         console.error("Error al enviar:", err);

@@ -94,16 +94,45 @@
         }
 
         @keyframes pulse-border {
-            0% { border-color: rgba(16, 185, 129, 0.4); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.2); }
-            50% { border-color: rgba(16, 185, 129, 1); box-shadow: 0 0 15px 0 rgba(16, 185, 129, 0.3); }
-            100% { border-color: rgba(16, 185, 129, 0.4); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.2); }
+            0% {
+                border-color: rgba(16, 185, 129, 0.4);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.2);
+            }
+
+            50% {
+                border-color: rgba(16, 185, 129, 1);
+                box-shadow: 0 0 15px 0 rgba(16, 185, 129, 0.3);
+            }
+
+            100% {
+                border-color: rgba(16, 185, 129, 0.4);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.2);
+            }
         }
 
         @media print {
-            body { background: white !important; color: black !important; padding: 0; display: block; }
-            .pass-utility-bar, .manual-cta-box, .utility-buttons { display: none !important; }
-            .dedicated-pass-container { max-width: 100% !important; width: 100% !important; }
-            .printable-pass-wrapper { border: none !important; box-shadow: none !important; }
+            body {
+                background: white !important;
+                color: black !important;
+                padding: 0;
+                display: block;
+            }
+
+            .pass-utility-bar,
+            .manual-cta-box,
+            .utility-buttons {
+                display: none !important;
+            }
+
+            .dedicated-pass-container {
+                max-width: 100% !important;
+                width: 100% !important;
+            }
+
+            .printable-pass-wrapper {
+                border: none !important;
+                box-shadow: none !important;
+            }
         }
     </style>
 </head>
@@ -111,7 +140,8 @@
 <body>
     <div class="dedicated-pass-container">
         <div class="pass-utility-bar">
-            <span id="pass-display-id" style="font-family: monospace; font-weight: 700; color: var(--primary);">Buscando registro...</span>
+            <span id="pass-display-id" style="font-family: monospace; font-weight: 700; color: var(--primary);">Buscando
+                registro...</span>
             <div class="utility-buttons">
                 <button class="btn-utility" id="btn-share-whatsapp">🟢 WhatsApp</button>
                 <button class="btn-utility btn-print-primary" id="btn-print">🖨️ Imprimir Pase</button>
@@ -151,7 +181,8 @@
                         </div>
                     </div>
 
-                    <div id="pass-extra-details" style="margin-top: 25px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 20px;">
+                    <div id="pass-extra-details"
+                        style="margin-top: 25px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 20px;">
                         <p style="text-align: center; opacity: 0.5; font-size: 0.8rem;">Sincronizando datos...</p>
                     </div>
 
@@ -171,7 +202,8 @@
 
         <div class="manual-cta-box">
             <h4 style="margin:0 0 5px 0; color: var(--primary);">📖 ¡MANUAL DEL TOUR OBLIGATORIO!</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Es vital que leas el manual de logística y seguridad antes de subir.</p>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Es vital que leas el manual de
+                logística y seguridad antes de subir.</p>
             <button class="btn-primary btn-full-width" onclick="window.open('./manual.html', '_blank')">
                 📥 Descargar Manual del Tour (PDF/Web)
             </button>
@@ -179,7 +211,8 @@
     </div>
 
     <script>
-        const EDGE_FUNCTION_URL = 'https://cnoeumcshfrfrzyvbxcn.supabase.co/functions/v1/tu-edge-function-admin';
+        const SUPABASE_URL = 'https://cnoeumcshfrfrzyvbxcn.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNub2V1bWNzaGZyZnJ6eXZieGNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyNzIzNDEsImV4cCI6MjA5NTg0ODM0MX0.Sm2-IvEjvIQKwVDbj91jKf87QSonHWlqHBGeFqMuSr8';
 
         let currentHikerData = null;
 
@@ -187,97 +220,187 @@
             const params = new URLSearchParams(window.location.search);
             const idParam = params.get('id');
 
-            // Configurar botones de inmediato
-            document.getElementById('btn-print').onclick = () => window.print();
-            
-            document.getElementById('btn-share-whatsapp').onclick = () => {
-                if (!currentHikerData) {
-                    alert("Espera un momento a que carguen los datos.");
-                    return;
-                }
-                const data = currentHikerData;
-                const rentals = data.rentals && typeof data.rentals === 'object' 
-                    ? Object.entries(data.rentals).map(([k, v]) => `- ${k.replace(/_/g, ' ')} (x${v})`).join('\n')
-                    : 'Ninguno';
+            const btnPrint = document.getElementById('btn-print');
+            const btnShareWhatsapp = document.getElementById('btn-share-whatsapp');
 
-                const msg = `⛰️ *EXPEDICIÓN PICO NAIGUATÁ* ⛰️\n\n` +
-                    `👤 *Nombre:* ${data.name}\n` +
-                    `📅 *Fecha:* ${data.date}\n` +
-                    `⛺ *Alojamiento:* ${data.tent_preference}\n` +
-                    `🎒 *Alquileres:* \n${rentals}\n` +
-                    `💰 *Total a Pagar:* $${parseFloat(data.total_usd).toFixed(2)} USD\n\n` +
-                    `🔗 *Ver Pase y Manual:* ${window.location.href}`;
-                
-                window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-            };
+            // Asegurar que los botones estén bloqueados/deshabilitados inicialmente
+            if (btnPrint) {
+                btnPrint.disabled = true;
+                btnPrint.style.opacity = '0.5';
+            }
+            if (btnShareWhatsapp) {
+                btnShareWhatsapp.disabled = true;
+                btnShareWhatsapp.style.opacity = '0.5';
+                btnShareWhatsapp.innerText = 'Espera un momento...';
+            }
 
             if (!idParam) {
                 document.getElementById('pass-display-id').innerText = "ID NO ENCONTRADO";
+                document.getElementById('pass-card-status').innerText = "❌ Error";
+                document.getElementById('pass-extra-details').innerHTML = `
+                    <div style="text-align:center; padding: 20px;">
+                        <p style="color: var(--error);">❌ El ID del pase no está especificado en la URL.</p>
+                    </div>
+                `;
                 return;
             }
 
             try {
-                // CONSULTA A TRAVÉS DE LA EDGE FUNCTION (Bypass RLS)
-                let response = null;
                 let data = null;
-
-                for (let i = 0; i < 5; i++) {
-                    console.log(`Intentando cargar pase (Intento ${i+1})...`);
-                    const res = await fetch(EDGE_FUNCTION_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'get_hiker_pass', id: idParam })
+                try {
+                    // Consultar directamente a la base de datos Supabase usando la Anon Key
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/registrations?id=eq.${idParam}`, {
+                        method: 'GET',
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                            'Content-Type': 'application/json'
+                        }
                     });
-                    
-                    if (res.ok) {
-                        data = await res.json();
-                        if (data) break;
+                    if (!response.ok) throw new Error('Error al conectar con la base de datos');
+                    const resJson = await response.json();
+                    if (resJson && resJson.length > 0) {
+                        data = resJson[0];
+                    } else {
+                        throw new Error('Registro no encontrado en el servidor');
                     }
-                    await new Promise(r => setTimeout(r, 2000));
+                } catch (fetchError) {
+                    console.warn("Error en consulta remota, intentando localStorage:", fetchError);
+                    // Contingencia (Offline-First)
+                    const localData = localStorage.getItem('registration_' + idParam);
+                    if (localData) {
+                        data = JSON.parse(localData);
+                    } else {
+                        throw new Error('No se pudo localizar tu registro en el servidor ni localmente.');
+                    }
                 }
-
-                if (!data) throw new Error('No pudimos localizar tu registro. Por favor, reintenta en unos segundos.');
 
                 currentHikerData = data;
 
-                // POBLAR UI
-                document.getElementById('pass-display-id').innerText = `Pase: ${idParam.substring(0,8)}`;
-                document.getElementById('pass-card-id').innerText = idParam.substring(0,8).toUpperCase();
-                document.getElementById('pass-card-name').innerText = data.name.toUpperCase();
+                // POBLAR UI GENERAL
+                document.getElementById('pass-display-id').innerText = `Pase: ${idParam.substring(0, 8)}`;
+                document.getElementById('pass-card-id').innerText = idParam.substring(0, 8).toUpperCase();
+                document.getElementById('pass-card-name').innerText = (data.name || '').toUpperCase();
                 document.getElementById('pass-card-doc').innerText = data.reference_number || 'N/A';
-                document.getElementById('pass-card-date').innerText = data.date;
-                document.getElementById('pass-card-status').innerText = data.status;
+                document.getElementById('pass-card-date').innerText = data.date || 'N/A';
+                document.getElementById('pass-card-status').innerText = data.status || '⏳ Verificando...';
 
-                const detailsContainer = document.getElementById('pass-extra-details');
-                const labelsMap = {
-                    email: '📧 Correo',
-                    whatsapp: '📱 WhatsApp',
-                    group_code: '👥 Grupo',
-                    gender: '🚻 Género',
-                    tent_preference: '⛺ Carpa',
-                    allergies: '⚠️ Alergias',
-                    medical: '🏥 Salud/Notas',
-                    rentals: '🎒 Alquileres',
-                    catering: '🍎 Catering Extra',
-                    porter_service: '🧳 Portador',
-                    total_usd: '💰 Total USD'
+                // Formateadores auxiliares para inyección completa
+                const parseObjectToText = (obj) => {
+                    if (!obj) return 'Ninguno';
+                    if (typeof obj === 'string') {
+                        try {
+                            const parsed = JSON.parse(obj);
+                            return parseObjectToText(parsed);
+                        } catch (e) {
+                            return obj;
+                        }
+                    }
+                    if (typeof obj === 'object') {
+                        const entries = Object.entries(obj).filter(([_, qty]) => qty > 0);
+                        if (entries.length === 0) return 'Ninguno';
+                        return entries.map(([item, qty]) => `${item.replace(/_/g, ' ')} (x${qty})`).join(', ');
+                    }
+                    return String(obj);
                 };
 
-                let extraHtml = `<h4 style="color: var(--secondary); font-size: 0.9rem; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">DETALLES DEL REGISTRO:</h4>`;
-                
+                const parsePorterService = (val) => {
+                    if (!val) return 'No solicitado';
+                    if (val === 'porter-2p') return 'Servicio de Portador - Carpa 2P';
+                    if (val === 'porter-3p') return 'Servicio de Portador - Carpa 3P';
+                    if (val === 'porter-4p') return 'Servicio de Portador - Carpa 4P';
+                    return val;
+                };
+
+                // Inyección Completa en el DOM (Todos los 15 campos del esquema)
+                const detailsContainer = document.getElementById('pass-extra-details');
+                const labelsMap = {
+                    name: '👤 Nombre',
+                    date: '📅 Fecha de Ascenso',
+                    whatsapp: '📱 WhatsApp',
+                    group_code: '👥 Código de Grupo',
+                    gender: '🚻 Género',
+                    tent_preference: '⛺ Alojamiento',
+                    allergies: '⚠️ Alergias',
+                    diet: '🍎 Dieta',
+                    medical: '🏥 Ficha Médica',
+                    rentals: '🎒 Alquiler de Equipos',
+                    catering: '🍏 Catering Extra',
+                    porter_service: '🧳 Portador',
+                    total_usd: '💰 Total USD',
+                    payment_method: '💳 Método de Pago',
+                    reference_number: '🔢 Referencia/Comprobante'
+                };
+
+                let extraHtml = `<h4 style="color: var(--secondary); font-size: 0.95rem; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 5px; font-family: 'Outfit', sans-serif;">DETALLES COMPLETOS:</h4>`;
+
                 Object.keys(labelsMap).forEach(key => {
-                    const value = data[key];
-                    if (value && value !== '[]' && value !== '{}' && value !== 'Ninguna.') {
-                        let displayVal = value;
-                        if (typeof value === 'object') {
-                            displayVal = Object.entries(value).map(([k, v]) => `${k.replace(/_/g, ' ')} (x${v})`).join(', ');
-                        }
-                        if (key === 'total_usd') displayVal = `$${parseFloat(value).toFixed(2)} USD`;
-                        
-                        extraHtml += `<p style="font-size: 0.85rem; margin: 6px 0; color: #cbd5e0;"><strong>${labelsMap[key]}:</strong> <span style="color: #fff;">${displayVal}</span></p>`;
+                    let value = data[key];
+                    let displayVal = 'N/A';
+
+                    if (key === 'rentals' || key === 'catering') {
+                        displayVal = parseObjectToText(value);
+                    } else if (key === 'porter_service') {
+                        displayVal = parsePorterService(value);
+                    } else if (key === 'total_usd') {
+                        displayVal = value ? `$${parseFloat(value).toFixed(2)} USD` : '$0.00 USD';
+                    } else if (key === 'gender') {
+                        displayVal = value === 'M' ? 'Masculino' : value === 'F' ? 'Femenino' : value || 'N/A';
+                    } else if (key === 'tent_preference') {
+                        displayVal = value === 'carpa_2' ? 'Carpa 2 Personas' : value === 'carpa_3' ? 'Carpa 3 Personas' : value === 'carpa_4' ? 'Carpa 4 Personas' : value || 'N/A';
+                    } else {
+                        displayVal = value || 'N/A';
                     }
+
+                    extraHtml += `<div style="font-size: 0.85rem; margin: 8px 0; display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.02); padding-bottom: 4px;">
+                        <span style="color: #a0aec0; font-weight: 500;">${labelsMap[key]}</span>
+                        <span style="color: #ffffff; text-align: right; font-weight: 600;">${displayVal}</span>
+                    </div>`;
                 });
+
                 detailsContainer.innerHTML = extraHtml;
+
+                // Habilitar impresión de forma segura
+                if (btnPrint) {
+                    btnPrint.disabled = false;
+                    btnPrint.style.opacity = '1';
+                    btnPrint.onclick = () => window.print();
+                }
+
+                // Habilitar compartir por WhatsApp
+                if (btnShareWhatsapp) {
+                    const rentalsText = parseObjectToText(data.rentals);
+                    const cateringText = parseObjectToText(data.catering);
+                    const porterText = parsePorterService(data.porter_service);
+                    const totalText = data.total_usd ? `$${parseFloat(data.total_usd).toFixed(2)} USD` : '$0.00 USD';
+                    const genderText = data.gender === 'M' ? 'Masculino' : data.gender === 'F' ? 'Femenino' : data.gender || 'N/A';
+                    const tentText = data.tent_preference === 'carpa_2' ? 'Carpa 2 Personas' : data.tent_preference === 'carpa_3' ? 'Carpa 3 Personas' : data.tent_preference === 'carpa_4' ? 'Carpa 4 Personas' : data.tent_preference || 'N/A';
+
+                    const whatsappText = `⛰️ *EXPEDICIÓN PICO NAIGUATÁ* ⛰️\n\n` +
+                        `👤 *Nombre:* ${data.name || 'N/A'}\n` +
+                        `📅 *Fecha:* ${data.date || 'N/A'}\n` +
+                        `📱 *WhatsApp:* ${data.whatsapp || 'N/A'}\n` +
+                        `👥 *Grupo:* ${data.group_code || 'N/A'}\n` +
+                        `🚻 *Género:* ${genderText}\n` +
+                        `⛺ *Carpa:* ${tentText}\n` +
+                        `⚠️ *Alergias:* ${data.allergies || 'Ninguna'}\n` +
+                        `🍎 *Dieta:* ${data.diet || 'Estándar'}\n` +
+                        `🏥 *Ficha Médica:* ${data.medical || 'Ninguna'}\n` +
+                        `🎒 *Alquileres:* ${rentalsText}\n` +
+                        `🍏 *Catering:* ${cateringText}\n` +
+                        `🧳 *Portador:* ${porterText}\n` +
+                        `💰 *Total:* ${totalText}\n` +
+                        `💳 *Pago:* ${data.payment_method || 'N/A'}\n` +
+                        `🔢 *Referencia:* ${data.reference_number || 'N/A'}\n\n` +
+                        `🔗 *Ver Pase:* ${window.location.href}`;
+
+                    btnShareWhatsapp.disabled = false;
+                    btnShareWhatsapp.style.opacity = '1';
+                    btnShareWhatsapp.innerText = '🟢 WhatsApp';
+                    btnShareWhatsapp.onclick = () => {
+                        window.open(`https://wa.me/?text=${encodeURIComponent(whatsappText)}`, '_blank');
+                    };
+                }
 
             } catch (err) {
                 console.error("Error en pass.html:", err);

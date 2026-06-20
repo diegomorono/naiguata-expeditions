@@ -129,7 +129,7 @@ tu-edge-function-admin(body: { username?: text, password?: text, action?: 'get_r
 - Lógica Auth Admin: Si recibe username/password, los valida usando hash SHA-256 híbrido contra env vars (Fallback username: 'diegomorono'). Retorna { token: SUPABASE_SERVICE_ROLE_KEY } como credencial maestra de bypass para el cliente.
 - Lógica Get Registrations: Si action == 'get_registrations', requiere parámetro date de forma obligatoria y realiza un bypass RLS vía service role para retornar filas de la tabla 'registrations' que coincidan con la fecha dada.
 
-5. Environment Variables & Secrets
+5. ## Environment Variables & Secrets
 
 EMAILJS_SERVICE_ID: Identificador único del servicio en EmailJS encargado de gestionar el enrutamiento de correos electrónicos del sistema.
 EMAILJS_TEMPLATE_ID: Identificador de la plantilla de EmailJS estructurada para las notificaciones automáticas de las expediciones.
