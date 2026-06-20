@@ -1197,3 +1197,43 @@ button:focus {
     gap: var(--admin-spacing-sm);
   }
 }
+
+/* ==========================================================================
+   CLASES HUÉRFANAS DETECTADAS EN AUDITORÍA CRUZADA (HTML vs CSS)
+   Estas clases se usan en index.html pero nunca tuvieron regla propia,
+   por lo que esas zonas caían a comportamiento de bloque por defecto del
+   navegador (sin grid, sin espaciado, sin alineación).
+   ========================================================================== */
+
+/* Pestaña "Carpas / Pernocta": logistics.js inyecta .tent-allocation-card
+   dentro de este contenedor; sin esta regla, las tarjetas se apilaban a
+   ancho completo en vez de organizarse en grid responsive. */
+.tents-allocation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--admin-spacing-lg);
+}
+
+/* Pestaña "Checklist Digital": checklist.js inyecta bloques .checklist-block
+   dentro de este contenedor. */
+.checklist-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-spacing-lg);
+}
+
+/* Pestaña "Catering": logistics.js inyecta el aviso de alergias aquí. */
+.allergy-alerts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-spacing-sm);
+  margin-bottom: var(--admin-spacing-lg);
+}
+
+/* Botón "Iniciar Sesión": usa .btn-large pero esa clase nunca se definió
+   para el contexto admin, dejando el CTA principal del login con el
+   tamaño base en vez de destacar como acción primaria. */
+.admin-body .btn-large {
+  padding: 18px 32px;
+  font-size: 1.05rem;
+}

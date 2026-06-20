@@ -12,9 +12,9 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
     <!-- Base Styles -->
-    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="/styles.css">
     <!-- Admin-specific CSS -->
-    <link rel="stylesheet" href="./admin-styles.css">
+    <link rel="stylesheet" href="/admin/admin-styles.css">
 </head>
 
 <body class="admin-body">
@@ -32,11 +32,13 @@
             <form id="admin-login-form" class="login-form">
                 <div class="form-input-wrapper">
                     <label for="admin-user">Usuario administrador</label>
-                    <input type="text" id="admin-user" required placeholder="Usuario" aria-label="Usuario administrador">
+                    <input type="text" id="admin-user" required placeholder="Usuario"
+                        aria-label="Usuario administrador">
                 </div>
                 <div class="form-input-wrapper">
                     <label for="admin-password">Contraseña</label>
-                    <input type="password" id="admin-password" required placeholder="••••••••••••" aria-label="Contraseña">
+                    <input type="password" id="admin-password" required placeholder="••••••••••••"
+                        aria-label="Contraseña">
                 </div>
                 <button type="submit" id="btn-login-submit" class="btn-primary btn-large btn-full-width">
                     Iniciar Sesión
@@ -120,7 +122,8 @@
                 <div class="metric-card glass-panel">
                     <span class="badge">Grupos</span>
                     <div class="metric-value" id="stat-groups-count">0</div>
-                    <span class="metric-subtitle">Coordinación de aforo (Máx: <span class="max-capacity-display">--</span> pp)</span>
+                    <span class="metric-subtitle">Coordinación de aforo (Máx: <span
+                            class="max-capacity-display">--</span> pp)</span>
                 </div>
 
                 <div class="metric-card glass-panel">
@@ -167,7 +170,7 @@
                         <p class="section-description">
                             Indexación anti-inflacionaria de fondos en Bolívares.
                         </p>
-                        
+
                         <div class="coverage-summary">
                             <div class="coverage-item">
                                 <span>Caja Banco Bs:</span>
@@ -191,14 +194,15 @@
                     <!-- Panel de Control Financiero -->
                     <section class="sidebar-section glass-panel">
                         <h3 class="sidebar-title">Ajustes Remotos de Sistema</h3>
-                        
+
                         <div class="form-group">
                             <label for="admin-bcv-rate">Tasa de Cambio BCV (VES/USD)</label>
                             <div class="input-with-action">
                                 <input type="number" step="0.01" id="admin-bcv-rate" value="40.00">
                                 <button id="btn-update-bcv" class="btn-small-primary">Forzar</button>
                             </div>
-                            <span class="form-hint" id="admin-bcv-status">Sincronizado vía base de datos Supabase.</span>
+                            <span class="form-hint" id="admin-bcv-status">Sincronizado vía base de datos
+                                Supabase.</span>
                         </div>
 
                         <div class="form-group">
@@ -352,7 +356,8 @@
                             <div class="tab-card glass-panel">
                                 <h3 class="tab-title">Distribución del Campamento (Anfiteatro)</h3>
                                 <p class="tab-subtitle">
-                                    Asignación automática basada en códigos de grupo, género y optimización de carpas propias para mitigar el alquiler de externas ($10 USD).
+                                    Asignación automática basada en códigos de grupo, género y optimización de carpas
+                                    propias para mitigar el alquiler de externas ($10 USD).
                                 </p>
 
                                 <div id="tents-allocation-container" class="tents-allocation-grid">
@@ -455,17 +460,19 @@
                                             </div>
                                             <div class="form-input-wrapper">
                                                 <label for="exp-amount">Monto Original</label>
-                                                <input type="number" step="0.01" id="exp-amount" required placeholder="0.00">
+                                                <input type="number" step="0.01" id="exp-amount" required
+                                                    placeholder="0.00">
                                             </div>
                                             <div class="form-input-wrapper" id="exp-rate-wrapper">
                                                 <label for="exp-rate">Tasa Cambio Aplicada</label>
-                                                <input type="number" step="0.01" id="exp-rate" placeholder="Tasa del día">
+                                                <input type="number" step="0.01" id="exp-rate"
+                                                    placeholder="Tasa del día">
                                             </div>
                                         </div>
                                         <div class="form-input-wrapper">
                                             <label for="exp-desc">Descripción del Movimiento</label>
-                                            <input type="text" id="exp-desc" required 
-                                                   placeholder="Ej. Pago transporte privado a La Julia">
+                                            <input type="text" id="exp-desc" required
+                                                placeholder="Ej. Pago transporte privado a La Julia">
                                         </div>
                                         <button type="submit" class="btn-primary">Registrar Gasto</button>
                                     </form>
@@ -478,7 +485,8 @@
                             <div class="tab-card glass-panel">
                                 <h3 class="tab-title">Checklist Pre-Viaje Digital</h3>
                                 <p class="tab-subtitle">
-                                    Lista de verificación interactiva vinculada a la base de datos Supabase para mantener sincronizado el estado.
+                                    Lista de verificación interactiva vinculada a la base de datos Supabase para
+                                    mantener sincronizado el estado.
                                 </p>
 
                                 <div id="checklist-blocks-container" class="checklist-container">
@@ -492,7 +500,8 @@
                             <div class="tab-card glass-panel">
                                 <h3 class="tab-title">Variables y Precios Maestros (Base USD)</h3>
                                 <p class="tab-subtitle">
-                                    Edita los costos y valores del negocio. Todos los cálculos matemáticos del sistema se actualizan automáticamente.
+                                    Edita los costos y valores del negocio. Todos los cálculos matemáticos del sistema
+                                    se actualizan automáticamente.
                                 </p>
 
                                 <div class="table-container">
@@ -514,8 +523,10 @@
                                 <div class="info-panel glass-panel">
                                     <h4 class="info-title">Fórmula de Producción Integrada</h4>
                                     <p class="info-text">
-                                        El costo base calculado para el catering por participante es de <strong>$3.51 USD</strong>. <br>
-                                        Composición: Avena (40g) + Nueces (15g) + Almendras (15g) + Papelón (25g) [Todo x2] + Mix (50g) + 1 Cambur + Bolsa.
+                                        El costo base calculado para el catering por participante es de <strong>$3.51
+                                            USD</strong>. <br>
+                                        Composición: Avena (40g) + Nueces (15g) + Almendras (15g) + Papelón (25g) [Todo
+                                        x2] + Mix (50g) + 1 Cambur + Bolsa.
                                     </p>
                                 </div>
                             </div>
@@ -531,7 +542,7 @@
     <div id="modal-payment-audit" class="modal-overlay">
         <div class="modal-dialog glass-panel">
             <h3 class="modal-title">Auditar Transacción</h3>
-            
+
             <div class="audit-details">
                 <div>Excursionista: <strong id="audit-hiker-name">-</strong></div>
                 <div>Método de Pago: <strong id="audit-pay-method">-</strong></div>
@@ -582,7 +593,7 @@
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Main Logic Script -->
-    <script type="module" src="./src/admin-main.js"></script>
+    <script type="module" src="/src/admin-main.js"></script>
 </body>
 
 </html>
