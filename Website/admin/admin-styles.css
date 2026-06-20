@@ -143,7 +143,7 @@
 .dashboard-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   flex-wrap: wrap;
   gap: var(--admin-spacing-lg);
 }
@@ -205,8 +205,10 @@
 }
 
 .date-input {
-  padding: var(--admin-spacing-sm) var(--admin-spacing-md);
-  border-radius: var(--admin-border-radius-md);
+  height: 40px;
+  box-sizing: border-box;
+  padding: 0 var(--admin-spacing-md);
+  border-radius: var(--admin-border-radius-sm);
   border: 1px solid var(--border-subtle);
   background: rgba(255, 255, 255, 0.03);
   color: var(--text-main);
@@ -411,11 +413,10 @@
   min-width: 0;
 }
 
-.btn-small-primary {
-  padding: 6px 12px;
-  font-size: 0.8rem;
-  white-space: nowrap;
-}
+/* .btn-small-primary fue retirada: el HTML ahora usa el sistema unificado
+   .btn-primary.btn-small (ver "SISTEMA DE BOTONES ADMIN" al final del archivo)
+   para que cualquier botón pequeño comparta exactamente la misma altura que
+   los inputs densos (40px) sin importar su variante de color. */
 
 .form-hint {
   font-size: 0.75rem;
@@ -1236,4 +1237,152 @@ button:focus {
 .admin-body .btn-large {
   padding: 18px 32px;
   font-size: 1.05rem;
+}
+
+/* ==========================================================================
+   PASADA UI/UX EXPERTA: SISTEMA DE COMPONENTES COHERENTE
+   ==========================================================================
+   Hallazgo central de la auditoría: .btn-secondary, .btn-danger y .btn-small
+   se usan en TODO el HTML del admin pero nunca tuvieron regla propia (ni
+   aquí ni en el styles.css público, que solo define .btn-primary/.btn-outline).
+   Esos botones caían al estilo nativo del navegador: gris, sin padding, sin
+   tipografía — al lado de botones premium bien diseñados. Esa inconsistencia,
+   sumada a inputs con altura heredada del formulario público (16px/20px de
+   padding) conviviendo con botones diminutos, es la causa real de que "las
+   alineaciones dentro de las secciones se vean mal": no era un problema de
+   flexbox, era un sistema de componentes incompleto.
+   ========================================================================== */
+
+/* --- 1. Familia de botones: misma tipografía/altura base que .btn-primary,
+   para que cualquier combinación de variantes en una misma fila quede a
+   la misma altura sin importar el color --- */
+.admin-body .btn-secondary,
+.admin-body .btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  padding: 18px 32px;
+  border-radius: var(--admin-border-radius-md);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: var(--transition-master);
+  white-space: nowrap;
+}
+
+.admin-body .btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+}
+
+.admin-body .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Estado "seleccionado" para toggles tipo .btn-secondary.active
+   (ej. filtros "Salida Activa" / "Total Histórico" en Finanzas) */
+.admin-body .btn-secondary.active {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: var(--emerald);
+}
+
+.admin-body .btn-danger {
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.admin-body .btn-danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.6);
+}
+
+/* .btn-primary / .btn-outline viven en el styles.css público con su propio
+   padding (18px 48px). Aquí solo añadimos el centrado flex para que el
+   contenido (emoji + texto) quede perfectamente alineado en cualquier
+   ancho, incluido .btn-full-width. */
+.admin-body .btn-primary,
+.admin-body .btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+/* --- 2. Modificador de tamaño: altura fija de 40px, compone con
+   cualquier variante de color (.btn-primary.btn-small,
+   .btn-secondary.btn-small, .btn-danger.btn-small, .btn-outline.btn-small).
+   Esta es la MISMA altura que los inputs densos del punto 4, así que
+   cualquier fila "input + botón" queda perfectamente alineada en píxeles. --- */
+.admin-body .btn-small {
+  height: 40px;
+  padding: 0 18px;
+  font-size: 0.75rem;
+  box-sizing: border-box;
+}
+
+/* --- 3. Badge compacto para contextos densos (tarjetas de métrica,
+   encabezado del dashboard). El .badge público trae padding de 12px/32px
+   pensado para el hero — aquí se reduce a una escala de "eyebrow label". --- */
+.admin-body .badge {
+  padding: 6px 14px;
+  margin-bottom: var(--admin-spacing-sm);
+  font-size: 0.7rem;
+}
+
+/* --- 4. Altura unificada de controles densos (40px, igual que .btn-small)
+   Cubre: sidebar (BCV/precio/aforo), formulario de egresos, modal de
+   permuta. Los inputs compactos de carpas (.form-input-compact) y el
+   formulario de login NO se tocan a propósito: son contextos distintos
+   (grid de 4 columnas muy angosto / pantalla de login espaciosa). --- */
+.admin-body .form-group input,
+.admin-body .form-group select,
+.admin-body .expense-form input,
+.admin-body .expense-form select,
+.admin-body .modal-form input,
+.admin-body .modal-form select,
+.admin-body .input-with-action input {
+  height: 40px;
+  box-sizing: border-box;
+  padding: 0 14px;
+  border-radius: var(--admin-border-radius-sm);
+  font-size: 0.9rem;
+}
+
+/* --- 5. Flecha custom para <select> en tema oscuro (antes caía al
+   estilo nativo del navegador, inconsistente con el resto del sistema) --- */
+.admin-body select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 36px;
+}
+
+/* --- 6. Widgets nativos (selector de fecha, spinners de número, panel de
+   <select>) coherentes con el tema oscuro, en vez del estilo claro nativo
+   que el navegador asume por defecto --- */
+.admin-body input,
+.admin-body select,
+.admin-body textarea {
+  color-scheme: dark;
+}
+
+/* --- 7. Alineación vertical fina dentro de filas input+botón: cuando el
+   input es flex:1 y el botón tiene ancho fijo, ambos ya comparten 40px de
+   alto exacto (puntos 2 y 4), así que basta con centrar la fila --- */
+.admin-body .input-with-action {
+  align-items: center;
 }
