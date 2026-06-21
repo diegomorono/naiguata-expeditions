@@ -370,6 +370,26 @@ async function handleFormSubmission(e) {
         };
         localStorage.setItem('registration_' + generatedId, JSON.stringify(registrationData));
 
+        const parseObjectToText = (obj) => {
+            if (!obj) return 'Ninguno';
+            const entries = Object.entries(obj).filter(([_, qty]) => qty > 0);
+            return entries.length === 0 ? 'Ninguno' : entries.map(([item, qty]) => `${item.replace(/_/g, ' ')} (x${qty})`).join(', ');
+        };
+
+        const emailPayload = {
+            ...registrationData,
+            rentals_text: parseObjectToText(selectedRentals),
+            catering_text: parseObjectToText(selectedCatering),
+            porter_text: porterService ? porterService.replace('-', ' ') : 'Carga propia'
+        };
+
+        // Fetch asíncrono no bloqueante (Fire and Forget)
+        fetch('/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(emailPayload)
+        }).catch(err => console.warn("Notificación de email fallida, pero registro exitoso:", err));
+
         window.location.href = 'pass.html?id=' + generatedId;
 
     } catch (err) {

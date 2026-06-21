@@ -162,25 +162,6 @@
                 </div>
 
                 <div class="pass-body">
-                    <div class="pass-meta-grid">
-                        <div class="meta-item">
-                            <span class="meta-label">SENDERISTA / EXPLORADOR</span>
-                            <span class="meta-value" id="pass-card-name">Cargando...</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">ID / REFERENCIA</span>
-                            <span class="meta-value" id="pass-card-doc">Cargando...</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">FECHA DE ASCENSO</span>
-                            <span class="meta-value" id="pass-card-date">Cargando...</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">ESTADO</span>
-                            <span class="meta-value" id="pass-card-status">⏳ Verificando...</span>
-                        </div>
-                    </div>
-
                     <div id="pass-extra-details"
                         style="margin-top: 25px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 20px;">
                         <p style="text-align: center; opacity: 0.5; font-size: 0.8rem;">Sincronizando datos...</p>
@@ -236,7 +217,6 @@
 
             if (!idParam) {
                 document.getElementById('pass-display-id').innerText = "ID NO ENCONTRADO";
-                document.getElementById('pass-card-status').innerText = "❌ Error";
                 document.getElementById('pass-extra-details').innerHTML = `
                     <div style="text-align:center; padding: 20px;">
                         <p style="color: var(--error);">❌ El ID del pase no está especificado en la URL.</p>
@@ -280,10 +260,6 @@
                 // POBLAR UI GENERAL
                 document.getElementById('pass-display-id').innerText = `Pase: ${idParam.substring(0, 8)}`;
                 document.getElementById('pass-card-id').innerText = idParam.substring(0, 8).toUpperCase();
-                document.getElementById('pass-card-name').innerText = (data.name || '').toUpperCase();
-                document.getElementById('pass-card-doc').innerText = data.reference_number || 'N/A';
-                document.getElementById('pass-card-date').innerText = data.date || 'N/A';
-                document.getElementById('pass-card-status').innerText = data.status || '⏳ Verificando...';
 
                 // Formateadores auxiliares para inyección completa
                 const parseObjectToText = (obj) => {
