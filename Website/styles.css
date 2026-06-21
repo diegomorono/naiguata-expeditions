@@ -858,6 +858,48 @@ textarea:focus {
   .stepper-container {
     align-self: flex-end;
   }
+
+  /* 1. Reducción de Carga Cognitiva en Gestión de Carga */
+  .carrier-description {
+    display: none !important;
+  }
+
+  /* 2. Corrección de Overflow y Legibilidad en el Resumen de Pago */
+  .form-summary-card {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 1.25rem !important;
+    /* El total respira dentro del border-radius */
+  }
+
+  .summary-line {
+    flex-wrap: wrap !important;
+    gap: 8px;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .total-usd {
+    font-size: 2.2rem !important;
+    /* Tamaño del número reducido */
+  }
+
+  .total-ves {
+    font-size: 1rem !important;
+  }
+
+  /* Adaptación para pantallas críticas menores a 380px */
+  @media (max-width: 380px) {
+    .summary-line {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+    }
+
+    .total-values {
+      text-align: left !important;
+      width: 100%;
+    }
+  }
 }
 
 .hidden {
