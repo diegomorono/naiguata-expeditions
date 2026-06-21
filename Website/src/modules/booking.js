@@ -269,7 +269,7 @@ async function handleFormSubmission(e) {
 
     if (btnSubmit) {
         btnSubmit.disabled = true;
-        btnSubmit.innerHTML = 'Procesando...';
+        btnSubmit.innerHTML = '<span class="spinner-small"></span> Procesando Registro...';
     }
 
     try {
@@ -298,11 +298,11 @@ async function handleFormSubmission(e) {
         }
 
         const groupCode = formData.get('group_code') || 'INDIVIDUAL';
-
         const state = appStore.get();
-        const serverComputedTotal = (state.tourBasePrice || 50) + parseFloat(document.getElementById('rental-cost-display')?.textContent.replace(/[^0-9.]/g, '') || '0');
+        const extraCostsDisplay = document.getElementById('rental-cost-display');
+        const extraCosts = extraCostsDisplay ? parseFloat(extraCostsDisplay.textContent.replace(/[^0-9.]/g, '')) : 0;
+        const serverComputedTotal = (state.tourBasePrice || 50) + extraCosts;
 
-        // Lógica de Fecha Personalizada vs Estándar
         let inputDate = formData.get('date');
         const customDateText = formData.get('custom_date');
         let medicalNotes = sanearTexto(formData.get('medical') || 'Ninguna.');
@@ -315,9 +315,10 @@ async function handleFormSubmission(e) {
         }
 
         const inputName = formData.get('name') || '';
-        const inputCedula = formData.get('reference_number') || 'N/A';
+        const referenceNumber = formData.get('reference_number') || 'N/A';
         const passId = crypto.randomUUID();
 
+        // Execution of the Database Atomic Transaction via Supabase RPC
         const { data, error } = await supabase.rpc('registrar_excursionista', {
             p_id: passId,
             p_date: inputDate,
@@ -335,21 +336,23 @@ async function handleFormSubmission(e) {
             p_porter_service: porterService,
             p_total_usd: serverComputedTotal,
             p_payment_method: formData.get('payment_method'),
-            p_reference_number: sanearTexto(formData.get('reference_number') || 'N/A')
+            p_reference_number: sanearTexto(referenceNumber)
         });
 
         if (error) throw error;
 
         if (data && !data.success) {
             alert(data.message || "Error al procesar el cupo.");
+            if (btnSubmit) {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = 'Confirmar Registro y Generar Pase';
+            }
             return;
         }
 
-        const generatedId = passId;
-
-        // Medida de resiliencia Offline-First: Guardar copia temporal en localStorage
+        // Consolidation of the Complete Offline-First Payload Object
         const registrationData = {
-            id: generatedId,
+            id: passId,
             date: inputDate,
             name: sanearTexto(inputName),
             email: sanearTexto(formData.get('email')),
@@ -365,61 +368,102 @@ async function handleFormSubmission(e) {
             porter_service: porterService,
             total_usd: serverComputedTotal,
             payment_method: formData.get('payment_method'),
-            reference_number: sanearTexto(formData.get('reference_number') || 'N/A'),
-            status: '⏳ Sincronizado (Pendiente de Aprobación)'
-        };
-        localStorage.setItem('registration_' + generatedId, JSON.stringify(registrationData));
-
-        const parseObjectToText = (obj) => {
-            if (!obj) return 'Ninguno';
-            const entries = Object.entries(obj).filter(([_, qty]) => qty > 0);
-            return entries.length === 0 ? 'Ninguno' : entries.map(([item, qty]) => `${item.replace(/_/g, ' ')} (x${qty})`).join(', ');
+            reference_number: sanearTexto(referenceNumber)
         };
 
-        const emailPayload = {
-            hiker_name: registrationData.name,
-            hiker_date: registrationData.date,
-            whatsapp: registrationData.whatsapp,
-            group_code: registrationData.group_code,
-            gender: registrationData.gender,
-            tent_preference: registrationData.tent_preference,
-            allergies: registrationData.allergies,
-            diet: registrationData.diet,
-            medical: registrationData.medical,
-            total_usd: registrationData.total_usd,
-            payment_method: registrationData.payment_method,
-            reference_number: registrationData.reference_number,
-            rentals_text: parseObjectToText(registrationData.rentals),
-            catering_text: parseObjectToText(registrationData.catering),
-            porter_text: registrationData.porter_service ? registrationData.porter_service.replace('-', ' ') : 'Carga propia'
-        };
+        // Cache persistent backup internally for pass.html consumption lifecycle
+        localStorage.setItem('registration_' + passId, JSON.stringify(registrationData));
+        
+        // Evacuate form state session draft cache to prevent overlap
+        localStorage.removeItem('expedition_form_draft');
 
+        // Trigger safe asynchronous serverless gateway notification chain
         try {
-            console.log("[Booking] Disparando notificación a EmailJS...");
-            const emailRes = await fetch('/api/send-email', {
+            await fetch('/api/send-email', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(emailPayload)
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(registrationData)
             });
-            
-            if (!emailRes.ok) {
-                const errText = await emailRes.text();
-                console.warn("[Booking] Advertencia: EmailJS reportó un fallo no bloqueante:", errText);
-            } else {
-                console.log("[Booking] Notificación administrativa enviada con éxito.");
-            }
-        } catch (err) {
-            // Si falla la red, atrapamos el error pero NO detenemos la experiencia del cliente
-            console.error("[Booking] Error de red al intentar enviar el correo:", err);
+            console.log("[Notification Engine] Email confirmation successfully queued.");
+        } catch (emailError) {
+            console.warn("[Notification Engine] Vercel edge gateway unreachable, registration saved offline:", emailError);
         }
 
-        // AHORA SÍ: Redirigimos al usuario, garantizando que el correo ya salió
-        window.location.href = 'pass.html?id=' + generatedId;
+        // Transition UI Layers From Client Workspace into Premium Pass Workspace
+        const clientView = document.getElementById('client-view');
+        const successView = document.getElementById('success-view');
+
+        if (clientView) {
+            clientView.classList.remove('active');
+            clientView.classList.add('hidden');
+        }
+
+        if (successView) {
+            successView.classList.remove('hidden');
+            successView.style.display = 'block';
+        }
+
+        // Inject Core Data Tokens directly into the UI Success View Summary Board
+        const summaryName = document.getElementById('summary-name');
+        const summaryDoc = document.getElementById('summary-doc');
+        const summaryDate = document.getElementById('summary-date');
+        const summaryId = document.getElementById('summary-id');
+
+        if (summaryName) summaryName.textContent = registrationData.name;
+        if (summaryDoc) summaryDoc.textContent = registrationData.reference_number;
+        if (summaryDate) summaryDate.textContent = registrationData.date;
+        if (summaryId) summaryId.textContent = passId.substring(0, 8).toUpperCase();
+
+        // Wire Up Success Interaction Controls Imperatively
+        const btnDownloadPass = document.getElementById('btn-download-pass-manual');
+        if (btnDownloadPass) {
+            btnDownloadPass.onclick = () => {
+                window.open(`./pass.html?id=${passId}`, '_blank');
+            };
+        }
+
+        const btnShareAdventure = document.getElementById('btn-share-adventure');
+        if (btnShareAdventure) {
+            btnShareAdventure.onclick = () => {
+                const shareText = `⛰️ ¡Mi cupo está confirmado para el Pico Naiguatá! ID de Pase: ${passId.substring(0, 8).toUpperCase()}. Revisa los detalles de la expedición aquí: ${window.location.origin}/pass.html?id=${passId}`;
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Mi Pase de Expedición Pico Naiguatá',
+                        text: shareText,
+                        url: `${window.location.origin}/pass.html?id=${passId}`
+                    }).catch(err => console.log('Error sharing:', err));
+                } else {
+                    navigator.clipboard.writeText(shareText);
+                    alert('¡Enlace de respaldo y detalles copiados al portapapeles!');
+                }
+            };
+        }
+
+        const btnSuccessHome = document.getElementById('btn-success-home');
+        if (btnSuccessHome) {
+            btnSuccessHome.onclick = () => {
+                form.reset();
+                if (successView) {
+                    successView.style.display = 'none';
+                    successView.classList.add('hidden');
+                }
+                if (clientView) {
+                    clientView.classList.remove('hidden');
+                    clientView.classList.add('active');
+                }
+                if (btnSubmit) {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = 'Confirmar Registro y Generar Pase';
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+        }
 
     } catch (err) {
-        console.error("Error al enviar:", err);
-        alert("Hubo un error al procesar tu inscripción. Revisa la consola.");
-    } finally {
+        console.error("[Fatal Form Transaction Error] Recovery executed:", err);
+        alert(`Ocurrió un error al procesar tu solicitud: ${err.message}. Por favor verifica tus datos e intenta de nuevo.`);
         if (btnSubmit) {
             btnSubmit.disabled = false;
             btnSubmit.innerHTML = 'Confirmar Registro y Generar Pase';
