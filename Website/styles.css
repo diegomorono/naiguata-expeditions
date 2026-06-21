@@ -142,6 +142,8 @@ h4 {
   background: linear-gradient(to bottom, #fff 60%, rgba(255, 255, 255, 0.4));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: var(--text-main);
+  /* Fallback color */
 }
 
 .hero-description {
@@ -200,13 +202,16 @@ h4 {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  text-align: left;
+  padding-left: 1.5rem;
 }
 
 .feature-tag {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  align-items: flex-start;
+  gap: 10px;
   font-size: 0.95rem;
+  text-align: left;
 }
 
 .check-icon {
@@ -474,7 +479,8 @@ textarea:focus {
 .catering-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+  /* Aumentado de 12px a 16px para evitar colapso */
 }
 
 .equipment-row,
@@ -483,9 +489,13 @@ textarea:focus {
   justify-content: space-between;
   align-items: center;
   background: #151a17;
-  padding: 14px 20px;
+  padding: 1.5rem;
+  /* Aumentado a 1.5rem para diseño táctil holgado */
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.03);
+  flex-wrap: wrap;
+  /* Evita desbordamiento de texto */
+  gap: 16px;
 }
 
 .equipment-name,
@@ -510,19 +520,24 @@ textarea:focus {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   overflow: hidden;
-  max-width: 120px; /* Make the container more compact */
-  justify-content: space-between; /* Added for spacing */
+  max-width: 140px;
+  justify-content: space-between;
 }
 
 .stepper-btn {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  /* Touch target min 44px de Apple/Google */
+  height: 44px;
   border: none;
   background: transparent;
   color: #fff;
   cursor: pointer;
   transition: 0.2s;
-  flex-shrink: 0; /* Prevent buttons from shrinking */
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
 }
 
 .stepper-btn:hover {
@@ -530,7 +545,7 @@ textarea:focus {
 }
 
 .stepper-input {
-  width: 40px; /* Reverted to fixed width */
+  width: 40px;
   text-align: center;
   border: none;
   background: transparent;
@@ -544,7 +559,8 @@ textarea:focus {
 .carrier-buttons-grid {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
+  /* Aumentado de 10px a 16px */
   margin-top: 8px;
   margin-bottom: 8px;
 }
@@ -556,7 +572,8 @@ textarea:focus {
   background: hsla(0, 0%, 100%, .04);
   border: 1px solid hsla(0, 0%, 100%, .08);
   border-radius: 10px;
-  padding: 14px 16px;
+  padding: 1.5rem;
+  /* Aumentado de 14px a 1.5rem */
   color: #fff;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: .95rem;
@@ -564,6 +581,9 @@ textarea:focus {
   cursor: pointer;
   transition: all .2s ease-in-out;
   width: 100%;
+  flex-wrap: wrap;
+  /* Evita desbordamiento */
+  gap: 16px;
 }
 
 .carrier-btn-content {
@@ -682,7 +702,8 @@ textarea:focus {
   margin: 80px auto 0;
   min-width: 380px;
   justify-content: center;
-  gap: 10px; /* Added gap for spacing */
+  gap: 10px;
+  /* Added gap for spacing */
 }
 
 /* Panels */
@@ -690,8 +711,11 @@ textarea:focus {
   background: var(--bg-surface);
   backdrop-filter: blur(40px);
   border: 1px solid var(--border-subtle);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  /* Borde superior sutil */
   border-radius: var(--radius-xl);
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 30px 60px rgba(0, 0, 0, 0.5);
+  /* Sombra para forzar separación de capas */
 }
 
 /* Animations */
@@ -721,6 +745,45 @@ textarea:focus {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 40px;
+}
+
+/* Alternancia de Fondos y Separación Visual */
+.hero-section {
+  background-color: var(--bg-deep);
+}
+
+#checklist-section {
+  background-color: var(--bg-elevated);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+#booking-form-section {
+  background-color: var(--bg-deep);
+}
+
+/* Expansión del Módulo de Pago */
+#payment-instructions-box {
+  width: 100%;
+}
+
+#payment-instructions-box>div {
+  padding: 24px !important;
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 12px !important;
+  line-height: 1.6 !important;
+  max-width: none !important;
+  /* Elimina restricciones max-width agresivas */
+}
+
+#payment-instructions-box p {
+  line-height: 1.6 !important;
+  margin: 8px 0 !important;
+}
+
+#payment-instructions-box h4 {
+  margin-bottom: 12px !important;
 }
 
 /* Responsive */
@@ -771,6 +834,29 @@ textarea:focus {
   #btn-submit-booking {
     width: 100%;
     min-width: unset;
+  }
+}
+
+/* Media Query Específica para Móviles (World-Class Mobile UI/UX) */
+@media (max-width: 768px) {
+  .hero-title {
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    -webkit-text-fill-color: var(--text-main) !important;
+    color: var(--text-main) !important;
+    /* Forzar contraste blanco en móviles */
+    font-size: 2.5rem !important;
+  }
+
+  .equipment-row,
+  .catering-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .stepper-container {
+    align-self: flex-end;
   }
 }
 
