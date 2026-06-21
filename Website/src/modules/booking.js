@@ -269,13 +269,14 @@ async function handleFormSubmission(e) {
 
     if (btnSubmit) {
         btnSubmit.disabled = true;
-        btnSubmit.innerHTML = '<span class="spinner-small"></span> Procesando Registro...';
+        btnSubmit.innerHTML = '<span class="spinner-small"></span> Procesando...';
     }
 
     try {
         const supabase = await getSupabaseClient();
         const formData = new FormData(form);
 
+        // 1. Recolección de Datos de Equipos y Catering
         const selectedRentals = {};
         document.querySelectorAll('.equipment-input').forEach(input => {
             const qty = parseInt(input.value || '0', 10);
@@ -318,7 +319,7 @@ async function handleFormSubmission(e) {
         const referenceNumber = formData.get('reference_number') || 'N/A';
         const passId = crypto.randomUUID();
 
-        // Execution of the Database Atomic Transaction via Supabase RPC
+        // 2. Transacción Atómica en Base de Datos (Supabase)
         const { data, error } = await supabase.rpc('registrar_excursionista', {
             p_id: passId,
             p_date: inputDate,
@@ -350,7 +351,7 @@ async function handleFormSubmission(e) {
             return;
         }
 
-        // Consolidation of the Complete Offline-First Payload Object
+        // 3. Estructura Completa del Payload para LocalStorage y Correo
         const registrationData = {
             id: passId,
             date: inputDate,
@@ -371,13 +372,13 @@ async function handleFormSubmission(e) {
             reference_number: sanearTexto(referenceNumber)
         };
 
-        // Cache persistent backup internally for pass.html consumption lifecycle
+        // Guardar persistencia local para lectura inmediata por parte de pass.html
         localStorage.setItem('registration_' + passId, JSON.stringify(registrationData));
         
-        // Evacuate form state session draft cache to prevent overlap
-        localStorage.removeItem('expedition_form_draft');
+        // Limpiar el borrador del borrador del formulario activo
+        localStorage.removeItem('naiguata_form_draft');
 
-        // Trigger safe asynchronous serverless gateway notification chain
+        // 4. Activación Asíncrona Aislada de EmailJS (Vercel Serverless Function)
         try {
             await fetch('/api/send-email', {
                 method: 'POST',
@@ -386,84 +387,19 @@ async function handleFormSubmission(e) {
                 },
                 body: JSON.stringify(registrationData)
             });
-            console.log("[Notification Engine] Email confirmation successfully queued.");
+            console.log("[Notification Engine] Notificación enviada con éxito.");
         } catch (emailError) {
-            console.warn("[Notification Engine] Vercel edge gateway unreachable, registration saved offline:", emailError);
+            // Tolerancia a fallos: Si hay problemas de red o la serverless function falla,
+            // el flujo no se interrumpe y el usuario igual recibe su pase en pantalla.
+            console.warn("[Notification Engine] Error al despachar el correo:", emailError);
         }
 
-        // Transition UI Layers From Client Workspace into Premium Pass Workspace
-        const clientView = document.getElementById('client-view');
-        const successView = document.getElementById('success-view');
-
-        if (clientView) {
-            clientView.classList.remove('active');
-            clientView.classList.add('hidden');
-        }
-
-        if (successView) {
-            successView.classList.remove('hidden');
-            successView.style.display = 'block';
-        }
-
-        // Inject Core Data Tokens directly into the UI Success View Summary Board
-        const summaryName = document.getElementById('summary-name');
-        const summaryDoc = document.getElementById('summary-doc');
-        const summaryDate = document.getElementById('summary-date');
-        const summaryId = document.getElementById('summary-id');
-
-        if (summaryName) summaryName.textContent = registrationData.name;
-        if (summaryDoc) summaryDoc.textContent = registrationData.reference_number;
-        if (summaryDate) summaryDate.textContent = registrationData.date;
-        if (summaryId) summaryId.textContent = passId.substring(0, 8).toUpperCase();
-
-        // Wire Up Success Interaction Controls Imperatively
-        const btnDownloadPass = document.getElementById('btn-download-pass-manual');
-        if (btnDownloadPass) {
-            btnDownloadPass.onclick = () => {
-                window.open(`./pass.html?id=${passId}`, '_blank');
-            };
-        }
-
-        const btnShareAdventure = document.getElementById('btn-share-adventure');
-        if (btnShareAdventure) {
-            btnShareAdventure.onclick = () => {
-                const shareText = `⛰️ ¡Mi cupo está confirmado para el Pico Naiguatá! ID de Pase: ${passId.substring(0, 8).toUpperCase()}. Revisa los detalles de la expedición aquí: ${window.location.origin}/pass.html?id=${passId}`;
-                if (navigator.share) {
-                    navigator.share({
-                        title: 'Mi Pase de Expedición Pico Naiguatá',
-                        text: shareText,
-                        url: `${window.location.origin}/pass.html?id=${passId}`
-                    }).catch(err => console.log('Error sharing:', err));
-                } else {
-                    navigator.clipboard.writeText(shareText);
-                    alert('¡Enlace de respaldo y detalles copiados al portapapeles!');
-                }
-            };
-        }
-
-        const btnSuccessHome = document.getElementById('btn-success-home');
-        if (btnSuccessHome) {
-            btnSuccessHome.onclick = () => {
-                form.reset();
-                if (successView) {
-                    successView.style.display = 'none';
-                    successView.classList.add('hidden');
-                }
-                if (clientView) {
-                    clientView.classList.remove('hidden');
-                    clientView.classList.add('active');
-                }
-                if (btnSubmit) {
-                    btnSubmit.disabled = false;
-                    btnSubmit.innerHTML = 'Confirmar Registro y Generar Pase';
-                }
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            };
-        }
+        // 5. Redirección Directa e Inmediata al Pase Terminado
+        window.location.href = 'pass.html?id=' + passId;
 
     } catch (err) {
-        console.error("[Fatal Form Transaction Error] Recovery executed:", err);
-        alert(`Ocurrió un error al procesar tu solicitud: ${err.message}. Por favor verifica tus datos e intenta de nuevo.`);
+        console.error("[Fatal Transaction Error]:", err);
+        alert(`Ocurrió un error al procesar tu registro: ${err.message}. Intenta de nuevo.`);
         if (btnSubmit) {
             btnSubmit.disabled = false;
             btnSubmit.innerHTML = 'Confirmar Registro y Generar Pase';
