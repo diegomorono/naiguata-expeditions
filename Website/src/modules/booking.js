@@ -377,19 +377,43 @@ async function handleFormSubmission(e) {
         };
 
         const emailPayload = {
-            ...registrationData,
-            rentals_text: parseObjectToText(selectedRentals),
-            catering_text: parseObjectToText(selectedCatering),
-            porter_text: porterService ? porterService.replace('-', ' ') : 'Carga propia'
+            hiker_name: registrationData.name,
+            hiker_date: registrationData.date,
+            whatsapp: registrationData.whatsapp,
+            group_code: registrationData.group_code,
+            gender: registrationData.gender,
+            tent_preference: registrationData.tent_preference,
+            allergies: registrationData.allergies,
+            diet: registrationData.diet,
+            medical: registrationData.medical,
+            total_usd: registrationData.total_usd,
+            payment_method: registrationData.payment_method,
+            reference_number: registrationData.reference_number,
+            rentals_text: parseObjectToText(registrationData.rentals),
+            catering_text: parseObjectToText(registrationData.catering),
+            porter_text: registrationData.porter_service ? registrationData.porter_service.replace('-', ' ') : 'Carga propia'
         };
 
-        // Fetch asíncrono no bloqueante (Fire and Forget)
-        fetch('/api/send-email', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(emailPayload)
-        }).catch(err => console.warn("Notificación de email fallida, pero registro exitoso:", err));
+        try {
+            console.log("[Booking] Disparando notificación a EmailJS...");
+            const emailRes = await fetch('/api/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(emailPayload)
+            });
+            
+            if (!emailRes.ok) {
+                const errText = await emailRes.text();
+                console.warn("[Booking] Advertencia: EmailJS reportó un fallo no bloqueante:", errText);
+            } else {
+                console.log("[Booking] Notificación administrativa enviada con éxito.");
+            }
+        } catch (err) {
+            // Si falla la red, atrapamos el error pero NO detenemos la experiencia del cliente
+            console.error("[Booking] Error de red al intentar enviar el correo:", err);
+        }
 
+        // AHORA SÍ: Redirigimos al usuario, garantizando que el correo ya salió
         window.location.href = 'pass.html?id=' + generatedId;
 
     } catch (err) {
