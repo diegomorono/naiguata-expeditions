@@ -1,4 +1,4 @@
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
     // Configurar cabeceras CORS para permitir peticiones desde el frontend de forma segura
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*'); // Puedes cambiar '*' por tu dominio específico en producción
@@ -58,4 +58,4 @@ module.exports = async (req, res) => {
         console.error('Error interno en la Serverless Function:', error);
         return res.status(500).json({ error: 'Error interno del servidor.', message: error.message });
     }
-};
+}
