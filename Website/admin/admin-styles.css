@@ -2,8 +2,17 @@
    NAIGUATÁ EXPEDITIONS - ADMIN DESIGN SYSTEM
    ========================================================================== */
 
-/* Admin Variables */
-.admin-vars {
+/* Admin Variables
+   CORRECCIÓN CRÍTICA: estas variables vivían en un selector de clase
+   (.admin-vars) que NUNCA se aplicaba a ningún elemento del HTML, así que
+   no existían en ningún punto del árbol del documento. Las 127 reglas de
+   este archivo que usan var(--admin-spacing-*), var(--admin-border-radius-*)
+   o var(--admin-success/warning/error/info) caían silenciosamente a 0 /
+   "none" (valor inicial de la propiedad ante una custom property inválida).
+   Eso es lo que aplanaba TODO el espaciado del dashboard a cero: paddings,
+   gaps de grid/flex y radios de borde por igual. Moverlas a :root las hace
+   universales, igual que las variables base del sitio público en styles.css. */
+:root {
   --admin-spacing-xs: 4px;
   --admin-spacing-sm: 8px;
   --admin-spacing-md: 16px;
