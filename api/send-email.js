@@ -32,6 +32,35 @@ export default async function handler(req, res) {
         // Asegurar que req.body sea procesado correctamente incluso si llega como string
         const templateParams = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
 
+        // --- NUEVO: Formateadores dinámicos para las variables de tu plantilla ---
+        const parseObjectToText = (obj) => {
+            if (!obj) return 'Ninguno';
+            if (typeof obj === 'object') {
+                const entries = Object.entries(obj).filter(([_, qty]) => qty > 0);
+                if (entries.length === 0) return 'Ninguno';
+                return entries.map(([item, qty]) => `${item.replace(/_/g, ' ')} (x${qty})`).join(', ');
+            }
+            return String(obj);
+        };
+
+        const parsePorterService = (val) => {
+            if (!val) return 'No solicitado';
+            if (val === 'porter-2p') return 'Servicio de Portador - Carpa 2P';
+            if (val === 'porter-3p') return 'Servicio de Portador - Carpa 3P';
+            if (val === 'porter-4p') return 'Servicio de Portador - Carpa 4P';
+            return val;
+        };
+
+        // Construir el objeto de parámetros enriquecido combinando los originales y los nuevos textos
+        const enrichedParams = {
+            ...(templateParams || {}),
+            pass_id: templateParams?.id || 'N/A',
+            rentals_text: parseObjectToText(templateParams?.rentals),
+            catering_text: parseObjectToText(templateParams?.catering),
+            porter_text: parsePorterService(templateParams?.porter_service)
+        };
+        // -----------------------------------------------------------------------
+
         // Llamada interna y segura hacia la API REST de EmailJS usando tus variables secretas
         const emailjsResponse = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
             method: 'POST',
@@ -43,7 +72,7 @@ export default async function handler(req, res) {
                 template_id: EMAILJS_TEMPLATE_ID,
                 user_id: EMAILJS_PUBLIC_KEY,
                 accessToken: EMAILJS_PRIVATE_KEY,
-                template_params: templateParams || {}
+                template_params: enrichedParams
             })
         });
 
