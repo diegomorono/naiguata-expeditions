@@ -1,45 +1,50 @@
 /* ==========================================================================
-   NAIGUATÁ EXPEDITIONS - ADMIN DESIGN SYSTEM
+   NAIGUATÁ EXPEDITIONS — ADMIN DESIGN SYSTEM (MOBILE-OPTIMIZED)
+   CORRECCIÓN CRÍTICA: Variables movidas de .admin-vars {} → :root
    ========================================================================== */
 
-/* Admin Variables
-   CORRECCIÓN CRÍTICA: estas variables vivían en un selector de clase
-   (.admin-vars) que NUNCA se aplicaba a ningún elemento del HTML, así que
-   no existían en ningún punto del árbol del documento. Las 127 reglas de
-   este archivo que usan var(--admin-spacing-*), var(--admin-border-radius-*)
-   o var(--admin-success/warning/error/info) caían silenciosamente a 0 /
-   "none" (valor inicial de la propiedad ante una custom property inválida).
-   Eso es lo que aplanaba TODO el espaciado del dashboard a cero: paddings,
-   gaps de grid/flex y radios de borde por igual. Moverlas a :root las hace
-   universales, igual que las variables base del sitio público en styles.css. */
+/* ── VARIABLES GLOBALES DEL ADMIN ── */
 :root {
+  /* Spacing scale admin */
   --admin-spacing-xs: 4px;
   --admin-spacing-sm: 8px;
   --admin-spacing-md: 16px;
   --admin-spacing-lg: 24px;
   --admin-spacing-xl: 32px;
   --admin-spacing-2xl: 48px;
+
+  /* Border radius */
   --admin-border-radius-sm: 8px;
   --admin-border-radius-md: 12px;
   --admin-border-radius-lg: 16px;
   --admin-border-radius-xl: 24px;
+
+  /* Semantic colors */
   --admin-success: #10b981;
   --admin-success-glow: rgba(16, 185, 129, 0.2);
   --admin-warning: #f59e0b;
   --admin-error: #ef4444;
   --admin-info: #3b82f6;
+
+  /* Elevation */
   --admin-elevation-1: 0 1px 3px rgba(0, 0, 0, 0.5);
   --admin-elevation-2: 0 4px 12px rgba(0, 0, 0, 0.6);
   --admin-elevation-3: 0 8px 24px rgba(0, 0, 0, 0.7);
+
+  /* Gutter adaptable */
+  --admin-gutter: clamp(16px, 3vw, 32px);
 }
 
-/* Admin Body & Layout */
+/* ── BODY ── */
 .admin-body {
-  background: radial-gradient(circle at 50% -20%, #111827 0%, var(--bg-deep) 70%) fixed;
+  background: radial-gradient(circle at 50% -20%, #111827 0%, var(--bg-deep, #020406) 70%) fixed;
   min-height: 100vh;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* Login Page */
+/* =========================================================================
+   LOGIN PAGE
+   ========================================================================= */
 .admin-login-container {
   display: flex;
   align-items: center;
@@ -50,13 +55,8 @@
 
 .login-panel {
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   padding: var(--admin-spacing-2xl);
-  background: var(--bg-surface);
-  backdrop-filter: blur(40px);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--admin-elevation-3);
 }
 
 .login-header {
@@ -68,12 +68,12 @@
   font-family: 'Outfit', sans-serif;
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--text-main, #f8fafc);
   margin-bottom: var(--admin-spacing-sm);
 }
 
 .login-subtitle {
-  color: var(--text-muted);
+  color: var(--text-muted, #94a3b8);
   font-size: 0.9rem;
   line-height: 1.5;
 }
@@ -91,38 +91,38 @@
   font-size: 0.85rem;
   margin-top: var(--admin-spacing-md);
   display: none;
+  padding: 10px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--admin-border-radius-sm);
 }
 
-.login-error-message:not(:empty) {
-  display: block;
-}
-
-/* Admin Dashboard */
+/* =========================================================================
+   ADMIN DASHBOARD — ESTRUCTURA GLOBAL
+   ========================================================================= */
 .admin-dashboard {
-  /* CORRECCIÓN CRÍTICA: el dashboard debe estar oculto hasta que admin-main.js
-     confirme el login y lo muestre explícitamente vía JS (display:block inline,
-     que tiene mayor especificidad que esta regla). Antes no existía este
-     "display:none" por defecto, por lo que el panel quedaba visible debajo
-     del formulario de login incluso sin autenticarse. */
-  display: none;
-  padding: var(--admin-spacing-xl);
+  padding: var(--admin-gutter);
   max-width: 1400px;
   margin: 0 auto;
 }
 
+/* ── HEADER DEL ADMIN ── */
 .admin-header {
-  background: rgba(2, 4, 6, 0.8);
+  background: rgba(2, 4, 6, 0.85);
   backdrop-filter: blur(12px);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  border-radius: var(--admin-border-radius-lg);
   margin-bottom: var(--admin-spacing-xl);
 }
 
 .admin-header-container {
-  padding: var(--admin-spacing-lg);
+  padding: var(--admin-spacing-md) var(--admin-spacing-lg);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--admin-spacing-md);
+  flex-wrap: wrap;
 }
 
 .admin-logo {
@@ -135,24 +135,26 @@
   display: flex;
   align-items: center;
   gap: var(--admin-spacing-lg);
+  flex-wrap: wrap;
 }
 
 .admin-user-name {
-  font-size: 0.9rem;
-  color: var(--text-muted);
+  font-size: 0.85rem;
+  color: var(--text-muted, #94a3b8);
 }
 
-/* Dashboard Main Layout */
+/* ── DASHBOARD MAIN ── */
 .dashboard-main {
   display: flex;
   flex-direction: column;
   gap: var(--admin-spacing-xl);
 }
 
+/* ── DASHBOARD HEADER ── */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
   gap: var(--admin-spacing-lg);
 }
@@ -165,19 +167,19 @@
 
 .dashboard-title {
   font-family: 'Outfit', sans-serif;
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 4vw, 2rem);
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--text-main, #f8fafc);
   margin: 0;
 }
 
 .dashboard-actions {
   display: flex;
-  gap: var(--admin-spacing-md);
+  gap: var(--admin-spacing-sm);
   flex-wrap: wrap;
 }
 
-/* Dashboard Sections */
+/* ── SECCIÓN EXPEDICIONES ── */
 .dashboard-section {
   display: flex;
   flex-direction: column;
@@ -194,9 +196,9 @@
 
 .section-title {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 600;
-  color: var(--text-main);
+  color: var(--text-main, #f8fafc);
   margin: 0;
 }
 
@@ -208,93 +210,84 @@
 }
 
 .filter-label {
-  font-size: 0.85rem;
-  color: var(--text-muted);
+  font-size: 0.82rem;
+  color: var(--text-muted, #94a3b8);
   white-space: nowrap;
 }
 
 .date-input {
-  height: 40px;
-  box-sizing: border-box;
-  padding: 0 var(--admin-spacing-md);
-  border-radius: var(--admin-border-radius-sm);
-  border: 1px solid var(--border-subtle);
+  padding: var(--admin-spacing-sm) var(--admin-spacing-md);
+  border-radius: var(--admin-border-radius-md);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
   background: rgba(255, 255, 255, 0.03);
-  color: var(--text-main);
+  color: var(--text-main, #f8fafc);
   font-size: 0.85rem;
-  flex: 1 1 140px;
-  min-width: 0;
+  font-family: inherit;
+  min-height: 40px;
+  outline: none;
 }
 
 .date-input:focus {
-  outline: none;
-  border-color: var(--emerald);
-  box-shadow: 0 0 0 3px var(--emerald-glow);
+  border-color: var(--admin-success);
+  box-shadow: 0 0 0 3px var(--admin-success-glow);
 }
 
-/* Expeditions Carousel */
-/* CORRECCIÓN: esta clase se usa en index.html (#expeditions-carousel-container)
-   y core.js inyecta tarjetas .expedition-card dentro, pero nunca existió
-   una regla CSS para ella: las tarjetas simplemente se apilaban en bloque
-   en vez de desplazarse horizontalmente. */
+/* Carrusel de expediciones */
 .expeditions-carousel {
   display: flex;
-  gap: var(--admin-spacing-md);
+  gap: var(--admin-spacing-sm);
   overflow-x: auto;
-  padding: var(--admin-spacing-xs) var(--admin-spacing-xs) var(--admin-spacing-sm);
-  scroll-snap-type: x proximity;
+  padding-bottom: 8px;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 }
 
 .expeditions-carousel::-webkit-scrollbar {
-  height: 6px;
+  height: 4px;
 }
 
 .expeditions-carousel::-webkit-scrollbar-thumb {
-  background: var(--border-subtle);
-  border-radius: 3px;
+  background: var(--border-subtle, rgba(255, 255, 255, 0.08));
+  border-radius: 4px;
 }
 
-.expedition-card {
-  scroll-snap-align: start;
-  flex-shrink: 0;
-}
-
-/* Metrics Grid */
+/* ── METRICS GRID ── */
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--admin-spacing-lg);
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--admin-spacing-md);
 }
 
 .metric-card {
   padding: var(--admin-spacing-lg);
-  transition: var(--transition-master);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .metric-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
   box-shadow: var(--admin-elevation-3);
 }
 
 .metric-value {
   font-family: 'Outfit', sans-serif;
-  font-size: 2.25rem;
+  font-size: clamp(1.6rem, 3vw, 2.25rem);
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--text-main, #f8fafc);
   margin: var(--admin-spacing-sm) 0;
+  line-height: 1;
 }
 
 .metric-max {
-  font-size: 1.2rem;
-  opacity: 0.6;
+  font-size: 1.1rem;
+  opacity: 0.5;
   font-weight: 300;
 }
 
 .metric-subtitle {
-  font-size: 0.85rem;
-  color: var(--text-muted);
+  font-size: 0.78rem;
+  color: var(--text-muted, #94a3b8);
   display: block;
+  line-height: 1.4;
 }
 
 .highlight-card {
@@ -310,20 +303,21 @@
   opacity: 0.9;
 }
 
-/* Dashboard Layout */
+/* ── DASHBOARD LAYOUT (Sidebar + Content) ── */
 .dashboard-layout {
   display: grid;
-  /* Antes: 320px fijo, que podía desbordar en laptops de ~1024-1100px
-     antes de llegar al breakpoint de 1200px. Ahora es fluido con tope. */
-  grid-template-columns: minmax(260px, 320px) 1fr;
+  grid-template-columns: 300px 1fr;
   gap: var(--admin-spacing-xl);
+  align-items: start;
 }
 
-/* Sidebar */
+/* ── SIDEBAR ── */
 .dashboard-sidebar {
   display: flex;
   flex-direction: column;
   gap: var(--admin-spacing-xl);
+  position: sticky;
+  top: var(--admin-spacing-lg);
 }
 
 .sidebar-section {
@@ -332,31 +326,31 @@
 
 .sidebar-title {
   font-family: 'Outfit', sans-serif;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  color: var(--text-main);
+  color: var(--text-main, #f8fafc);
   margin: 0 0 var(--admin-spacing-sm) 0;
 }
 
 .sidebar-subtitle {
   font-family: 'Outfit', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
-  color: var(--text-main);
+  color: var(--text-main, #f8fafc);
   margin: var(--admin-spacing-lg) 0 var(--admin-spacing-sm) 0;
 }
 
 .section-description {
-  color: var(--text-muted);
-  font-size: 0.85rem;
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.82rem;
   line-height: 1.5;
   margin-bottom: var(--admin-spacing-lg);
 }
 
 .weather-details {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   line-height: 1.5;
-  color: var(--text-muted);
+  color: var(--text-muted, #94a3b8);
   margin-bottom: var(--admin-spacing-lg);
 }
 
@@ -377,8 +371,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.85rem;
-  gap: var(--admin-spacing-sm);
+  font-size: 0.82rem;
 }
 
 .coverage-total {
@@ -391,24 +384,25 @@
 }
 
 .coverage-expense {
-  color: var(--peak-ember);
+  color: var(--peak-ember, #f4a261);
 }
 
 .coverage-surplus {
   color: var(--admin-success);
 }
 
-/* Form Groups */
+/* ── FORM GROUPS (Sidebar) ── */
 .form-group {
   margin-bottom: var(--admin-spacing-lg);
 }
 
 .form-group label {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text-muted, #94a3b8);
   text-transform: uppercase;
+  letter-spacing: 0.05em;
   margin-bottom: var(--admin-spacing-sm);
 }
 
@@ -422,25 +416,21 @@
   min-width: 0;
 }
 
-/* .btn-small-primary fue retirada: el HTML ahora usa el sistema unificado
-   .btn-primary.btn-small (ver "SISTEMA DE BOTONES ADMIN" al final del archivo)
-   para que cualquier botón pequeño comparta exactamente la misma altura que
-   los inputs densos (40px) sin importar su variante de color. */
-
 .form-hint {
-  font-size: 0.75rem;
-  color: var(--text-muted);
+  font-size: 0.72rem;
+  color: var(--text-muted, #94a3b8);
   display: block;
   margin-top: var(--admin-spacing-xs);
+  line-height: 1.4;
 }
 
 .section-divider {
   height: 1px;
-  background: var(--border-subtle);
+  background: var(--border-subtle, rgba(255, 255, 255, 0.08));
   margin: var(--admin-spacing-lg) 0;
 }
 
-/* Tent Inventory */
+/* Tent inventory grid */
 .tent-inventory-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -455,90 +445,96 @@
 }
 
 .form-input-compact label {
-  font-size: 0.7rem;
-  color: var(--text-muted);
+  font-size: 0.68rem;
+  color: var(--text-muted, #94a3b8);
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .form-input-compact input {
-  padding: 4px 8px;
-  font-size: 0.85rem;
-  width: 100%;
+  padding: 8px 10px;
+  font-size: 0.9rem;
 }
 
-/* Dashboard Content */
+/* ── DASHBOARD CONTENT ── */
 .dashboard-content {
   display: flex;
   flex-direction: column;
   gap: var(--admin-spacing-lg);
-  min-width: 0;
-  /* Evita que la columna de contenido empuje el grid al desbordar tablas */
 }
 
-/* Tabs Navigation */
+/* ── TABS ── */
 .dashboard-tabs {
   display: flex;
-  gap: var(--admin-spacing-sm);
+  gap: var(--admin-spacing-xs);
   overflow-x: auto;
-  padding: var(--admin-spacing-sm);
-  background: var(--bg-surface);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border-subtle);
+  padding: var(--admin-spacing-xs);
   border-radius: var(--admin-border-radius-lg);
-  scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
 
 .dashboard-tabs::-webkit-scrollbar {
-  height: 6px;
-}
-
-.dashboard-tabs::-webkit-scrollbar-thumb {
-  background: var(--border-subtle);
-  border-radius: 3px;
+  display: none;
 }
 
 .tab-btn {
   flex: 1;
-  min-width: 140px;
-  padding: var(--admin-spacing-md) var(--admin-spacing-lg);
+  min-width: 130px;
+  padding: var(--admin-spacing-md) var(--admin-spacing-sm);
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--admin-border-radius-md);
-  color: var(--text-muted);
+  color: var(--text-muted, #94a3b8);
   font-family: 'Outfit', sans-serif;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   cursor: pointer;
-  transition: var(--transition-master);
+  transition: all 0.2s ease;
   text-align: center;
-  scroll-snap-align: start;
+  white-space: nowrap;
+  /* Touch target */
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .tab-btn:hover {
   background: rgba(255, 255, 255, 0.05);
-  color: var(--text-main);
+  color: var(--text-main, #f8fafc);
 }
 
 .tab-btn.active {
   background: rgba(16, 185, 129, 0.1);
   border-color: rgba(16, 185, 129, 0.3);
-  color: var(--emerald);
+  color: var(--admin-success);
 }
 
-/* Tab Contents */
+/* Tab contents */
 .tab-contents {
   display: flex;
   flex-direction: column;
-  gap: var(--admin-spacing-lg);
 }
 
 .tab-content {
   display: none;
+  animation: fadeIn 0.25s ease;
 }
 
 .tab-content.active {
   display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .tab-card {
@@ -556,81 +552,83 @@
 
 .tab-title {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 600;
-  color: var(--text-main);
+  color: var(--text-main, #f8fafc);
   margin: 0;
 }
 
 .tab-subtitle {
-  color: var(--text-muted);
-  font-size: 0.9rem;
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.85rem;
   line-height: 1.5;
   margin-bottom: var(--admin-spacing-lg);
 }
 
-/* Tables */
+/* ── TABLA ROSTER ── */
 .table-container {
   overflow-x: auto;
   border-radius: var(--admin-border-radius-lg);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
   -webkit-overflow-scrolling: touch;
 }
 
-.roster-table,
-.settings-table {
+.roster-table {
   width: 100%;
-  min-width: 720px;
-  /* Mantiene columnas legibles; en móvil el contenedor hace scroll horizontal en vez de comprimir el texto */
   border-collapse: collapse;
+  min-width: 700px;
+  /* evita que la tabla aplaste columnas */
 }
 
-.roster-table th,
-.settings-table th {
-  padding: var(--admin-spacing-md);
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text-muted);
+.roster-table th {
+  padding: var(--admin-spacing-md) var(--admin-spacing-md);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-muted, #94a3b8);
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
   text-align: left;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
   white-space: nowrap;
 }
 
-.roster-table td,
-.settings-table td {
-  padding: var(--admin-spacing-md);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  font-size: 0.9rem;
+.roster-table td {
+  padding: 12px var(--admin-spacing-md);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 0.85rem;
+  vertical-align: middle;
 }
 
-.roster-table tr:hover,
-.settings-table tr:hover {
+.roster-table tr:hover {
   background: rgba(255, 255, 255, 0.02);
+}
+
+.roster-table tr:last-child td {
+  border-bottom: none;
 }
 
 .text-center {
   text-align: center;
 }
 
-/* Snacks Summary */
+/* ── SNACKS SUMMARY ── */
 .snacks-summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--admin-spacing-lg);
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--admin-spacing-md);
   margin-bottom: var(--admin-spacing-lg);
 }
 
 .snack-stat-card {
-  padding: var(--admin-spacing-lg);
+  padding: var(--admin-spacing-md);
   display: flex;
   align-items: center;
   gap: var(--admin-spacing-md);
 }
 
 .snack-emoji {
-  font-size: 2rem;
+  font-size: 1.8rem;
 }
 
 .snack-info {
@@ -640,16 +638,17 @@
 
 .snack-info h4 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
+  font-family: 'Outfit', sans-serif;
 }
 
 .snack-label {
-  font-size: 0.75rem;
-  color: var(--text-muted);
+  font-size: 0.72rem;
+  color: var(--text-muted, #94a3b8);
 }
 
-/* Bullet List */
+/* Bullet list */
 .bullet-list {
   list-style: none;
   padding: 0;
@@ -661,22 +660,23 @@
   padding-left: var(--admin-spacing-lg);
   margin-bottom: var(--admin-spacing-sm);
   line-height: 1.5;
+  font-size: 0.88rem;
 }
 
-.bullet-list li:before {
+.bullet-list li::before {
   content: "•";
   position: absolute;
   left: 0;
-  color: var(--emerald);
+  color: var(--admin-success);
   font-size: 1.2rem;
 }
 
-/* Financial Dashboard */
+/* ── FINANZAS ── */
 .finance-filters {
-  padding: var(--admin-spacing-lg);
+  padding: var(--admin-spacing-md) var(--admin-spacing-lg);
   display: flex;
   flex-wrap: wrap;
-  gap: var(--admin-spacing-lg);
+  gap: var(--admin-spacing-md);
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--admin-spacing-lg);
@@ -691,16 +691,13 @@
 
 .liquidation-split {
   display: flex;
-  flex-wrap: wrap;
   gap: var(--admin-spacing-xl);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   padding: var(--admin-spacing-md) var(--admin-spacing-lg);
   border-radius: var(--admin-border-radius-md);
-  /* CORRECCIÓN: rgba(var(--admin-success), 0.1) es CSS inválido — --admin-success
-     guarda un hex (#10b981), no componentes "r, g, b" separados, así que el
-     navegador descartaba esta declaración y el panel quedaba sin tinte. */
-  background: rgba(16, 185, 129, 0.08);
+  background: rgba(16, 185, 129, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.05);
+  flex-wrap: wrap;
 }
 
 .split-item {
@@ -711,196 +708,429 @@
 
 .split-item strong {
   color: var(--admin-success);
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
-/* Cash Boxes */
+/* Cash boxes */
 .cash-boxes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--admin-spacing-lg);
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--admin-spacing-md);
   margin-bottom: var(--admin-spacing-lg);
 }
 
 .cash-box {
-  padding: var(--admin-spacing-lg);
-  background: rgba(255, 255, 255, 0.01);
+  padding: var(--admin-spacing-md);
 }
 
 .cash-box h5 {
   margin: 0 0 var(--admin-spacing-sm) 0;
-  color: var(--text-muted);
-  font-size: 0.9rem;
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.82rem;
+  font-weight: 600;
 }
 
 .cash-value {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.4rem;
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--text-main, #f8fafc);
+  word-break: break-all;
 }
 
 .cash-value.highlight {
-  color: var(--emerald);
+  color: var(--admin-success);
 }
 
-/* Charts Grid */
+/* Charts */
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-  gap: var(--admin-spacing-lg);
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--admin-spacing-md);
   margin-bottom: var(--admin-spacing-lg);
 }
 
 .chart-container {
-  padding: var(--admin-spacing-lg);
+  padding: var(--admin-spacing-md);
 }
 
 .chart-title {
   margin-top: 0;
   margin-bottom: var(--admin-spacing-md);
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
+  font-family: 'Outfit', sans-serif;
 }
 
 .chart-placeholder {
-  height: 200px;
+  height: 180px;
   background: rgba(255, 255, 255, 0.02);
   border-radius: var(--admin-border-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-muted);
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.82rem;
 }
 
-/* Expense Form */
+/* Expense form */
 .expense-form {
   display: flex;
   flex-direction: column;
-  gap: var(--admin-spacing-lg);
+  gap: var(--admin-spacing-md);
 }
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--admin-spacing-lg);
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--admin-spacing-md);
 }
 
-/* Info Panel */
+/* Info panel */
 .info-panel {
-  padding: var(--admin-spacing-lg);
-  border-left: 4px solid var(--emerald);
+  padding: var(--admin-spacing-md) var(--admin-spacing-lg);
+  border-left: 4px solid var(--admin-success);
+  margin-top: var(--admin-spacing-lg);
 }
 
 .info-title {
   margin-top: 0;
   margin-bottom: var(--admin-spacing-xs);
   font-family: 'Outfit', sans-serif;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
 }
 
 .info-text {
-  font-size: 0.85rem;
-  color: var(--text-muted);
+  font-size: 0.82rem;
+  color: var(--text-muted, #94a3b8);
   line-height: 1.5;
   margin: 0;
 }
 
 .info-text strong {
-  color: var(--text-main);
+  color: var(--text-main, #f8fafc);
 }
 
-/* Modals */
+/* Settings table */
+.settings-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.settings-table th {
+  padding: var(--admin-spacing-md);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  text-align: left;
+}
+
+.settings-table td {
+  padding: 12px var(--admin-spacing-md);
+  font-size: 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* ── MODALES ── */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(8px);
-  display: flex;
+  -webkit-backdrop-filter: blur(8px);
+  display: none;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  display: none;
+  z-index: 2000;
   padding: var(--admin-spacing-lg);
 }
 
 .modal-dialog {
   width: 100%;
   max-width: 500px;
+  padding: var(--admin-spacing-xl);
   max-height: 90vh;
   overflow-y: auto;
-  padding: var(--admin-spacing-xl);
 }
 
 .modal-title {
   margin-top: 0;
   margin-bottom: var(--admin-spacing-lg);
   font-family: 'Outfit', sans-serif;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 600;
 }
 
 .audit-details {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   line-height: 1.8;
   margin-bottom: var(--admin-spacing-lg);
 }
 
 .modal-actions {
   display: flex;
-  flex-wrap: wrap;
   gap: var(--admin-spacing-sm);
   justify-content: flex-end;
-}
-
-.modal-actions button {
-  flex: 1 1 auto;
+  flex-wrap: wrap;
 }
 
 .modal-form {
   display: flex;
   flex-direction: column;
-  gap: var(--admin-spacing-lg);
+  gap: var(--admin-spacing-md);
 }
 
-/* Utility Classes */
+/* ── BUTTONS ── */
+.btn-primary,
+.btn-secondary,
+.btn-outline,
+.btn-danger,
+.btn-small,
+.btn-small-primary {
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  border-radius: var(--admin-border-radius-md);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--admin-success), #059669);
+  color: #fff;
+  padding: 12px 20px;
+  font-size: 0.9rem;
+  min-height: 44px;
+  box-shadow: 0 4px 14px var(--admin-success-glow);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main, #f8fafc);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  min-height: 40px;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--text-main, #f8fafc);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  min-height: 40px;
+}
+
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  min-height: 40px;
+}
+
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+
+.btn-small {
+  padding: 8px 14px;
+  font-size: 0.78rem;
+  border-radius: var(--admin-border-radius-sm);
+  min-height: 36px;
+}
+
+.btn-small-primary {
+  background: var(--admin-success);
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  font-size: 0.78rem;
+  border-radius: var(--admin-border-radius-sm);
+  min-height: 36px;
+}
+
+.btn-small-primary:hover {
+  background: #059669;
+}
+
 .btn-full-width {
   width: 100%;
 }
 
-/* Responsive Design */
-@media (max-width: 1200px) {
+/* Inputs generales admin */
+input,
+select,
+textarea {
+  font-size: 16px;
+  /* evita zoom en iOS */
+  font-family: inherit;
+}
+
+/* ── BADGES ADMIN ── */
+.badge-green {
+  background: var(--admin-success-glow);
+  color: var(--admin-success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.badge-orange {
+  background: rgba(244, 162, 97, 0.15);
+  color: var(--peak-ember, #f4a261);
+  border: 1px solid rgba(244, 162, 97, 0.3);
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.badge-red {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--admin-error);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+/* Loading state */
+.loading {
+  position: relative;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Focus visible global */
+:focus-visible {
+  outline: 2px solid var(--admin-success);
+  outline-offset: 2px;
+}
+
+/* Checklist container */
+.checklist-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-spacing-xl);
+}
+
+/* Allergy alerts */
+.allergy-alerts {
+  margin-bottom: var(--admin-spacing-lg);
+}
+
+/* =========================================================================
+   RESPONSIVE — 1280px: 2 métricas × fila cuando el sidebar no cabe
+   ========================================================================= */
+@media (max-width: 1280px) {
+  .dashboard-layout {
+    grid-template-columns: 280px 1fr;
+    gap: var(--admin-spacing-lg);
+  }
+
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cash-boxes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* =========================================================================
+   RESPONSIVE — 1024px: Sidebar se vuelve un grid horizontal
+   ========================================================================= */
+@media (max-width: 1024px) {
   .dashboard-layout {
     grid-template-columns: 1fr;
   }
 
   .dashboard-sidebar {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    position: static;
     display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--admin-spacing-md);
   }
 }
 
+/* =========================================================================
+   RESPONSIVE — 768px (Tablet)
+   ========================================================================= */
 @media (max-width: 768px) {
+
   .admin-dashboard {
-    padding: var(--admin-spacing-lg);
+    padding: var(--admin-spacing-md);
+  }
+
+  .admin-header-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--admin-spacing-sm);
+    padding: var(--admin-spacing-md);
+  }
+
+  .admin-user-info {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .dashboard-header {
     flex-direction: column;
     align-items: stretch;
+    gap: var(--admin-spacing-md);
   }
 
   .dashboard-actions {
-    justify-content: stretch;
+    flex-direction: column;
+    gap: var(--admin-spacing-sm);
   }
 
   .dashboard-actions button {
-    flex: 1;
-    min-width: 0;
+    width: 100%;
   }
 
   .section-header {
@@ -910,7 +1140,63 @@
 
   .date-filter {
     width: 100%;
-    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .date-input {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--admin-spacing-sm);
+  }
+
+  .metric-card {
+    padding: var(--admin-spacing-md);
+  }
+
+  .dashboard-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  /* Tabs: scroll horizontal */
+  .dashboard-tabs {
+    gap: var(--admin-spacing-xs);
+    padding: 6px;
+  }
+
+  .tab-btn {
+    min-width: 110px;
+    padding: 10px 8px;
+    font-size: 0.75rem;
+  }
+
+  .tab-card {
+    padding: var(--admin-spacing-md);
+  }
+
+  .snacks-summary-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--admin-spacing-sm);
+  }
+
+  .snack-stat-card {
+    padding: var(--admin-spacing-sm);
+    gap: var(--admin-spacing-sm);
+  }
+
+  .snack-emoji {
+    font-size: 1.4rem;
+  }
+
+  .snack-info h4 {
+    font-size: 1.1rem;
+  }
+
+  .cash-boxes-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .charts-grid {
@@ -920,6 +1206,7 @@
   .finance-filters {
     flex-direction: column;
     align-items: flex-start;
+    padding: var(--admin-spacing-md);
   }
 
   .liquidation-split {
@@ -932,36 +1219,130 @@
     grid-template-columns: 1fr;
   }
 
-  .dashboard-sidebar {
-    grid-template-columns: 1fr;
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions button {
+    width: 100%;
   }
 }
 
+/* =========================================================================
+   RESPONSIVE — 480px (Teléfono)
+   ========================================================================= */
 @media (max-width: 480px) {
-  .admin-login-container {
-    padding: var(--admin-spacing-lg);
+
+  :root {
+    --admin-spacing-lg: 16px;
+    --admin-spacing-xl: 24px;
+    --admin-spacing-2xl: 32px;
   }
 
-  .login-panel {
-    padding: var(--admin-spacing-xl);
+  .admin-dashboard {
+    padding: 12px;
   }
 
-  .admin-header-container {
-    flex-direction: column;
+  .admin-header {
+    border-radius: var(--admin-border-radius-md);
+    margin-bottom: var(--admin-spacing-md);
+  }
+
+  .dashboard-title {
+    font-size: 1.4rem;
+  }
+
+  /* Metrics: 1 columna en móvil pequeño */
+  .metrics-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .metric-value {
+    font-size: 1.4rem;
+  }
+
+  .metric-subtitle {
+    font-size: 0.7rem;
+  }
+
+  /* Tabs: scrollables */
+  .tab-btn {
+    min-width: 100px;
+    padding: 10px 6px;
+    font-size: 0.72rem;
+  }
+
+  /* Snacks: 3 en fila pero más compactas */
+  .snacks-summary-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .snack-stat-card {
+    flex-direction: row;
+    align-items: center;
     gap: var(--admin-spacing-md);
-    align-items: flex-start;
   }
 
-  .admin-user-info {
-    width: 100%;
-    justify-content: space-between;
+  /* Cash boxes: 2 × 2 */
+  .cash-boxes-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
   }
+
+  .cash-box {
+    padding: 12px;
+  }
+
+  .cash-value {
+    font-size: 1rem;
+  }
+
+  /* Checklist rows */
+  .checklist-row {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 10px;
+  }
+
+  /* Modal en pantalla completa */
+  .modal-overlay {
+    padding: 10px;
+    align-items: flex-end;
+  }
+
+  .modal-dialog {
+    max-width: 100%;
+    border-radius: var(--admin-border-radius-lg) var(--admin-border-radius-lg) var(--admin-border-radius-sm) var(--admin-border-radius-sm);
+    padding: var(--admin-spacing-xl) var(--admin-spacing-lg);
+    max-height: 85vh;
+  }
+
+  .weather-actions {
+    flex-direction: column;
+  }
+
+  .weather-actions button {
+    width: 100%;
+  }
+
+  .tent-inventory-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Login panel */
+  .login-panel {
+    padding: var(--admin-spacing-xl) var(--admin-spacing-lg);
+  }
+}
+
+/* =========================================================================
+   RESPONSIVE — 360px (Teléfono pequeño)
+   ========================================================================= */
+@media (max-width: 360px) {
 
   .metrics-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .snacks-summary-grid {
     grid-template-columns: 1fr;
   }
 
@@ -969,99 +1350,38 @@
     grid-template-columns: 1fr;
   }
 
-  .dashboard-tabs {
-    flex-direction: column;
+  .snacks-summary-grid {
+    grid-template-columns: 1fr;
   }
 
   .tab-btn {
-    min-width: 0;
+    min-width: 90px;
+    font-size: 0.68rem;
   }
 }
 
-/* Focus States */
-input:focus,
-select:focus,
-textarea:focus,
-button:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--emerald-glow);
-}
-
-/* Button States */
-.btn-primary:disabled,
-.btn-secondary:disabled,
-.btn-danger:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Loading States */
-.loading {
-  position: relative;
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-.loading:after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 20px;
-  height: 20px;
-  margin: -10px 0 0 -10px;
-  border: 2px solid var(--border-subtle);
-  border-top-color: var(--emerald);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Badge Variants */
-.badge-green {
-  background: var(--admin-success-glow);
-  color: var(--admin-success);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-}
-
-.badge-orange {
-  background: var(--ember-glow);
-  color: var(--peak-ember);
-  border: 1px solid rgba(244, 162, 97, 0.3);
-}
-
-.badge-red {
-  background: rgba(239, 68, 68, 0.15);
-  color: var(--admin-error);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-/* Print Styles */
+/* =========================================================================
+   PRINT
+   ========================================================================= */
 @media print {
 
   .admin-header,
   .dashboard-actions,
-  button,
   .dashboard-tabs,
-  .modal-overlay {
+  .modal-overlay,
+  button:not(.no-print) {
     display: none !important;
   }
 
   .admin-dashboard {
     padding: 0;
-    display: block !important;
   }
 
   .glass-panel {
-    background: white;
-    border: 1px solid #ddd;
-    box-shadow: none;
-    backdrop-filter: none;
+    background: white !important;
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
   }
 
   body {
@@ -1070,328 +1390,15 @@ button:focus {
   }
 }
 
-/* ==========================================================================
-   AUDITORÍA DE ALINEACIÓN RESPONSIVE (Desktop / Tablet / Móvil)
-   Pasada exhaustiva adicional, sin alterar el lenguaje visual existente:
-   mismos colores, tipografías y componentes — solo se afina el grid, el
-   espaciado, los puntos de quiebre y los objetivos táctiles (touch targets).
-   ========================================================================== */
+/* =========================================================================
+   ACCESIBILIDAD: Reduced Motion
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
 
-/* --- Tablet grande / laptop pequeño (1024px): suaviza el salto entre el
-   layout de 2 columnas y el apilado total que antes ocurría recién en 1200px --- */
-@media (max-width: 1024px) {
-  .dashboard-layout {
-    gap: var(--admin-spacing-lg);
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
-
-  .charts-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* --- Tablet / móvil grande (640px): densidad de información en grids de
-   tarjetas para evitar columnas únicas innecesariamente altas --- */
-@media (max-width: 640px) {
-  .metrics-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: var(--admin-spacing-md);
-  }
-
-  .snacks-summary-grid {
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: var(--admin-spacing-md);
-  }
-
-  .cash-boxes-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--admin-spacing-md);
-  }
-
-  .metric-value {
-    font-size: 1.8rem;
-  }
-
-  .dashboard-title {
-    font-size: 1.5rem;
-  }
-
-  .tab-card,
-  .sidebar-section,
-  .modal-dialog {
-    padding: var(--admin-spacing-md);
-  }
-
-  .form-summary-card,
-  .glass-panel {
-    border-radius: var(--admin-border-radius-lg);
-  }
-
-  /* Hoja inferior (bottom-sheet) para modales: patrón táctil más natural
-     que un diálogo centrado en pantallas angostas */
-  .modal-overlay {
-    align-items: flex-end;
-    padding: 0;
-  }
-
-  .modal-dialog {
-    max-width: 100%;
-    max-height: 85vh;
-    border-radius: var(--admin-border-radius-lg) var(--admin-border-radius-lg) 0 0;
-  }
-
-  .modal-actions {
-    flex-direction: column-reverse;
-  }
-
-  .modal-actions button {
-    width: 100%;
-  }
-}
-
-/* --- Móvil pequeño (420px) --- */
-@media (max-width: 420px) {
-  .admin-dashboard {
-    padding: var(--admin-spacing-md);
-  }
-
-  .login-panel {
-    padding: var(--admin-spacing-lg) var(--admin-spacing-md);
-  }
-
-  .login-title {
-    font-size: 1.45rem;
-  }
-
-  .tent-inventory-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--admin-spacing-xs);
-  }
-
-  .cash-boxes-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .snack-stat-card,
-  .cash-box {
-    padding: var(--admin-spacing-md);
-  }
-}
-
-/* --- Objetivos táctiles: cualquier control interactivo del admin mantiene
-   un alto mínimo cómodo para el dedo (44px es el estándar de accesibilidad
-   táctil de Apple/Google) sin afectar el tamaño visual en desktop --- */
-@media (max-width: 768px) {
-
-  .admin-body .btn-primary,
-  .admin-body .btn-secondary,
-  .admin-body .btn-outline,
-  .admin-body .btn-danger,
-  .admin-body .btn-small-primary,
-  .admin-body .tab-btn,
-  .admin-body input,
-  .admin-body select {
-    min-height: 44px;
-  }
-
-  .admin-body .btn-small,
-  .admin-body .btn-small-primary {
-    min-height: 38px;
-  }
-}
-
-/* --- Asegura que el carrusel de expediciones respire bien en pantallas
-   angostas, mostrando una vista previa parcial de la siguiente tarjeta
-   (afordance de "hay más contenido al desplazar") --- */
-@media (max-width: 640px) {
-  .expeditions-carousel {
-    gap: var(--admin-spacing-sm);
-  }
-}
-
-/* ==========================================================================
-   CLASES HUÉRFANAS DETECTADAS EN AUDITORÍA CRUZADA (HTML vs CSS)
-   Estas clases se usan en index.html pero nunca tuvieron regla propia,
-   por lo que esas zonas caían a comportamiento de bloque por defecto del
-   navegador (sin grid, sin espaciado, sin alineación).
-   ========================================================================== */
-
-/* Pestaña "Carpas / Pernocta": logistics.js inyecta .tent-allocation-card
-   dentro de este contenedor; sin esta regla, las tarjetas se apilaban a
-   ancho completo en vez de organizarse en grid responsive. */
-.tents-allocation-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: var(--admin-spacing-lg);
-}
-
-/* Pestaña "Checklist Digital": checklist.js inyecta bloques .checklist-block
-   dentro de este contenedor. */
-.checklist-container {
-  display: flex;
-  flex-direction: column;
-  gap: var(--admin-spacing-lg);
-}
-
-/* Pestaña "Catering": logistics.js inyecta el aviso de alergias aquí. */
-.allergy-alerts {
-  display: flex;
-  flex-direction: column;
-  gap: var(--admin-spacing-sm);
-  margin-bottom: var(--admin-spacing-lg);
-}
-
-/* Botón "Iniciar Sesión": usa .btn-large pero esa clase nunca se definió
-   para el contexto admin, dejando el CTA principal del login con el
-   tamaño base en vez de destacar como acción primaria. */
-.admin-body .btn-large {
-  padding: 18px 32px;
-  font-size: 1.05rem;
-}
-
-/* ==========================================================================
-   PASADA UI/UX EXPERTA: SISTEMA DE COMPONENTES COHERENTE
-   ==========================================================================
-   Hallazgo central de la auditoría: .btn-secondary, .btn-danger y .btn-small
-   se usan en TODO el HTML del admin pero nunca tuvieron regla propia (ni
-   aquí ni en el styles.css público, que solo define .btn-primary/.btn-outline).
-   Esos botones caían al estilo nativo del navegador: gris, sin padding, sin
-   tipografía — al lado de botones premium bien diseñados. Esa inconsistencia,
-   sumada a inputs con altura heredada del formulario público (16px/20px de
-   padding) conviviendo con botones diminutos, es la causa real de que "las
-   alineaciones dentro de las secciones se vean mal": no era un problema de
-   flexbox, era un sistema de componentes incompleto.
-   ========================================================================== */
-
-/* --- 1. Familia de botones: misma tipografía/altura base que .btn-primary,
-   para que cualquier combinación de variantes en una misma fila quede a
-   la misma altura sin importar el color --- */
-.admin-body .btn-secondary,
-.admin-body .btn-danger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  box-sizing: border-box;
-  padding: 18px 32px;
-  border-radius: var(--admin-border-radius-md);
-  font-family: 'Outfit', sans-serif;
-  font-weight: 700;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  cursor: pointer;
-  transition: var(--transition-master);
-  white-space: nowrap;
-}
-
-.admin-body .btn-secondary {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text-main);
-  border: 1px solid var(--border-subtle);
-}
-
-.admin-body .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.25);
-}
-
-/* Estado "seleccionado" para toggles tipo .btn-secondary.active
-   (ej. filtros "Salida Activa" / "Total Histórico" en Finanzas) */
-.admin-body .btn-secondary.active {
-  background: rgba(16, 185, 129, 0.12);
-  border-color: rgba(16, 185, 129, 0.4);
-  color: var(--emerald);
-}
-
-.admin-body .btn-danger {
-  background: rgba(239, 68, 68, 0.12);
-  color: #fca5a5;
-  border: 1px solid rgba(239, 68, 68, 0.35);
-}
-
-.admin-body .btn-danger:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.6);
-}
-
-/* .btn-primary / .btn-outline viven en el styles.css público con su propio
-   padding (18px 48px). Aquí solo añadimos el centrado flex para que el
-   contenido (emoji + texto) quede perfectamente alineado en cualquier
-   ancho, incluido .btn-full-width. */
-.admin-body .btn-primary,
-.admin-body .btn-outline {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  box-sizing: border-box;
-}
-
-/* --- 2. Modificador de tamaño: altura fija de 40px, compone con
-   cualquier variante de color (.btn-primary.btn-small,
-   .btn-secondary.btn-small, .btn-danger.btn-small, .btn-outline.btn-small).
-   Esta es la MISMA altura que los inputs densos del punto 4, así que
-   cualquier fila "input + botón" queda perfectamente alineada en píxeles. --- */
-.admin-body .btn-small {
-  height: 40px;
-  padding: 0 18px;
-  font-size: 0.75rem;
-  box-sizing: border-box;
-}
-
-/* --- 3. Badge compacto para contextos densos (tarjetas de métrica,
-   encabezado del dashboard). El .badge público trae padding de 12px/32px
-   pensado para el hero — aquí se reduce a una escala de "eyebrow label". --- */
-.admin-body .badge {
-  padding: 6px 14px;
-  margin-bottom: var(--admin-spacing-sm);
-  font-size: 0.7rem;
-}
-
-/* --- 4. Altura unificada de controles densos (40px, igual que .btn-small)
-   Cubre: sidebar (BCV/precio/aforo), formulario de egresos, modal de
-   permuta. Los inputs compactos de carpas (.form-input-compact) y el
-   formulario de login NO se tocan a propósito: son contextos distintos
-   (grid de 4 columnas muy angosto / pantalla de login espaciosa). --- */
-.admin-body .form-group input,
-.admin-body .form-group select,
-.admin-body .expense-form input,
-.admin-body .expense-form select,
-.admin-body .modal-form input,
-.admin-body .modal-form select,
-.admin-body .input-with-action input {
-  height: 40px;
-  box-sizing: border-box;
-  padding: 0 14px;
-  border-radius: var(--admin-border-radius-sm);
-  font-size: 0.9rem;
-}
-
-/* --- 5. Flecha custom para <select> en tema oscuro (antes caía al
-   estilo nativo del navegador, inconsistente con el resto del sistema) --- */
-.admin-body select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px;
-  padding-right: 36px;
-}
-
-/* --- 6. Widgets nativos (selector de fecha, spinners de número, panel de
-   <select>) coherentes con el tema oscuro, en vez del estilo claro nativo
-   que el navegador asume por defecto --- */
-.admin-body input,
-.admin-body select,
-.admin-body textarea {
-  color-scheme: dark;
-}
-
-/* --- 7. Alineación vertical fina dentro de filas input+botón: cuando el
-   input es flex:1 y el botón tiene ancho fijo, ambos ya comparten 40px de
-   alto exacto (puntos 2 y 4), así que basta con centrar la fila --- */
-.admin-body .input-with-action {
-  align-items: center;
 }
