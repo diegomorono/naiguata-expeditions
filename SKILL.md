@@ -18,7 +18,7 @@ El Agente debe configurar la lógica del backend utilizando las siguientes herra
   - **Public Key:**
   - **Acción:** El Agente debe crear un template HTML profesional y configurar la función de envío en `app.js` utilizando variables dinámicas (`{{nombre}}`, `{{fecha}}`, `{{alquileres}}`, etc.). El código debe ser limpio, funcional y autónomo.
 
-## Seguridad y Gestión de Credenciales (Protección de API Keys)
+## 🔒 SEGURIDAD Y GESTIÓN DE CREDENCIALES (Protección de API Keys)
 
 ### 1. Ofuscación de Entorno y Variables Privadas
 Queda estrictamente prohibido escribir de forma explícita contraseñas, llaves maestras o contraseñas de administración (como la clave del panel `/admin` o el token de Supabase) directamente en el código fuente de los archivos `app.js` o `index.html`. El sistema debe procesar las credenciales utilizando la arquitectura de variables de entorno del hosting.
@@ -35,7 +35,7 @@ Para ejecutar y probar este proyecto de forma local o en desarrollo, sigue estas
 3. Para compilar y generar la versión de producción optimizada para Vercel, ejecuta: `npm run build`
 4. Asegúrate de verificar las variables de entorno en la consola de Vercel antes de realizar el despliegue definitivo a producción.
 
-## Directrices Globales de Diseño (UI/UX de Cumplimiento Estricto)
+## 🎨 DIRECTRICES GLOBALES DE DISEÑO (UI/UX de Cumplimiento Estricto)
 1. **Estilización Absoluta de Desplegables:** Queda estrictamente prohibido el uso de estilos por defecto del navegador para las etiquetas `<select>` y menús desplegables. Deben utilizar componentes estilizados con fondo oscuro, bordes suavizados y tipografía premium.
 2. **Prohibición de Markdown en la UI:** El contenido debe entregarse exclusivamente mediante etiquetas semánticas de HTML5. El formato visual (negritas, tamaños, espaciados) debe ser aplicado íntegramente a través de reglas CSS.
 3. **Feedback Visual Inmediato (Estados de Carga):** Todo botón de acción (Enviar, Guardar, Descargar) debe implementar un estado visual de carga (loading state) al ser presionado, deshabilitando el clic múltiple para evitar registros duplicados en Supabase.

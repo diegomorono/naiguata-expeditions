@@ -1,21 +1,20 @@
 /* ==========================================================================
    PUNTO DE ENTRADA ADMINISTRATIVO (admin-main.js)
    ========================================================================== */
-import { getSupabaseClient } from './config/supabase.js';
+import { getAdminClient } from './config/supabase.js';
 import { setupAdminAuth } from './admin/auth.js';
 import { adminStore } from './config/state.js';
-// MODIFICACIÓN: Importamos las funciones controladoras premium desde core.js
 import {
     updateDashboardData,
+    initCarouselDelegation,
     handleUpdateBCV,
     handleUpdateTourPrice,
     handleUpdateMaxCapacity
 } from './admin/core.js';
-import { renderRoster } from './admin/roster.js';
+import { renderRoster, initRosterDelegation } from './admin/roster.js';
 import { renderStats, setupExpenseForm } from './admin/finance.js';
 import { setupReportButtons } from './admin/reports.js';
 
-// Función auxiliar para calcular el próximo sábado
 function getNextSaturday() {
     const d = new Date();
     let daysUntilSaturday = 6 - d.getDay();
@@ -24,137 +23,101 @@ function getNextSaturday() {
     return d.toISOString().split('T')[0];
 }
 
-// NUEVA FUNCIÓN: Consulta el límite de aforo y actualiza los placeholders del HTML
-async function renderAdminCapacitySettings(supabase) {
+async function loadCapacityDisplay(supabase) {
     try {
-        console.log("[Naiguatá Admin] Cargando configuraciones de aforo desde Supabase...");
-        const { data, error } = await supabase
+        const { data } = await supabase
             .from('system_settings')
             .select('value')
-            .eq('key', 'max_capacity') // Asegúrate de que 'max_capacity' coincida con la key de tu BD
+            .eq('key', 'max_capacity')
             .single();
 
-        if (error) throw error;
-
-        if (data && data.value) {
-            // Inyectamos el valor en todas las etiquetas que usen esta clase en el panel
-            document.querySelectorAll('.max-capacity-display').forEach(el => {
-                el.textContent = (typeof data.value === 'object') ? (data.value.per_date || data.value.per_date) : data.value;
-            });
-            console.log(`[Naiguatá Admin] Capacidad máxima sincronizada: ${data.value} personas.`);
+        if (data?.value) {
+            const val = typeof data.value === 'object'
+                ? (data.value.per_date ?? data.value.value ?? data.value)
+                : data.value;
+            document.querySelectorAll('.max-capacity-display').forEach(el => { el.textContent = val; });
         }
     } catch (err) {
-        console.warn("[Naiguatá Admin Fallback] No se pudo procesar el límite de aforo remoto:", err);
+        console.warn('[Admin] No se pudo cargar capacidad remota:', err.message);
     }
 }
 
-// Helper centralizado de visibilidad: Login <-> Dashboard
-// CORRECCIÓN: Antes apuntaba a '.login-container' (clase inexistente en el HTML actual),
-// lo que lanzaba un TypeError silencioso y dejaba el dashboard visible debajo del login.
 function showDashboardView() {
     const loginScreen = document.getElementById('admin-login-screen');
     const dashboardView = document.getElementById('admin-dashboard-view');
-
     if (!loginScreen || !dashboardView) {
-        throw new Error('No se encontraron los contenedores #admin-login-screen / #admin-dashboard-view en el DOM.');
+        throw new Error('No se encontraron #admin-login-screen / #admin-dashboard-view en el DOM.');
     }
-
     loginScreen.style.display = 'none';
     dashboardView.style.display = 'block';
 }
 
-// Nombre consistente: initAdmin
 async function initAdmin() {
-    console.log("[Naiguatá Admin] Inicializando consola...");
+    console.log('[Admin] Inicializando consola...');
 
-    // 1. Asegurar conexión a Supabase y capturar el cliente
-    const supabase = await getSupabaseClient();
+    // 1. Crear cliente Supabase con service_role token (bypass RLS).
+    //    getAdminClient() crea un cliente fresco — nunca reutiliza el anon cacheado.
+    const token = sessionStorage.getItem('admin_token');
+    if (!token) throw new Error('Token no encontrado. Re-autenticando...');
 
-    // Lógica para inicializar fecha si no existe (Fix para date=eq.null)
+    const supabase = getAdminClient(token);
+
+    // 2. Inicializar fecha si no existe en el store
     const currentStore = adminStore.get();
     if (!currentStore.selectedDate) {
-        const nextSaturday = getNextSaturday();
-        adminStore.set({ ...currentStore, selectedDate: nextSaturday });
-        console.log(`[Naiguatá Admin] Fecha inicial establecida automáticamente en: ${nextSaturday}`);
+        adminStore.set({ ...currentStore, selectedDate: getNextSaturday() });
     }
 
-    // VINCULACIÓN DE SEGURIDAD PARA LA RECARGA DE PÁGINA
-    const tokenGuardado = sessionStorage.getItem('admin_token');
-    if (tokenGuardado && window.supabase?.rest?.headers) {
-        window.supabase.rest.headers['Authorization'] = `Bearer ${tokenGuardado}`;
-    }
-
-    // 2. Ocultar login y mostrar dashboard (única fuente de verdad para la transición de vistas)
+    // 3. Mostrar dashboard
     showDashboardView();
 
-    // 3. Cargar datos y renderizar vistas
-    // MODIFICACIÓN: Pasamos 'supabase' a updateDashboardData para asegurar autorización
+    // 4. Registrar delegaciones de eventos UNA sola vez
+    initRosterDelegation();
+    initCarouselDelegation(supabase);
+
+    // 5. Cargar datos iniciales y renderizar
     await updateDashboardData(supabase);
     renderRoster();
+    renderStats();
+    setupExpenseForm();
+    setupReportButtons();
+    await loadCapacityDisplay(supabase);
 
-    // INICIALIZACIÓN DE TU PANEL FINANCIERO
-    renderStats();        // Pinta el total acumulado en USD en tu indicador principal
-    setupExpenseForm();   // Activa el "escuchador" de tu formulario seguro de egresos
-    setupReportButtons(); // Activa botones de reportes y PDF
-
-    // NUEVO: Ejecuta la renderización del aforo máximo una vez autenticado
-    await renderAdminCapacitySettings(supabase);
-
-    // MODIFICACIÓN: Conectamos los botones de actualización remota con sus funciones en core.js
+    // 6. Conectar botones de ajuste remoto
     document.getElementById('btn-update-bcv')?.addEventListener('click', () => handleUpdateBCV(supabase));
     document.getElementById('btn-update-price')?.addEventListener('click', () => handleUpdateTourPrice(supabase));
     document.getElementById('btn-update-capacity')?.addEventListener('click', () => handleUpdateMaxCapacity(supabase));
 }
 
-// 1. Transformamos el callback del listener en una función async
 document.addEventListener('DOMContentLoaded', async () => {
-    // Verificación de sesión basada estrictamente en el token JWT
     if (sessionStorage.getItem('admin_token')) {
-        // 2. Bloque seguro para carga con token existente
         try {
             await initAdmin();
         } catch (e) {
-            showErrorBanner('No se pudo cargar el panel: ' + e.message);
+            console.warn('[Admin] Sesión inválida, forzando re-login:', e.message);
+            sessionStorage.removeItem('admin_token');
+            showErrorBanner('Sesión expirada. Por favor inicia sesión de nuevo.');
+            document.getElementById('admin-login-screen').style.display = 'flex';
+            document.getElementById('admin-dashboard-view').style.display = 'none';
+            setupAdminAuth(async () => {
+                try { await initAdmin(); } catch (e2) { showErrorBanner(e2.message); }
+            });
         }
     } else {
-        // 3. Modificamos el callback del flujo de autenticación para que también capture errores post-login
         setupAdminAuth(async () => {
-            try {
-                await initAdmin();
-            } catch (e) {
-                showErrorBanner('No se pudo cargar el panel: ' + e.message);
-            }
+            try { await initAdmin(); } catch (e) { showErrorBanner(e.message); }
         });
     }
 });
 
-// (Mantén tu función showErrorBanner abajo intacta sin modificaciones)
-
 function showErrorBanner(message) {
-    // 1. Crear el contenedor del banner
     const banner = document.createElement('div');
-
-    // 2. Estilizarlo directamente con JS (o puedes usar una clase CSS de tu proyecto)
-    banner.style.position = 'fixed';
-    banner.style.top = '20px';
-    banner.style.right = '20px';
-    banner.style.backgroundColor = '#ef4444'; // Rojo alerta
-    banner.style.color = '#ffffff';
-    banner.style.padding = '16px 24px';
-    banner.style.borderRadius = '8px';
-    banner.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-    banner.style.zIndex = '9999';
-    banner.style.fontFamily = 'sans-serif';
-    banner.style.fontSize = '14px';
-
-    // 3. Inyectar el texto del error
+    banner.style.cssText = `
+        position:fixed;top:20px;right:20px;background:#ef4444;color:#fff;
+        padding:16px 24px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);
+        z-index:9999;font-family:sans-serif;font-size:14px;
+    `;
     banner.innerText = message;
-
-    // 4. Añadirlo a la pantalla
     document.body.appendChild(banner);
-
-    // 5. Hacer que desaparezca solo a los 5 segundos
-    setTimeout(() => {
-        banner.remove();
-    }, 5000);
+    setTimeout(() => banner.remove(), 5000);
 }

@@ -1,5 +1,6 @@
 /* ==========================================================================
-   INFRAESTRUCTURA DE DATOS - CONFIGURACIÓN DE SUPABASE
+   INFRAESTRUCTURA DE DATOS — CONFIGURACIÓN DE SUPABASE
+   Soporta reinicialización con service_role token post-login admin.
    ========================================================================== */
 
 import { ENV } from './env.js';
@@ -8,70 +9,93 @@ let supabaseClient = null;
 let _initPromise = null;
 
 /**
- * Resuelve y retorna el cliente único de Supabase esperando de forma reactiva al CDN.
- * @returns {Promise<Object>} Instancia configurada del cliente de Supabase.
+ * Inicializa el cliente con una key específica (anon o service_role).
+ * @param {string} key — La API key a utilizar.
+ * @returns {Object} Cliente de Supabase configurado.
  */
-export function getSupabaseClient() {
-    if (_initPromise) return _initPromise;
+function buildClient(key) {
+    if (!window.supabase || typeof window.supabase.createClient !== 'function') {
+        throw new Error('El SDK de Supabase no está disponible en window.supabase.');
+    }
+    return window.supabase.createClient(ENV.SUPABASE_URL, key, {
+        auth: { persistSession: false }
+    });
+}
 
-    _initPromise = new Promise((resolve, reject) => {
-
-        // Función interna para configurar el cliente una vez que la librería global exista
-        const initializeClient = () => {
-            try {
-                const token = sessionStorage.getItem('admin_token');
-                const options = {};
-                if (token) {
-                    options.global = {
-                        headers: { Authorization: `Bearer ${token}` }
-                    };
-                }
-                supabaseClient = window.supabase.createClient(ENV.SUPABASE_URL, ENV.SUPABASE_ANON_KEY, options);
-                console.log("[Naiguatá Infra] Supabase inicializado correctamente desde módulo central.");
-                resolve(supabaseClient);
-            } catch (error) {
-                reject(error);
-            }
-        };
-
-        // 1. CASO INMEDIATO: Si el CDN ya cargó y está disponible en el objeto window
+/**
+ * Espera a que el CDN de Supabase esté disponible en el DOM.
+ * @returns {Promise<void>}
+ */
+function waitForCDN() {
+    return new Promise((resolve, reject) => {
         if (window.supabase && typeof window.supabase.createClient === 'function') {
-            return initializeClient();
+            return resolve();
         }
 
-        // 2. CASO REACTIVO: Si no ha cargado, buscamos el script en el DOM para escuchar su evento 'load'
         const script = document.querySelector('script[src*="supabase-js"]');
 
         if (script) {
-            // El script ya existe en el HTML, solo esperamos a que termine de procesarse
-            script.addEventListener('load', initializeClient);
-            script.addEventListener('error', () => reject(new Error('El CDN de Supabase falló al cargar.')));
-        } else {
-            // 3. CASO DE RESPALDO (MutationObserver): Por si el script aún no se ha parseado en el DOM
-            const observer = new MutationObserver((mutations, obs) => {
-                const targetScript = document.querySelector('script[src*="supabase-js"]');
-                if (targetScript) {
-                    targetScript.addEventListener('load', initializeClient);
-                    targetScript.addEventListener('error', () => reject(new Error('El CDN de Supabase falló al cargar.')));
-                    obs.disconnect(); // Dejamos de observar inmediatamente para liberar memoria
-                }
-            });
-
-            // Escuchamos los cambios en todo el documento de forma asíncrona
-            observer.observe(document.documentElement, {
-                childList: true,
-                subtree: true
-            });
-
-            // Mantenemos un salvavidas de tiempo límite (5s) para desconectar el observer si el CDN nunca llega
-            setTimeout(() => {
-                observer.disconnect();
-                if (!window.supabase) {
-                    reject(new Error('El CDN de Supabase no se detectó en el tiempo límite permitido.'));
-                }
-            }, 5000);
+            script.addEventListener('load', resolve, { once: true });
+            script.addEventListener('error', () => reject(new Error('El CDN de Supabase falló al cargar.')), { once: true });
+            return;
         }
+
+        const observer = new MutationObserver((_mutations, obs) => {
+            const target = document.querySelector('script[src*="supabase-js"]');
+            if (target) {
+                obs.disconnect();
+                target.addEventListener('load', resolve, { once: true });
+                target.addEventListener('error', () => reject(new Error('El CDN de Supabase falló al cargar.')), { once: true });
+            }
+        });
+
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+
+        setTimeout(() => {
+            observer.disconnect();
+            if (!window.supabase) reject(new Error('El CDN de Supabase no se detectó en el tiempo límite.'));
+        }, 6000);
+    });
+}
+
+/**
+ * Retorna el cliente público (anon key). Crea y cachea si no existe.
+ * Usado por el formulario público de reservas.
+ * @returns {Promise<Object>}
+ */
+export async function getSupabaseClient() {
+    if (supabaseClient) return supabaseClient;
+
+    if (_initPromise) return _initPromise;
+
+    _initPromise = waitForCDN().then(() => {
+        supabaseClient = buildClient(ENV.SUPABASE_ANON_KEY);
+        console.log('[Naiguatá Infra] Cliente público (anon) inicializado.');
+        return supabaseClient;
     });
 
     return _initPromise;
+}
+
+/**
+ * Crea (o recrea) un cliente autenticado con el service_role token.
+ * Siempre devuelve un cliente NUEVO con la key provista — no cachea,
+ * porque el token puede cambiar entre sesiones de login.
+ * @param {string} serviceToken — El token recibido de la Edge Function tras login exitoso.
+ * @returns {Object} Cliente de Supabase con bypass de RLS.
+ */
+export function getAdminClient(serviceToken) {
+    if (!serviceToken) throw new Error('Se requiere un serviceToken para getAdminClient().');
+
+    // Espera síncrona: en el contexto admin el CDN ya está cargado
+    if (!window.supabase || typeof window.supabase.createClient !== 'function') {
+        throw new Error('El SDK de Supabase no está disponible. Asegúrate de que el CDN cargó.');
+    }
+
+    const client = window.supabase.createClient(ENV.SUPABASE_URL, serviceToken, {
+        auth: { persistSession: false }
+    });
+
+    console.log('[Naiguatá Infra] Cliente admin (service_role) creado.');
+    return client;
 }
