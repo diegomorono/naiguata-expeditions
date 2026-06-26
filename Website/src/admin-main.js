@@ -5,22 +5,37 @@ import { getAdminClient } from './config/supabase.js';
 import { setupAdminAuth } from './admin/auth.js';
 import { adminStore } from './config/state.js';
 import {
+    getExpeditionDates,
+    renderExpeditionCarousel,
     updateDashboardData,
     initCarouselDelegation,
+    initDateRangeFilter,
     handleUpdateBCV,
     handleUpdateTourPrice,
     handleUpdateMaxCapacity
 } from './admin/core.js';
-import { renderRoster, initRosterDelegation } from './admin/roster.js';
-import { renderStats, setupExpenseForm } from './admin/finance.js';
+import { initRosterDelegation } from './admin/roster.js';
+import { setupExpenseForm } from './admin/finance.js';
 import { setupReportButtons } from './admin/reports.js';
 
-function getNextSaturday() {
-    const d = new Date();
-    let daysUntilSaturday = 6 - d.getDay();
-    if (daysUntilSaturday <= 0) daysUntilSaturday += 7;
-    d.setDate(d.getDate() + daysUntilSaturday);
-    return d.toISOString().split('T')[0];
+/* ──────────────────────────────────────────────────────────────────────────
+   Selecciona la fecha más apropiada al abrir el panel:
+   1. La fecha más próxima futura con registros.
+   2. Si no hay futuras, la más reciente pasada con registros.
+   3. Si no hay ninguna, el próximo sábado (estado vacío esperado).
+   ────────────────────────────────────────────────────────────────────────── */
+function pickBestDate(dates) {
+    if (!dates.length) {
+        const d = new Date();
+        let diff = 6 - d.getDay();
+        if (diff <= 0) diff += 7;
+        d.setDate(d.getDate() + diff);
+        return d.toISOString().split('T')[0];
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    const future = dates.filter(d => d >= today);
+    return future.length ? future[0] : dates[dates.length - 1];
 }
 
 async function loadCapacityDisplay(supabase) {
@@ -35,7 +50,8 @@ async function loadCapacityDisplay(supabase) {
             const val = typeof data.value === 'object'
                 ? (data.value.per_date ?? data.value.value ?? data.value)
                 : data.value;
-            document.querySelectorAll('.max-capacity-display').forEach(el => { el.textContent = val; });
+            document.querySelectorAll('.max-capacity-display')
+                .forEach(el => { el.textContent = val; });
         }
     } catch (err) {
         console.warn('[Admin] No se pudo cargar capacidad remota:', err.message);
@@ -55,38 +71,47 @@ function showDashboardView() {
 async function initAdmin() {
     console.log('[Admin] Inicializando consola...');
 
-    // 1. Crear cliente Supabase con service_role token (bypass RLS).
-    //    getAdminClient() crea un cliente fresco — nunca reutiliza el anon cacheado.
+    // 1. Crear cliente con service_role token — bypasea RLS completamente.
     const token = sessionStorage.getItem('admin_token');
-    if (!token) throw new Error('Token no encontrado. Re-autenticando...');
+    if (!token) throw new Error('Token no encontrado.');
 
     const supabase = getAdminClient(token);
 
-    // 2. Inicializar fecha si no existe en el store
-    const currentStore = adminStore.get();
-    if (!currentStore.selectedDate) {
-        adminStore.set({ ...currentStore, selectedDate: getNextSaturday() });
-    }
-
-    // 3. Mostrar dashboard
+    // 2. Mostrar dashboard
     showDashboardView();
 
-    // 4. Registrar delegaciones de eventos UNA sola vez
+    // 3. Registrar delegaciones de eventos UNA sola vez sobre contenedores estables.
+    //    Deben registrarse antes de cualquier render para no perder clics.
     initRosterDelegation();
-    initCarouselDelegation(supabase);
 
-    // 5. Cargar datos iniciales y renderizar
+    // Closure que siempre devuelve las fechas actuales (respeta filtro de rango)
+    const getAllDates = () => getExpeditionDates(supabase);
+    initCarouselDelegation(supabase, getAllDates);
+    initDateRangeFilter(getAllDates);
+
+    // 4. Obtener todas las fechas con registros y elegir la mejor automáticamente
+    const dates = await getExpeditionDates(supabase);
+    const bestDate = pickBestDate(dates);
+
+    adminStore.set({ ...adminStore.get(), selectedDate: bestDate });
+
+    // 5. Renderizar carrusel con la fecha correcta ya activa
+    renderExpeditionCarousel(dates);
+
+    // 6. Cargar datos de la fecha seleccionada (roster, stats, logística, checklist)
     await updateDashboardData(supabase);
-    renderRoster();
-    renderStats();
+
+    // 7. Inicializar formularios y botones independientes del ciclo de datos
     setupExpenseForm();
     setupReportButtons();
     await loadCapacityDisplay(supabase);
 
-    // 6. Conectar botones de ajuste remoto
-    document.getElementById('btn-update-bcv')?.addEventListener('click', () => handleUpdateBCV(supabase));
-    document.getElementById('btn-update-price')?.addEventListener('click', () => handleUpdateTourPrice(supabase));
-    document.getElementById('btn-update-capacity')?.addEventListener('click', () => handleUpdateMaxCapacity(supabase));
+    document.getElementById('btn-update-bcv')
+        ?.addEventListener('click', () => handleUpdateBCV(supabase));
+    document.getElementById('btn-update-price')
+        ?.addEventListener('click', () => handleUpdateTourPrice(supabase));
+    document.getElementById('btn-update-capacity')
+        ?.addEventListener('click', () => handleUpdateMaxCapacity(supabase));
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -94,7 +119,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             await initAdmin();
         } catch (e) {
-            console.warn('[Admin] Sesión inválida, forzando re-login:', e.message);
+            console.warn('[Admin] Error al iniciar sesión:', e.message);
             sessionStorage.removeItem('admin_token');
             showErrorBanner('Sesión expirada. Por favor inicia sesión de nuevo.');
             document.getElementById('admin-login-screen').style.display = 'flex';
@@ -115,7 +140,7 @@ function showErrorBanner(message) {
     banner.style.cssText = `
         position:fixed;top:20px;right:20px;background:#ef4444;color:#fff;
         padding:16px 24px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);
-        z-index:9999;font-family:sans-serif;font-size:14px;
+        z-index:9999;font-family:sans-serif;font-size:14px;font-weight:600;
     `;
     banner.innerText = message;
     document.body.appendChild(banner);
